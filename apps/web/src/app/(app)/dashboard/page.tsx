@@ -1,14 +1,19 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
+import { SESSION_COOKIE, readSession } from '@/lib/session';
 import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
 import { explorerTxUrl } from '@/lib/chain';
 import { Card, DecisionPill, Empty, Label, Metric, Mono, RiskPill, StatusDot } from '@/components/primitives';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Counter } from '@/components/counter';
+import { Reveal } from '@/components/reveal';
 import { formatTime, shortHash } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Dashboard() {
+  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
   const repo = await getRepository();
   const agents = await repo.listAgents();
   const decisions = await repo.listDecisions({ limit: 50 });
@@ -33,19 +38,26 @@ export default async function Dashboard() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
       <header>
-        <h1 className="text-[22px] font-semibold tracking-tight">{greeting()}, David</h1>
+        <h1 className="text-[22px] font-semibold tracking-tight">
+          {greeting()}
+          {session ? (
+            <>
+              , <span className="mono text-[19px] text-muted">{shortHash(session.address, 6, 4)}</span>
+            </>
+          ) : null}
+        </h1>
         <p className="mt-1 text-sm text-muted">
           {agents.length} agents under policy. Every decision below is anchored, including the refusals.
         </p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Agents" value={agents.length} hint={`${agents.filter((a) => a.status === 'ACTIVE').length} active`} />
-        <Metric label="Avg trust score" value={avgTrust} hint="Explainable, never authoritative" tone={avgTrust >= 70 ? 'allow' : 'warn'} />
-        <Metric label="Actions today" value={todays.length} hint="Authorization requests" />
+        <Metric label="Agents" value={<Counter value={agents.length} />} hint={`${agents.filter((a) => a.status === 'ACTIVE').length} active`} />
+        <Metric label="Avg trust score" value={<Counter value={avgTrust} />} hint="Explainable, never authoritative" tone={avgTrust >= 70 ? 'allow' : 'warn'} />
+        <Metric label="Actions today" value={<Counter value={todays.length} />} hint="Authorization requests" />
         <Metric
           label="Blocked today"
-          value={blocked}
+          value={<Counter value={blocked} />}
           hint={blocked ? 'Refused by policy' : 'Nothing refused yet'}
           tone={blocked ? 'deny' : undefined}
         />
@@ -109,7 +121,8 @@ export default async function Dashboard() {
         <h2 className="text-sm font-medium">Agents</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {agents.map((a, i) => (
-            <Link key={a.id} href={`/agents/${a.id}`} className="card p-4 transition-colors hover:bg-raised">
+            <Reveal key={a.id} delay={i * 70}>
+            <Link href={`/agents/${a.id}`} className="card lift block h-full p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{a.name}</span>
                 <StatusDot tone={a.status === 'ACTIVE' ? 'allow' : 'deny'} />
@@ -120,6 +133,7 @@ export default async function Dashboard() {
                 <span className="text-sm tabular-nums">{scores[i]}</span>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </section>

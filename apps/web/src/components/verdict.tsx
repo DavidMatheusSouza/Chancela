@@ -30,7 +30,9 @@ export function Verdict(props: VerdictProps) {
   return (
     <div
       className={cn(
-        'animate-in rounded-lg p-4',
+        // `animate-in` alone sets animationName without any enter values, so
+        // it renders nothing. The companions supply what the keyframe reads.
+        'animate-in fade-in-0 slide-in-from-bottom-2 duration-300 rounded-lg p-4',
         denied ? 'verdict-deny' : approval ? 'verdict-approval' : 'verdict-allow',
       )}
     >

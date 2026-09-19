@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Bot, CornerDownLeft, Loader2, User } from 'lucide-react';
 import { Verdict } from '@/components/verdict';
+import { PipelineTrace, type TraceStep } from '@/components/pipeline-trace';
 import { Badge, Label, Mono, StatusDot } from '@/components/primitives';
 import { cn } from '@/lib/ui';
 
@@ -25,6 +26,7 @@ interface Turn {
     anchorStatus: string;
     capsule: unknown;
     signature: string;
+    trace?: TraceStep[];
   };
   execution?: { ok: boolean; code: string; detail?: string };
 }
@@ -215,6 +217,12 @@ export function Console({
                     </pre>
                   ) : null}
                 </div>
+
+                {turn.decision?.trace?.length ? (
+                  <div className="card-raised p-3.5">
+                    <PipelineTrace trace={turn.decision.trace} />
+                  </div>
+                ) : null}
 
                 {turn.decision ? (
                   <Verdict

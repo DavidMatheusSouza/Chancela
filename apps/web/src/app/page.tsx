@@ -199,7 +199,11 @@ function FlowDiagram() {
     <div className="card overflow-hidden">
       <div className="flex flex-col divide-y divide-line sm:flex-row sm:divide-x sm:divide-y-0">
         {steps.map((step, i) => (
-          <div key={step.label} className="flex-1 p-5 transition-colors hover:bg-raised/40">
+          <div
+            key={step.label}
+            className="animate-in-rise flex-1 p-5 transition-colors hover:bg-raised/40"
+            style={{ animationDelay: `${i * 90}ms` }}
+          >
             <div className="mono text-[11px] text-faint">0{i + 1}</div>
             <div
               className={
