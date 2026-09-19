@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import TypingText, { typingDurationOf } from '@/components/ui/typing-text';
 
 /**
@@ -12,6 +13,12 @@ import TypingText, { typingDurationOf } from '@/components/ui/typing-text';
  * It types a real transcript -- the policy hash is TA-001's anchored v3 -- and
  * the verdict runs as a second pass in the deny colour, because a refusal that
  * looks like everything else above it would undercut the claim being made.
+ *
+ * The transcript replays on a cycle so a visitor who arrives mid-animation, or
+ * who scrolls back, still sees it from the start. Remounting by key is what
+ * restarts it: the typing is CSS keyframes, which do not replay on their own.
+ * Anyone who has asked for reduced motion gets the finished transcript and no
+ * cycle at all -- looping past someone who cannot read it is just noise.
  */
 
 const CPS = 52;
@@ -27,8 +34,30 @@ const PROMPT = [
 
 const VERDICT = ['decision  DENY · CRITICAL · PERMISSION_DENIED'];
 
+/** Seconds the finished transcript rests on screen before replaying. */
+const HOLD_SECONDS = 4.5;
+
 export function InjectionTerminal() {
   const verdictDelay = typingDurationOf(PROMPT, CPS, 1, LINE_DELAY);
+  const cycleMs = (verdictDelay + typingDurationOf(VERDICT, CPS, 1, LINE_DELAY) + HOLD_SECONDS) * 1000;
+
+  const [cycle, setCycle] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      timer = setTimeout(() => {
+        // Pause while the tab is hidden: a loop nobody is watching is just
+        // battery, and it would come back mid-sentence.
+        if (document.visibilityState === 'visible') setCycle((c) => c + 1);
+        schedule();
+      }, cycleMs);
+    };
+    schedule();
+    return () => clearTimeout(timer);
+  }, [cycleMs]);
 
   return (
     <div className="card overflow-hidden p-0">
@@ -41,6 +70,7 @@ export function InjectionTerminal() {
 
       <div className="px-5 py-5 sm:px-6">
         <TypingText
+          key={`prompt-${cycle}`}
           lines={PROMPT}
           charactersPerSecond={CPS}
           lineDelay={LINE_DELAY}
@@ -52,6 +82,7 @@ export function InjectionTerminal() {
           cursorColor="rgb(var(--chain))"
         />
         <TypingText
+          key={`verdict-${cycle}`}
           lines={VERDICT}
           charactersPerSecond={CPS}
           lineDelay={LINE_DELAY}
