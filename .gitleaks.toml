@@ -1,0 +1,25 @@
+# gitleaks configuration.
+#
+# Default rules, plus an allowlist for two well-known PUBLIC test vectors.
+# These are Anvil/Hardhat deterministic accounts #1 and #2 -- published in the
+# Foundry documentation, funded on nobody's mainnet, and used here so the test
+# suite and CI can sign capsules without a secret.
+#
+# Nothing else is allowlisted. A real key reaching this repository must fail.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "trustagent-real-private-key"
+description = "32-byte private key that is not a known public test vector"
+regex = '''(?i)(ATTESTATION_PRIVATE_KEY|DEPLOYER_PRIVATE_KEY)\s*[:=]\s*['"]?0x[0-9a-f]{64}'''
+tags = ["key", "private-key"]
+
+[rules.allowlist]
+regexes = [
+  # Anvil account #1
+  '''0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d''',
+  # Anvil account #2
+  '''0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba''',
+]

@@ -30,6 +30,7 @@ jobs:
       - name: Build
         run: pnpm --filter @trustagent/web build
         env:
+          # Anvil deterministic account #1 -- a published test vector, not a secret.
           ATTESTATION_PRIVATE_KEY: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 
   contracts:
@@ -55,3 +56,4 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml

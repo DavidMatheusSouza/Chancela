@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Anvil deterministic account #1: a published test vector, not a secret.
 process.env.ATTESTATION_PRIVATE_KEY =
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d';
 // No POLICY_REGISTRY_ADDRESS: anchoring is skipped, and the decision must still

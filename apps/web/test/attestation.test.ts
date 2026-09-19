@@ -3,6 +3,8 @@ import { hashIntent } from '@trustagent/shared';
 import type { AuthorizationCapsule } from '@trustagent/shared';
 import { attestationAddress, signCapsule, verifyCapsule } from '../src/lib/attestation.js';
 
+// Anvil/Hardhat deterministic accounts #1 and #2. Published test vectors, not
+// secrets -- see .gitleaks.toml. Never use these for anything real.
 const KEY = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d';
 const OTHER_KEY = '0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba';
 
