@@ -12,6 +12,7 @@ import {
   Settings,
   ShieldCheck,
   ShieldHalf,
+  Sparkles,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
@@ -29,6 +30,7 @@ const NAV = [
   { href: '/trust', label: 'Trust', icon: ShieldHalf },
   { href: '/integrations', label: 'Integrations', icon: Plug },
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/demo', label: 'Demo Mode', icon: Sparkles },
 ];
 
 export interface SidebarProps {

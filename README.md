@@ -179,7 +179,7 @@ trustagent/
 ## Verify
 
 ```bash
-pnpm verify:all      # typecheck + 167 tests + contracts
+pnpm verify:all      # typecheck + 173 tests + contracts
 pnpm test:security   # injection, replay, forgery, privilege escalation
 ```
 
@@ -191,8 +191,9 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | AI providers and intent parsing | 23 |
 | Attestation + end-to-end flow | 20 |
 | Wallet sign-in, sessions and SIWE | 13 |
+| Demo mode invariants | 6 |
 | MetaMask plugin | 6 |
-| **Total** | **167** |
+| **Total** | **173** |
 
 ## Documentation
 

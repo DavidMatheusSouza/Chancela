@@ -19,6 +19,7 @@ const TITLES: Record<string, string> = {
   console: 'Console',
   policy: 'Policy',
   trust: 'Trust',
+  demo: 'Demo Mode',
 };
 
 /**
