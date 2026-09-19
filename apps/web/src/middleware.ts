@@ -14,7 +14,10 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
  * would make TrustAgent an application rather than infrastructure.
  */
 const PUBLIC_PATHS = ['/', '/login'];
-const PUBLIC_API_PREFIXES = ['/api/auth/', '/api/health', '/api/tools'];
+// `/api/network/status` joins the health checks: it reports only the chain id,
+// the public RPC and the registry addresses, all of which are already published
+// in the docs and readable on-chain by anyone.
+const PUBLIC_API_PREFIXES = ['/api/auth/', '/api/health', '/api/network/status', '/api/tools'];
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;

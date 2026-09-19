@@ -134,7 +134,20 @@ Version numbers increase strictly, matching `anchorPolicy()` on-chain.
 |---|---|---|
 | `GET` | `/api/tools` | Tool registry and permission catalogue |
 | `GET` | `/api/integrations` | Live integration status |
-| `GET` | `/api/health` | Chain, anchoring and attestor state |
+| `GET` | `/api/health` | Chain, anchoring, attestor and whether storage is durable |
+| `GET` | `/api/network/status` | Live RPC reachability, block number and registry bytecode check |
+
+## Proofs
+
+| | | |
+|---|---|---|
+| `GET` | `/api/proofs/:id` | Accepts a decision id, a decision hash or an audit id |
+
+Returns the capsule alongside a `decisionHash` recomputed from it on every
+request, so a reader can verify the service is serving the hash it anchored
+instead of taking the claim on trust. `verified` is false if the two disagree,
+which would mean the record has been tampered with. Only hashes and references
+are returned -- never the prompt, never the raw model output.
 
 ## Rate limits
 
