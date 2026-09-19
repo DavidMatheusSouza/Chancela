@@ -1,17 +1,48 @@
 import { MemoryRepository, seed } from './memory-repository';
 import type { Repository } from './repository';
 
-// Survives Next.js hot reloads in dev, where module state is otherwise recycled.
-const globalForStore = globalThis as unknown as { __trustagentRepo?: Repository };
+/**
+ * Which storage backend is in play.
+ *
+ * `DATABASE_URL` set means Postgres; absent means memory. The fallback is not a
+ * convenience -- it is what keeps `pnpm dev` and the whole CI suite runnable
+ * with no infrastructure, which is why the security tests are cheap enough to
+ * run on every push.
+ *
+ * Prisma is imported lazily so that a build without a generated client, or a
+ * deployment that never sets DATABASE_URL, does not pay for it or fail on it.
+ */
 
-let seeding: Promise<void> | null = null;
+const globalForStore = globalThis as unknown as {
+  __trustagentRepo?: Repository;
+  __trustagentSeeding?: Promise<void>;
+};
+
+async function build(): Promise<Repository> {
+  if (!process.env.DATABASE_URL) return new MemoryRepository();
+
+  const [{ PrismaClient }, { PrismaRepository }] = await Promise.all([
+    import('@prisma/client'),
+    import('./prisma-repository'),
+  ]);
+  return new PrismaRepository(new PrismaClient());
+}
 
 export async function getRepository(): Promise<Repository> {
   if (!globalForStore.__trustagentRepo) {
-    globalForStore.__trustagentRepo = new MemoryRepository();
+    globalForStore.__trustagentRepo = await build();
   }
   const repo = globalForStore.__trustagentRepo;
-  seeding ??= seed(repo);
-  await seeding;
+
+  // Seeding is idempotent -- `seed()` returns early when agents already exist,
+  // so a Postgres instance that survived a restart is not re-seeded.
+  globalForStore.__trustagentSeeding ??= seed(repo);
+  await globalForStore.__trustagentSeeding;
+
   return repo;
+}
+
+/** True when decisions survive a restart. Surfaced by /api/health. */
+export function isDurable(): boolean {
+  return Boolean(process.env.DATABASE_URL);
 }

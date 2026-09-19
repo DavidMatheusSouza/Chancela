@@ -158,6 +158,9 @@ model Decision {
   nonce         String          @unique
   capsule       Json
   signature     String
+  /// Kept on the decision itself: a DENY produces no Action row, and the
+  /// executor re-hashes these to detect tampering between decision and use.
+  parameters    Json            @default("{}")
   trace         Json
   riskFactors   Json
   rawIntent     Json?
@@ -275,6 +278,20 @@ model Integration {
   lastCheckAt DateTime?
 
   @@map("integrations")
+}
+
+/// Per-agent, per-UTC-day counters behind the policy limits. Without a durable
+/// home, `dailyTransactions` and `dailyValueCap` would reset on every restart
+/// and the limit would quietly stop being a limit.
+model AgentUsage {
+  agentId           String
+  dayKey            String
+  transactionsToday Int      @default(0)
+  valueMovedToday   BigInt   @default(0)
+  updatedAt         DateTime @updatedAt
+
+  @@id([agentId, dayKey])
+  @@map("agent_usage")
 }
 
 /// Consumed nonces. A capsule can be redeemed exactly once.
