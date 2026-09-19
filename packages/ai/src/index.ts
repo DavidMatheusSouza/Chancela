@@ -6,8 +6,10 @@ export { RulesProvider, DEFAULT_TOOL_CATALOGUE } from './providers/rules';
 
 import { RulesProvider } from './providers/rules';
 import {
+  createGroqProvider,
   createKimiProvider,
   createOpenAIProvider,
+  createOpenRouterProvider,
   createQwenProvider,
 } from './providers/openai-compatible';
 import type { AIProvider } from './types';
@@ -30,6 +32,14 @@ export function resolveProvider(preferred?: string): AIProvider {
     const key = process.env.KIMI_API_KEY;
     if (key) return createKimiProvider(key, process.env.KIMI_MODEL);
   }
+  if (choice === 'groq' || (choice === 'auto' && process.env.GROQ_API_KEY)) {
+    const key = process.env.GROQ_API_KEY;
+    if (key) return createGroqProvider(key, process.env.GROQ_MODEL);
+  }
+  if (choice === 'openrouter' || (choice === 'auto' && process.env.OPENROUTER_API_KEY)) {
+    const key = process.env.OPENROUTER_API_KEY;
+    if (key) return createOpenRouterProvider(key, process.env.OPENROUTER_MODEL);
+  }
   if (choice === 'openai' || (choice === 'auto' && process.env.OPENAI_API_KEY)) {
     const key = process.env.OPENAI_API_KEY;
     if (key) return createOpenAIProvider(key, process.env.OPENAI_MODEL);
@@ -41,6 +51,8 @@ export function availableProviders(): Array<{ id: string; configured: boolean; m
   return [
     { id: 'qwen', configured: Boolean(process.env.QWEN_API_KEY), model: process.env.QWEN_MODEL ?? 'qwen3.8-max' },
     { id: 'kimi', configured: Boolean(process.env.KIMI_API_KEY), model: process.env.KIMI_MODEL ?? 'kimi-k2.6' },
+    { id: 'groq', configured: Boolean(process.env.GROQ_API_KEY), model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile' },
+    { id: 'openrouter', configured: Boolean(process.env.OPENROUTER_API_KEY), model: process.env.OPENROUTER_MODEL ?? 'meta-llama/llama-3.3-70b-instruct:free' },
     { id: 'openai', configured: Boolean(process.env.OPENAI_API_KEY), model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini' },
     { id: 'rules', configured: true, model: 'keyword-v1' },
   ];

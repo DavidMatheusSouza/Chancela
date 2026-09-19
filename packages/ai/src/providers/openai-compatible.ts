@@ -129,6 +129,38 @@ export function createKimiProvider(apiKey: string, model = 'kimi-k2.6'): AIProvi
   });
 }
 
+/**
+ * Groq -- OpenAI-compatible, free tier, no card.
+ *
+ * `json_object` rather than strict JSON Schema: schema support varies by model
+ * here, and the Zod gate in `parseIntent` rejects anything malformed anyway. A
+ * provider that occasionally returns unparseable JSON degrades intent quality;
+ * it cannot widen authorization, which is the only guarantee that matters.
+ */
+export function createGroqProvider(apiKey: string, model = 'llama-3.3-70b-versatile'): AIProvider {
+  return new OpenAICompatibleProvider({
+    name: 'groq',
+    model,
+    baseUrl: process.env.GROQ_BASE_URL ?? 'https://api.groq.com/openai/v1',
+    apiKey,
+    useJsonSchema: false,
+  });
+}
+
+/** OpenRouter -- one key, many models, several of them free. */
+export function createOpenRouterProvider(
+  apiKey: string,
+  model = 'meta-llama/llama-3.3-70b-instruct:free',
+): AIProvider {
+  return new OpenAICompatibleProvider({
+    name: 'openrouter',
+    model,
+    baseUrl: process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1',
+    apiKey,
+    useJsonSchema: false,
+  });
+}
+
 export function createOpenAIProvider(apiKey: string, model = 'gpt-4o-mini'): AIProvider {
   return new OpenAICompatibleProvider({
     name: 'openai',
