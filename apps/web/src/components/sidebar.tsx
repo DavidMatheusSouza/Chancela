@@ -11,6 +11,7 @@ import {
   ScrollText,
   Settings,
   ShieldCheck,
+  ShieldHalf,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
@@ -25,6 +26,7 @@ const NAV = [
   { href: '/policies', label: 'Policies', icon: FileCheck2 },
   { href: '/activity', label: 'Activity', icon: Activity },
   { href: '/audit', label: 'Audit Trail', icon: ScrollText },
+  { href: '/trust', label: 'Trust', icon: ShieldHalf },
   { href: '/integrations', label: 'Integrations', icon: Plug },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

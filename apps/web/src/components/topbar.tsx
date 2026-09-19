@@ -6,6 +6,7 @@ import { Menu, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { SidebarContent, type SidebarProps } from './sidebar';
+import { SystemStatus } from './system-status';
 
 const TITLES: Record<string, string> = {
   dashboard: 'Overview',
@@ -17,6 +18,7 @@ const TITLES: Record<string, string> = {
   settings: 'Settings',
   console: 'Console',
   policy: 'Policy',
+  trust: 'Trust',
 };
 
 /**
@@ -77,6 +79,9 @@ export function Topbar({ nav }: { nav: SidebarProps }) {
       </nav>
       </div>
 
+      <div className="flex shrink-0 items-center gap-3">
+      <SystemStatus />
+
       <button
         onClick={() =>
           document.dispatchEvent(
@@ -91,6 +96,7 @@ export function Topbar({ nav }: { nav: SidebarProps }) {
           {mac ? '⌘' : 'Ctrl'}K
         </kbd>
       </button>
+      </div>
     </header>
   );
 }

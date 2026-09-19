@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { getRepository } from '@/lib/store';
 import { explorerTxUrl } from '@/lib/chain';
-import { Card, DecisionPill, Empty, Label, Mono, RiskPill } from '@/components/primitives';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatTime, shortHash } from '@/lib/ui';
+import { REASON_TEXT } from '@trustagent/shared';
+import { Card, Empty, Label, Mono } from '@/components/primitives';
+import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AuditRow, type AuditEntry } from '@/components/audit-row';
+import type { TraceStep } from '@/components/pipeline-trace';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,6 @@ export default async function AuditPage({
     `/audit?${new URLSearchParams({ ...searchParams, ...patch } as Record<string, string>).toString()}`;
 
   return (
-    <TooltipProvider delayDuration={200}>
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -60,6 +60,9 @@ export default async function AuditPage({
           <Empty title="No matching events" hint="Adjust the filters, or run an action in an agent console." />
         ) : (
           <Card className="overflow-hidden p-0">
+            <p className="hairline px-4 py-2 text-[12px] text-faint">
+              Select a row to see the intent, the gates it passed and the proof.
+            </p>
             <Table>
               <TableHeader>
                 <TableRow className="border-line hover:bg-transparent">
@@ -70,63 +73,37 @@ export default async function AuditPage({
                   ))}
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {events.map((d) => (
-                  <TableRow
-                    key={d.id}
-                    className={cn(
-                      'border-line/60 transition-colors hover:bg-raised/50',
-                      // A denied critical action is the row an operator is scanning for.
-                      d.outcome === 'DENY' && d.risk === 'CRITICAL' && 'bg-deny/[0.035]',
-                    )}
-                  >
-                    <TableCell className="px-4 py-2"><Mono>{formatTime(d.createdAt)}</Mono></TableCell>
-                    <TableCell className="px-4 py-2">
-                      <Link href={`/agents/${d.agentId}`} className="text-[13px] text-muted hover:text-ink hover:underline">
-                        {d.agentId}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="px-4 py-2"><Mono className="text-ink">{d.action}</Mono></TableCell>
-                    <TableCell className="px-4 py-2"><DecisionPill decision={d.outcome} /></TableCell>
-                    <TableCell className="px-4 py-2"><RiskPill risk={d.risk} /></TableCell>
-                    <TableCell className="px-4 py-2"><Mono className="text-faint">{d.reasonCode}</Mono></TableCell>
-                    <TableCell className="px-4 py-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span><Mono>v{d.policyVersion}</Mono></span>
-                        </TooltipTrigger>
-                        <TooltipContent className="mono text-[11px]">{d.policyHash}</TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell className="px-4 py-2">
-                      {d.onchainTxHash ? (
-                        <a
-                          href={explorerTxUrl(d.onchainTxHash)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mono text-[12px] text-chain hover:underline"
-                        >
-                          {shortHash(d.onchainTxHash)}
-                        </a>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span><Mono className="text-faint">{shortHash(d.decisionHash)}</Mono></span>
-                          </TooltipTrigger>
-                          <TooltipContent className="text-[11px]">
-                            Not anchored: {d.anchorStatus.toLowerCase()}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+              <tbody>
+                {events.map((d) => {
+                  const entry: AuditEntry = {
+                    id: d.id,
+                    agentId: d.agentId,
+                    action: d.action,
+                    outcome: d.outcome,
+                    risk: d.risk,
+                    reasonCode: d.reasonCode,
+                    reasonText:
+                      REASON_TEXT[d.reasonCode as keyof typeof REASON_TEXT] ?? d.reasonCode,
+                    policyVersion: d.policyVersion,
+                    policyHash: d.policyHash,
+                    intentHash: d.intentHash,
+                    decisionHash: d.decisionHash,
+                    parameters: d.parameters ?? {},
+                    trace: (Array.isArray(d.trace) ? d.trace : []) as TraceStep[],
+                    anchorStatus: d.anchorStatus,
+                    txHash: d.onchainTxHash ?? null,
+                    txUrl: d.onchainTxHash ? explorerTxUrl(d.onchainTxHash) : null,
+                    blockNumber: d.blockNumber ?? null,
+                    auditId: d.auditId,
+                    createdAt: d.createdAt,
+                  };
+                  return <AuditRow key={d.id} entry={entry} />;
+                })}
+              </tbody>
             </Table>
           </Card>
         )}
       </div>
-    </TooltipProvider>
   );
 }
 
