@@ -45,10 +45,25 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = '/login';
-  url.search = `?next=${encodeURIComponent(pathname)}`;
-  return NextResponse.redirect(url);
+  /*
+   * `request.nextUrl` carries the origin this process is bound to, which
+   * behind a tunnel or a reverse proxy is 127.0.0.1. Redirecting to it sent
+   * visitors to localhost on their own machine -- a dead address, and the
+   * first thing anyone following a link to a gated page would hit.
+   *
+   * PUBLIC_BASE_URL is preferred because it is configuration rather than
+   * something a client can set. The forwarded headers are the fallback; they
+   * are client-supplied in principle, but this origin listens only on
+   * loopback, so they can only arrive through the proxy in front of it.
+   */
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const base =
+    process.env.PUBLIC_BASE_URL ??
+    (forwardedHost
+      ? `${request.headers.get('x-forwarded-proto') ?? 'https'}://${forwardedHost}`
+      : request.nextUrl.origin);
+
+  return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, base));
 }
 
 export const config = {

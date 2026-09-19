@@ -6,6 +6,11 @@ const DESCRIPTION =
   'TrustAgent gives autonomous AI agents identity, permissions, policies and verifiable on-chain accountability. The IAM layer for the autonomous AI era.';
 
 export const metadata: Metadata = {
+  // Without this, the open-graph image resolves against localhost and the link
+  // preview is broken everywhere it is actually pasted.
+  metadataBase: process.env.PUBLIC_BASE_URL
+    ? new URL(process.env.PUBLIC_BASE_URL)
+    : undefined,
   title: TITLE,
   description: DESCRIPTION,
   applicationName: 'TrustAgent',

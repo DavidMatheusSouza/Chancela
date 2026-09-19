@@ -92,10 +92,10 @@ export default async function Landing() {
                 Sign in
               </Link>
               <Link
-                href="/login?next=/agents/TA-001/console"
+                href="/login?next=/demo"
                 className="lift rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-ink"
               >
-                View the demo
+                Watch the 2-minute demo
               </Link>
               <span className="text-[12.5px] text-faint">No wallet needed — continue as demo owner.</span>
             </div>
@@ -169,10 +169,10 @@ export default async function Landing() {
               </p>
             </div>
             <Link
-              href="/login?next=/agents/TA-001/console"
+              href="/login?next=/demo"
               className="lift inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-bg"
             >
-              Open the console <ArrowRight className="h-3.5 w-3.5" />
+              Run the demo <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </Reveal>
