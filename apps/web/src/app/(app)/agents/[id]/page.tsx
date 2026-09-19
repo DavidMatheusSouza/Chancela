@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ExternalLink, KeyRound, Wallet } from 'lucide-react';
-import { PERMISSIONS, PERMISSION_LABELS } from '@trustagent/shared';
+import { PERMISSIONS, PERMISSION_LABELS, REASON_TEXT } from '@trustagent/shared';
 import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
-import { activeChain, explorerAddressUrl } from '@/lib/chain';
+import { activeChain, explorerAddressUrl, explorerTxUrl } from '@/lib/chain';
 import { Badge, Card, Field, Label, Mono, StatusDot } from '@/components/primitives';
-import { cn, shortHash } from '@/lib/ui';
+import { DecisionHistory } from '@/components/decision-history';
+import { cn, formatTime, shortHash } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -172,6 +173,29 @@ export default async function AgentPassport({ params }: { params: { id: string }
           </Card>
         </div>
       </div>
+
+      <Card className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium">Decision history</h2>
+          <Mono className="text-faint">
+            {decisions.filter((d) => d.outcome === 'DENY').length} of {decisions.length} refused
+          </Mono>
+        </div>
+        <DecisionHistory
+          entries={decisions.slice(0, 12).map((d) => ({
+            id: d.id,
+            action: d.action,
+            outcome: d.outcome,
+            risk: d.risk,
+            reasonText: REASON_TEXT[d.reasonCode as keyof typeof REASON_TEXT] ?? d.reasonCode,
+            policyVersion: d.policyVersion,
+            decisionHash: d.decisionHash,
+            txUrl: d.onchainTxHash ? explorerTxUrl(d.onchainTxHash) : null,
+            anchorStatus: d.anchorStatus,
+            time: formatTime(d.createdAt),
+          }))}
+        />
+      </Card>
     </div>
   );
 }
