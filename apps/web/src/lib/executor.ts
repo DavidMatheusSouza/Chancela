@@ -41,10 +41,28 @@ export async function execute(input: {
     return { ok: false, code: verdict.code, detail: verdict.detail };
   }
 
-  const capsule = input.capsule as { agentId: string; action: string; nonce: string };
+  const capsule = input.capsule as {
+    agentId: string;
+    action: string;
+    nonce: string;
+    decisionHash: string;
+  };
 
   if (capsule.agentId !== input.agentId) {
     return { ok: false, code: 'AGENT_MISMATCH', detail: capsule.agentId };
+  }
+
+  /*
+   * Resolve the decision this capsule came from, before burning anything.
+   *
+   * An action only means something as the consequence of a recorded decision,
+   * so it is looked up rather than assumed. Doing it first also means a
+   * capsule we cannot tie to a decision costs the caller nothing -- the nonce
+   * is still spendable, and they get a reason instead of a silent no-op.
+   */
+  const decision = await repo.getDecisionByHash(capsule.decisionHash);
+  if (!decision) {
+    return { ok: false, code: 'UNKNOWN_DECISION', detail: capsule.decisionHash };
   }
 
   // Burn the nonce before doing any work. If two requests race, exactly one wins.
@@ -63,7 +81,7 @@ export async function execute(input: {
     await repo.recordAction({
       id: actionId,
       agentId: input.agentId,
-      decisionId: capsule.nonce,
+      decisionId: decision.id,
       toolId: tool.toolId,
       status: 'FAILED',
       error: err instanceof Error ? err.message : 'tool failed',
@@ -79,7 +97,7 @@ export async function execute(input: {
   await repo.recordAction({
     id: actionId,
     agentId: input.agentId,
-    decisionId: capsule.nonce,
+    decisionId: decision.id,
     toolId: tool.toolId,
     status: 'EXECUTED',
     result,

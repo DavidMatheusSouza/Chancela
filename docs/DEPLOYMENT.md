@@ -58,6 +58,26 @@ If the box already runs other services — the common case:
   already namespaces.
 - Choose a free port explicitly: `WEB_PORT=3080 DB_PORT=5442 docker compose up -d`.
 
+### Postgres without Docker
+
+Docker is the intended path and `docker-compose.yml` already namespaces the
+database. On a host where Docker is not installed and you are not root -- the
+common case for a shared hackathon VPS -- there is a second route:
+
+```bash
+./scripts/dev-postgres.sh        # initdb + start, using the system binaries
+# put the printed DATABASE_URL in .env
+pnpm db:push
+```
+
+It creates a cluster that belongs entirely to this project: its own data
+directory beside the repository, its own role and database, and a port bound to
+loopback only. It never touches an existing cluster, and it refuses to
+initialise if something is already listening on the port rather than guessing.
+
+`/api/health` reports `"storage": "postgres"` once the app is pointed at it, and
+`"memory (not durable)"` when it is not.
+
 ### Without root
 
 Everything here runs in user space. Foundry installs to `~/.foundry`; the package
