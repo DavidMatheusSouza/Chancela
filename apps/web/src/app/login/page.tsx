@@ -1,12 +1,14 @@
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { SignIn } from './sign-in';
+import { PrivySignIn } from './privy-sign-in';
 
 export const dynamic = 'force-dynamic';
 
 export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
   const demoOwner = process.env.DEMO_OWNER_ADDRESS ?? '';
   const devSignIn = process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_SIGNIN === 'true';
+  const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? '';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -30,6 +32,17 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
           </div>
 
           <SignIn next={searchParams.next ?? '/dashboard'} demoOwner={demoOwner} devSignIn={devSignIn} />
+
+          {privyAppId ? (
+            <>
+              <div className="flex items-center gap-3">
+                <span className="h-px flex-1 bg-line" />
+                <span className="text-[11px] uppercase tracking-wider text-faint">or</span>
+                <span className="h-px flex-1 bg-line" />
+              </div>
+              <PrivySignIn appId={privyAppId} next={searchParams.next ?? '/dashboard'} />
+            </>
+          ) : null}
 
           <p className="text-[12px] leading-relaxed text-faint">
             Signing costs no gas and authorises no transaction. It proves key control, nothing more.
