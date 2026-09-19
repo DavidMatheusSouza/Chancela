@@ -76,8 +76,8 @@ what this project is. Requirements need reading before declining again.
 **Kepler Plan (Tencent), Hunyuan — $2,000 credits.** Absent from the earlier
 notes entirely. The `AIProvider` abstraction already exists and already has four
 implementations; a fifth is hours of work, and it strengthens the central claim
-rather than diluting it — the more providers that produce a byte-identical
-decision, the better the point lands.
+rather than diluting it — the more providers that reach the same authorization
+decision from differently-worded intents, the better the point lands.
 
 ## What is blocked on credentials, not code
 

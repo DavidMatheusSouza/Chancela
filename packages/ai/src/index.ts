@@ -51,7 +51,7 @@ export function availableProviders(): Array<{ id: string; configured: boolean; m
   return [
     { id: 'qwen', configured: Boolean(process.env.QWEN_API_KEY), model: process.env.QWEN_MODEL ?? 'qwen3.8-max' },
     { id: 'kimi', configured: Boolean(process.env.KIMI_API_KEY), model: process.env.KIMI_MODEL ?? 'kimi-k2.6' },
-    { id: 'groq', configured: Boolean(process.env.GROQ_API_KEY), model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile' },
+    { id: 'groq', configured: Boolean(process.env.GROQ_API_KEY), model: process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b' },
     { id: 'openrouter', configured: Boolean(process.env.OPENROUTER_API_KEY), model: process.env.OPENROUTER_MODEL ?? 'meta-llama/llama-3.3-70b-instruct:free' },
     { id: 'openai', configured: Boolean(process.env.OPENAI_API_KEY), model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini' },
     { id: 'rules', configured: true, model: 'keyword-v1' },

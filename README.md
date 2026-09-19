@@ -95,8 +95,19 @@ reason   : Agent does not have permission to perform this action.
 
 The model read the injection. The policy engine never did.
 
-Swap Qwen for Kimi mid-conversation and the decision is byte-identical — which
-is the point. **The model is replaceable because it holds no authority.**
+Swap the model mid-conversation and the **authorization outcome does not move**:
+same action, same `DENY`, same `CRITICAL`, same `PERMISSION_DENIED`, same policy
+hash. **The model is replaceable because it holds no authority.**
+
+The intent itself is *not* guaranteed to be identical, and we measured rather
+than assumed it. Given the sentence above, `gpt-oss-120b` returns
+`{amount: 500000, recipient: "Joao"}` and `gpt-oss-20b` returns
+`{amount: 500000, to: "Joao"}` — different parameter names, different intent
+hash. The decision is the same anyway, because permission is checked before
+parameters are, and a tool whose schema does not recognise `to` refuses at the
+executor. That is the guarantee worth making: not that every model reads a
+sentence the same way, but that no way of reading it can widen what the agent
+is allowed to do.
 
 ---
 

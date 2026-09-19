@@ -49,10 +49,16 @@ Monad; `TrustAgentValidator` is the natural slot for it.
 |---|---|
 | Technology | Auth, embedded wallets, server wallets, policy engine |
 | Purpose | Owner authentication; agent keys with key-level policy enforcement |
-| Integration | `apps/web/src/lib/chain.ts`, `/integrations` status check |
-| Status | **Partial** — status reporting and wallet-provider modelling wired; live auth flow not yet connected |
+| Integration | `apps/web/src/app/api/auth/privy/route.ts`, `apps/web/src/app/login/privy-sign-in.tsx` |
+| Status | **Implemented** — sign-in live; access token verified server-side |
 
-The intended role is defence in depth: the TrustAgent policy is the
+Privy authenticates; it does not authorize. The access token is verified against
+the app secret server-side, the owner address is read out of the verified token
+rather than out of the browser, and a verified Privy user who owns no agent is
+refused exactly as a wallet signer would be. Nothing in the policy engine
+changes when this route is used.
+
+The intended next step is defence in depth: the TrustAgent policy is the
 human-readable contract, and Privy's key-level policy mirrors it restrictively.
 If TrustAgent is compromised, the key still refuses the transaction.
 
@@ -128,9 +134,27 @@ output, or the Zod gate rejects and the UX breaks.
 | Integration | `packages/ai/src/providers/openai-compatible.ts` |
 | Status | **Implemented** — requires `KIMI_API_KEY` |
 
-Kimi exists in this project to prove a claim: switch the provider mid-conversation
-and the authorization decision is byte-identical. The model is replaceable
+Kimi exists in this project to prove a claim: switch the provider
+mid-conversation and the authorization decision does not move. Measured across
+models, the extracted parameters *can* differ -- one model names a field
+`recipient`, another names it `to` -- and the decision is unchanged regardless,
+because permission is evaluated before parameters are. The model is replaceable
 precisely because it holds no authority.
+
+---
+
+## Groq and OpenRouter — free providers
+
+| | |
+|---|---|
+| Technology | OpenAI-compatible chat completions |
+| Purpose | Real intent extraction, and the provider-swap demonstration, at zero cost |
+| Integration | `packages/ai/src/providers/openai-compatible.ts` |
+| Status | **Implemented** — Groq verified live against `openai/gpt-oss-120b` |
+
+Neither is a hackathon sponsor and neither is claimed as one. They exist so the
+central architectural claim can be demonstrated without a paid key: Kimi has no
+permanent free tier, and the point being made was never about a specific vendor.
 
 ---
 

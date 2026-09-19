@@ -137,7 +137,7 @@ export function createKimiProvider(apiKey: string, model = 'kimi-k2.6'): AIProvi
  * provider that occasionally returns unparseable JSON degrades intent quality;
  * it cannot widen authorization, which is the only guarantee that matters.
  */
-export function createGroqProvider(apiKey: string, model = 'llama-3.3-70b-versatile'): AIProvider {
+export function createGroqProvider(apiKey: string, model = 'openai/gpt-oss-120b'): AIProvider {
   return new OpenAICompatibleProvider({
     name: 'groq',
     model,
