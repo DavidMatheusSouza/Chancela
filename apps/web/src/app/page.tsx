@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Boxes, FileCheck2, ScrollText, ShieldCheck } from 'lucide-react';
+import { InjectionTerminal } from '@/components/injection-terminal';
 
 /**
  * Landing page.
@@ -54,7 +55,11 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="mt-24">
+      <section className="mt-20">
+        <InjectionTerminal />
+      </section>
+
+      <section className="mt-16">
         <FlowDiagram />
       </section>
 
