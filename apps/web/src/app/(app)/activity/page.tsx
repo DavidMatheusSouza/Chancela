@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { getRepository } from '@/lib/store';
 import { activeChain, explorerTxUrl } from '@/lib/chain';
-import { Badge, Card, Empty, Label, Mono } from '@/components/primitives';
-import { DECISION_STYLE, formatTime, shortHash } from '@/lib/ui';
+import { Badge, Card, DecisionPill, Empty, Label, Mono } from '@/components/primitives';
+import { formatTime, shortHash } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +23,10 @@ export default async function ActivityPage() {
   const anchored = decisions.filter((d) => d.anchorStatus === 'CONFIRMED').length;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-8 py-10">
+    <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Trust activity explorer</h1>
+          <h1 className="text-[22px] font-semibold tracking-tight">Trust activity explorer</h1>
           <p className="mt-1 text-sm text-muted">
             Authorization events as recorded on {chain.name}.
           </p>
@@ -59,9 +59,7 @@ export default async function ActivityPage() {
           {decisions.map((d) => (
             <Card key={d.id} className="flex flex-wrap items-center justify-between gap-4 py-3.5">
               <div className="flex min-w-0 items-center gap-3">
-                <span className={`inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[11px] font-medium ${DECISION_STYLE[d.outcome]}`}>
-                  {d.outcome === 'ALLOW' ? '✓' : d.outcome === 'DENY' ? '✕' : '!'} {d.outcome}
-                </span>
+                <DecisionPill decision={d.outcome} />
                 <Mono className="text-ink">{d.action}</Mono>
                 <Link href={`/agents/${d.agentId}`} className="text-[13px] text-muted hover:text-ink">
                   {d.agentId}

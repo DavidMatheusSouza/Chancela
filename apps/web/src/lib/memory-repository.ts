@@ -155,7 +155,7 @@ export class MemoryRepository implements Repository {
   }
 }
 
-const DEMO_OWNER = '0x82f1aA0f3A1b2c3d4e5F60718293a4b5c6D7e891';
+const DEMO_OWNER = '0x82f1aA0F3A1b2C3d4e5f60718293a4B5C6D7e891';
 
 /** The demo dataset. Mirrors docs/DEMO.md step by step. */
 export async function seed(repo: Repository): Promise<void> {
@@ -166,7 +166,7 @@ export async function seed(repo: Repository): Promise<void> {
     name: 'SalesAgent',
     description: 'Handles inbound leads, creates customers and sends proposals.',
     tokenId: '1',
-    wallet: '0x91B2cC0f3A1b2c3d4e5F60718293a4b5c6D7e123',
+    wallet: '0x91B2cc0F3a1b2c3D4E5F60718293A4b5c6D7E123',
     walletProvider: 'MERA',
     derivationIndex: 0,
     version: 3,
@@ -180,7 +180,7 @@ export async function seed(repo: Repository): Promise<void> {
     name: 'SupportAgent',
     description: 'Answers customer questions and reads records. Read-only by design.',
     tokenId: '2',
-    wallet: '0x73C4dd0f3A1b2c3d4e5F60718293a4b5c6D7e456',
+    wallet: '0x73c4dD0f3a1b2C3d4E5F60718293A4b5C6d7E456',
     walletProvider: 'PRIVY',
     derivationIndex: 1,
     version: 1,
@@ -194,7 +194,7 @@ export async function seed(repo: Repository): Promise<void> {
     name: 'TreasuryAgent',
     description: 'May move small amounts. Every critical action needs a human signature.',
     tokenId: '3',
-    wallet: '0x55A6ee0f3A1b2c3d4e5F60718293a4b5c6D7e789',
+    wallet: '0x55A6EE0F3a1b2C3D4E5F60718293a4b5c6d7e789',
     walletProvider: 'PRIVY',
     derivationIndex: 2,
     version: 2,

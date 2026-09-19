@@ -6,6 +6,11 @@
 
 Built for **Monad Metropolis 2026**, Track 04: *Trust, Identity & AI Infrastructure*.
 
+**Live on Monad testnet (10143).** Policy registry
+[`0x649DD587…6d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) ·
+ERC-8004 identity [`0xA3Ee05B6…9824`](https://testnet.monadexplorer.com/address/0xA3Ee05B6A2956676964Bc1476617682660109824) ·
+three agents registered, policies anchored, every decision recorded.
+
 ---
 
 ## The problem

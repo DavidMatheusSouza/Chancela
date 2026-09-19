@@ -18,14 +18,14 @@ export default async function PolicyPage({ params }: { params: { id: string } })
   const granted = new Set(active?.document.permissions ?? []);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-8 py-10">
+    <div className="mx-auto max-w-4xl space-y-6 px-6 py-8">
       <Link href={`/agents/${agent.id}`} className="text-xs text-muted hover:text-ink">
         &larr; {agent.name}
       </Link>
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Policy</h1>
+          <h1 className="text-[22px] font-semibold tracking-tight">Policy</h1>
           <p className="mt-1 text-sm text-muted">
             A policy version is immutable once active. Changing it mints a new version and a new hash.
           </p>

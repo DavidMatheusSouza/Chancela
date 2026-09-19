@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
 import { explorerTxUrl } from '@/lib/chain';
-import { Card, Empty, Label, Metric, Mono, StatusDot } from '@/components/primitives';
-import { DECISION_STYLE, RISK_STYLE, formatTime, shortHash } from '@/lib/ui';
+import { Card, DecisionPill, Empty, Label, Metric, Mono, RiskPill, StatusDot } from '@/components/primitives';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatTime, shortHash } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,9 +31,9 @@ export default async function Dashboard() {
   const avgTrust = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-8 py-10">
+    <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{greeting()}, David</h1>
+        <h1 className="text-[22px] font-semibold tracking-tight">{greeting()}, David</h1>
         <p className="mt-1 text-sm text-muted">
           {agents.length} agents under policy. Every decision below is anchored, including the refusals.
         </p>
@@ -64,48 +65,42 @@ export default async function Dashboard() {
             hint="Open an agent console and ask it to do something."
           />
         ) : (
-          <Card className="p-0">
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-line text-left">
+          <Card className="overflow-hidden p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-line hover:bg-transparent">
                   {['Time', 'Agent', 'Action', 'Decision', 'Risk', 'Proof'].map((h) => (
-                    <th key={h} className="label px-4 py-2.5 font-medium">
+                    <TableHead key={h} className="label h-9 px-4">
                       {h}
-                    </th>
+                    </TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {decisions.slice(0, 12).map((d) => (
-                  <tr key={d.id} className="border-b border-line/60 last:border-0">
-                    <td className="px-4 py-2.5"><Mono>{formatTime(d.createdAt)}</Mono></td>
-                    <td className="px-4 py-2.5">
-                      <Link href={`/agents/${d.agentId}`} className="hover:underline">
+                  <TableRow key={d.id} className="border-line/60 hover:bg-raised/50">
+                    <TableCell className="px-4 py-2"><Mono>{formatTime(d.createdAt)}</Mono></TableCell>
+                    <TableCell className="px-4 py-2">
+                      <Link href={`/agents/${d.agentId}`} className="text-[13px] text-muted hover:text-ink hover:underline">
                         {d.agentId}
                       </Link>
-                    </td>
-                    <td className="px-4 py-2.5"><Mono className="text-ink">{d.action}</Mono></td>
-                    <td className="px-4 py-2.5">
-                      <span className={`inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[11px] font-medium ${DECISION_STYLE[d.outcome]}`}>
-                        {d.outcome === 'ALLOW' ? '✓' : d.outcome === 'DENY' ? '✕' : '!'} {d.outcome}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className={`rounded border px-1.5 py-0.5 text-[11px] ${RISK_STYLE[d.risk]}`}>{d.risk}</span>
-                    </td>
-                    <td className="px-4 py-2.5">
+                    </TableCell>
+                    <TableCell className="px-4 py-2"><Mono className="text-ink">{d.action}</Mono></TableCell>
+                    <TableCell className="px-4 py-2"><DecisionPill decision={d.outcome} /></TableCell>
+                    <TableCell className="px-4 py-2"><RiskPill risk={d.risk} /></TableCell>
+                    <TableCell className="px-4 py-2">
                       {d.onchainTxHash ? (
-                        <a href={explorerTxUrl(d.onchainTxHash)} target="_blank" rel="noreferrer" className="mono text-[12.5px] text-chain hover:underline">
+                        <a href={explorerTxUrl(d.onchainTxHash)} target="_blank" rel="noreferrer" className="mono text-[12px] text-chain hover:underline">
                           {shortHash(d.onchainTxHash)}
                         </a>
                       ) : (
                         <Mono className="text-faint">{shortHash(d.decisionHash)}</Mono>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </Card>
         )}
       </section>

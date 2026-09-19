@@ -16,9 +16,9 @@ export default async function AgentsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-8 py-10">
+    <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Agents</h1>
+        <h1 className="text-[22px] font-semibold tracking-tight">Agents</h1>
         <p className="mt-1 text-sm text-muted">
           Each agent is an ERC-8004 identity with exactly one active policy version.
         </p>

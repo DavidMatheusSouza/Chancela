@@ -133,6 +133,35 @@ const DECISION_ORDINAL: Record<string, number> = { DENY: 0, ALLOW: 1, REQUIRE_AP
 const RISK_ORDINAL: Record<string, number> = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 };
 
 /**
+ * Anchor transactions are serialised through this queue.
+ *
+ * Every anchor is signed by the same attestation key, so two concurrent writes
+ * read the same pending nonce from the RPC and one of them is rejected. An agent
+ * console sends several messages in a row, which makes that race the common
+ * case rather than an edge case -- so the queue is not an optimisation, it is
+ * what makes anchoring work at all.
+ */
+let anchorChain: Promise<unknown> = Promise.resolve();
+
+function enqueue<T>(task: () => Promise<T>): Promise<T> {
+  const result = anchorChain.then(task, task);
+  // Keep the chain alive after a rejection; one failed anchor must not wedge
+  // every later one.
+  anchorChain = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  return result;
+}
+
+/** Locally tracked nonce, so we do not depend on the RPC seeing our last tx yet. */
+let nextNonce: number | null = null;
+
+function isNonceError(message: string): boolean {
+  return /nonce|already known|replacement transaction underpriced/i.test(message);
+}
+
+/**
  * Write one decision to Monad.
  *
  * Called off the request path. A chain hiccup must never turn into a failed
@@ -154,36 +183,66 @@ export async function anchorDecision(input: {
     return { status: 'SKIPPED', error: 'POLICY_REGISTRY_ADDRESS or ATTESTATION_PRIVATE_KEY unset' };
   }
 
-  try {
+  return enqueue(async () => {
     const account = privateKeyToAccount(config.attestorKey);
     const chain = activeChain();
     const wallet = createWalletClient({ account, chain, transport: http(config.rpcUrl) });
     const client = createPublicClient({ chain, transport: http(config.rpcUrl) });
 
-    const txHash = await wallet.writeContract({
-      address: config.registryAddress,
-      abi: POLICY_REGISTRY_ABI,
-      functionName: 'recordDecision',
-      args: [
-        {
-          agentTokenId: BigInt(input.agentTokenId),
-          decisionHash: input.decisionHash,
-          intentHash: input.intentHash,
-          action: input.actionSelector,
-          decision: DECISION_ORDINAL[input.decision] ?? 0,
-          risk: RISK_ORDINAL[input.risk] ?? 3,
-          policyHash: input.policyHash,
-        },
-      ],
-    });
+    const args = [
+      {
+        agentTokenId: BigInt(input.agentTokenId),
+        decisionHash: input.decisionHash,
+        intentHash: input.intentHash,
+        action: input.actionSelector,
+        decision: DECISION_ORDINAL[input.decision] ?? 0,
+        risk: RISK_ORDINAL[input.risk] ?? 3,
+        policyHash: input.policyHash,
+      },
+    ] as const;
 
-    const receipt = await client.waitForTransactionReceipt({ hash: txHash, timeout: 30_000 });
-    return {
-      status: receipt.status === 'success' ? 'CONFIRMED' : 'FAILED',
-      txHash,
-      blockNumber: receipt.blockNumber.toString(),
-    };
-  } catch (err) {
-    return { status: 'FAILED', error: err instanceof Error ? err.message : 'anchor failed' };
-  }
+    // One retry, because the only expected transient failure is a stale local
+    // nonce -- which is fixed by re-reading it, not by waiting.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        if (nextNonce === null) {
+          nextNonce = await client.getTransactionCount({
+            address: account.address,
+            blockTag: 'pending',
+          });
+        }
+
+        const nonce = nextNonce;
+        const txHash = await wallet.writeContract({
+          address: config.registryAddress,
+          abi: POLICY_REGISTRY_ABI,
+          functionName: 'recordDecision',
+          args,
+          nonce,
+        });
+        nextNonce = nonce + 1;
+
+        const receipt = await client.waitForTransactionReceipt({ hash: txHash, timeout: 30_000 });
+        return {
+          status: receipt.status === 'success' ? ('CONFIRMED' as const) : ('FAILED' as const),
+          txHash,
+          blockNumber: receipt.blockNumber.toString(),
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'anchor failed';
+        if (attempt === 0 && isNonceError(message)) {
+          nextNonce = null; // resync from the node and try once more
+          continue;
+        }
+        nextNonce = null;
+        return { status: 'FAILED' as const, error: message.slice(0, 300) };
+      }
+    }
+    return { status: 'FAILED' as const, error: 'exhausted retries' };
+  });
+}
+
+/** Test seam: forget the cached nonce (used after a key or network change). */
+export function resetAnchorNonce(): void {
+  nextNonce = null;
 }

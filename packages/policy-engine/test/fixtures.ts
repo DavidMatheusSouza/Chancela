@@ -5,10 +5,10 @@ export const NOW = 1_760_000_000; // fixed epoch: 2025-10-09T08:53:20Z, hour 8 U
 
 export const agent: AgentRecord = {
   id: 'TA-001',
-  ownerAddress: '0x82f1aA0f3A1b2c3d4e5F60718293a4b5c6D7e891',
+  ownerAddress: '0x82f1aA0F3A1b2C3d4e5f60718293a4B5C6D7e891',
   status: 'ACTIVE',
   erc8004TokenId: '1',
-  walletAddress: '0x91B2cC0f3A1b2c3d4e5F60718293a4b5c6D7e123',
+  walletAddress: '0x91B2cc0F3a1b2c3D4E5F60718293A4b5c6D7E123',
 };
 
 export const salesPolicy: PolicyDocument = {

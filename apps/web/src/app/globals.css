@@ -3,118 +3,165 @@
 @tailwind utilities;
 
 /*
- * Dark security infrastructure.
+ * TrustAgent design system — "dark security infrastructure".
  *
  * Reference points: Linear, Cloudflare dashboard, Vercel. Not crypto-casino.
+ *
+ * One token system, expressed as RGB triples so Tailwind's <alpha-value> works
+ * everywhere. shadcn's semantic names are mapped onto the same palette rather
+ * than kept as a parallel set — two sources of truth for colour is how a design
+ * system rots.
+ *
  * Glow is reserved for four things and nothing else: agent status, wallet
  * state, authorization verdict, chain confirmation.
  */
-:root {
-  --bg: 9 10 13;
-  --surface: 15 17 21;
-  --raised: 21 24 30;
-  --line: 35 39 47;
-  --ink: 237 240 245;
-  --muted: 145 153 166;
-  --faint: 98 106 118;
+@layer base {
+  :root {
+    /* ── surfaces, deepest to highest ── */
+    --bg: 9 10 13;
+    --surface: 14 16 20;
+    --raised: 20 23 29;
+    --overlay: 26 29 36;
+    --line: 33 37 45;
+    --line-strong: 48 54 64;
 
-  --allow: 61 200 128;
-  --deny: 240 92 92;
-  --warn: 232 168 64;
-  --chain: 124 122 255;
+    /* ── text, strongest to weakest ── */
+    --ink: 238 241 246;
+    --muted: 148 156 169;
+    --faint: 100 108 121;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    /* ── semantic: the only four colours with meaning ── */
+    --allow: 56 203 129;
+    --deny: 244 89 89;
+    --warn: 234 172 62;
+    --chain: 126 122 255;
+
+    /* ── shadcn semantic tokens, mapped onto the palette above ── */
+    --background: var(--bg);
+    --foreground: var(--ink);
+    --card: var(--surface);
+    --card-foreground: var(--ink);
+    --popover: var(--overlay);
+    --popover-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: var(--bg);
+    --secondary: var(--raised);
+    --secondary-foreground: var(--ink);
+    --muted-foreground: var(--muted);
+    --accent: var(--raised);
+    --accent-foreground: var(--ink);
+    --destructive: var(--deny);
+    --destructive-foreground: var(--ink);
+    --border: var(--line);
+    --input: var(--line);
+    --ring: var(--chain);
+
+    --radius: 0.625rem;
+
+    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    background: rgb(var(--bg));
+    color: rgb(var(--ink));
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  }
+
+  ::selection {
+    background: rgb(var(--chain) / 0.3);
+  }
+
+  /* Focus rings: visible for keyboards, invisible for mice. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--chain) / 0.7);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--line-strong));
+    border-radius: 6px;
+    border: 3px solid rgb(var(--bg));
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--faint)); }
 }
-
-* {
-  border-color: rgb(var(--line));
-}
-
-html,
-body {
-  background: rgb(var(--bg));
-  color: rgb(var(--ink));
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-}
-
-body {
-  font-feature-settings: 'cv02', 'cv03', 'cv04';
-}
-
-::selection {
-  background: rgb(var(--chain) / 0.3);
-}
-
-/* Scrollbars that do not shout. */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--line));
-  border-radius: 6px;
-  border: 3px solid rgb(var(--bg));
-}
-::-webkit-scrollbar-thumb:hover { background: rgb(var(--faint)); }
 
 @layer components {
-  .card {
-    @apply rounded-xl border border-line bg-surface;
-  }
-
-  .card-raised {
-    @apply rounded-xl border border-line bg-raised;
-  }
-
   .label {
-    @apply text-[11px] font-medium uppercase tracking-[0.08em] text-faint;
+    @apply text-[10.5px] font-medium uppercase tracking-[0.09em] text-faint;
   }
 
   .mono {
     font-family: var(--font-mono);
     font-variant-ligatures: none;
-  }
-
-  .hairline {
-    @apply border-t border-line;
+    font-feature-settings: 'zero';
   }
 
   /*
    * Verdict styling.
    *
-   * ALLOW and DENY differ in border weight, icon, background fill and layout --
-   * not only hue. A colour-blind judge, a bad projector or a compressed GIF all
-   * still read the difference.
+   * ALLOW and DENY differ in border weight, icon, background fill, corner
+   * treatment and information order — not only hue. A colour-blind judge, a bad
+   * projector or a compressed screen recording all still read the difference.
    */
   .verdict-allow {
-    @apply border-l-2 border-l-allow bg-allow/[0.04];
+    @apply border-l-2 border-l-allow bg-allow/[0.045];
   }
 
   .verdict-deny {
-    @apply border-2 border-deny/60 bg-deny/[0.07];
+    @apply border-2 border-deny/55 bg-deny/[0.07];
   }
 
   .verdict-approval {
-    @apply border-2 border-dashed border-warn/60 bg-warn/[0.06];
+    @apply border-2 border-dashed border-warn/55 bg-warn/[0.06];
   }
 
-  .glow-allow { box-shadow: 0 0 0 1px rgb(var(--allow) / 0.25), 0 0 24px -8px rgb(var(--allow) / 0.5); }
-  .glow-deny  { box-shadow: 0 0 0 1px rgb(var(--deny) / 0.3), 0 0 28px -6px rgb(var(--deny) / 0.55); }
-  .glow-chain { box-shadow: 0 0 0 1px rgb(var(--chain) / 0.25), 0 0 24px -8px rgb(var(--chain) / 0.5); }
+  .glow-allow { box-shadow: 0 0 0 1px rgb(var(--allow) / 0.22), 0 0 26px -10px rgb(var(--allow) / 0.5); }
+  .glow-deny  { box-shadow: 0 0 0 1px rgb(var(--deny) / 0.28), 0 0 30px -8px rgb(var(--deny) / 0.55); }
+  .glow-chain { box-shadow: 0 0 0 1px rgb(var(--chain) / 0.22), 0 0 30px -10px rgb(var(--chain) / 0.45); }
+
+  /* A one-pixel top highlight reads as "lit from above" without any gradient. */
+  .lit {
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.035);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(var(--line) / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--line) / 0.55) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 40%, transparent 100%);
+  }
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+  50% { opacity: 0.3; }
 }
-.dot-live { animation: pulse-dot 2s ease-in-out infinite; }
+.dot-live { animation: pulse-dot 2.2s ease-in-out infinite; }
 
-@keyframes slide-up {
+@keyframes rise {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-in { animation: slide-up 180ms ease-out both; }
+.animate-in-rise { animation: rise 200ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .dot-live, .animate-in { animation: none; }
+  .dot-live,
+  .animate-in-rise {
+    animation: none;
+  }
 }

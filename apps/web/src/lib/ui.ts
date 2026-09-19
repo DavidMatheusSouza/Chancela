@@ -1,9 +1,6 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+// Single definition lives in lib/utils.ts, which is where shadcn components
+// import it from. Re-exported here so existing imports keep working.
+export { cn } from './utils';
 
 export function shortHash(value: string | null | undefined, lead = 6, tail = 4): string {
   if (!value) return '--';

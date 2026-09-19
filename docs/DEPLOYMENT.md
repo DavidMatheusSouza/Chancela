@@ -108,3 +108,46 @@ curl -s localhost:3080/api/health
 # {"status":"ok","chain":{"id":10143,"name":"Monad Testnet"},
 #  "anchoring":"enabled","attestor":"configured"}
 ```
+
+## Live deployment — Monad testnet (chainId 10143)
+
+| Contract | Address |
+|---|---|
+| `TrustAgentPolicyRegistry` | [`0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) |
+| `ERC8004IdentityRegistry` | [`0xA3Ee05B6A2956676964Bc1476617682660109824`](https://testnet.monadexplorer.com/address/0xA3Ee05B6A2956676964Bc1476617682660109824) |
+
+Registered agents, each with its policy anchored on-chain:
+
+| Agent | Token | Policy | Policy hash |
+|---|---|---|---|
+| SalesAgent | #1 | v3 | `0xcd0ffd6d0603f5f53baa215150967ef56bd47e9926b6c06330dca8b579aaff04` |
+| SupportAgent | #2 | v1 | `0xecd45276c57349a5711bfad4b64a61bed49a65191854b78232b0ed8fab9b174d` |
+| TreasuryAgent | #3 | v2 | `0x317afe150f6333a338a397f784fdf5c88a36a5ccc7a9300f6df0cb31edac8733` |
+
+Verify independently, without trusting this service:
+
+```bash
+cast call 0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b \
+  'activePolicy(uint256)(bytes32,uint32,uint64)' 1 \
+  --rpc-url https://testnet-rpc.monad.xyz
+# 0xcd0ffd6d…  3  1789836300
+```
+
+The returned hash is the same one `GET /api/agents/TA-001` serves. Recompute it
+from the policy document with `hashPolicyDocument()` and all three agree.
+
+### ERC-8004 on testnet
+
+The canonical registries exist on mainnet only. Reading the code at the mainnet
+addresses on testnet returns `0x` — verified, not assumed. So on testnet the
+deploy script publishes `ERC8004IdentityRegistry`, a faithful minimal
+implementation with the same ERC-721 shape, and `ownerOf()` means exactly what
+it means on mainnet. On chain 143 the script binds to the canonical registry and
+never deploys its own.
+
+### RPC log-range limit
+
+The public testnet RPC silently caps `eth_getLogs`: a 3000-block query returns
+an empty result while a 30-block query over the same range returns the events.
+Nothing errors, which makes it an easy trap. The indexer pages in small windows;
+if you query logs by hand, keep the range narrow.

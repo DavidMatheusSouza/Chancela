@@ -33,7 +33,7 @@ export default async function AgentPassport({ params }: { params: { id: string }
   const chain = activeChain();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-8 py-10">
+    <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
       <div className="flex items-center justify-between">
         <Link href="/agents" className="text-xs text-muted hover:text-ink">
           &larr; Agents
@@ -55,7 +55,7 @@ export default async function AgentPassport({ params }: { params: { id: string }
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-semibold tracking-tight">{agent.name}</h1>
+                <h1 className="text-[22px] font-semibold tracking-tight">{agent.name}</h1>
                 {agent.erc8004TokenId ? <Badge tone="chain">Verified - ERC-8004 #{agent.erc8004TokenId}</Badge> : <Badge>Unregistered</Badge>}
               </div>
               <p className="mt-1.5 max-w-xl text-[13px] text-muted">{agent.description}</p>
