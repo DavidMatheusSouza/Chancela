@@ -17,6 +17,8 @@ import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Mono, StatusDot } from './primitives';
 
+export { NAV };
+
 const NAV = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
   { href: '/agents', label: 'Agents', icon: Bot },
@@ -27,15 +29,35 @@ const NAV = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export function Sidebar({
-  chainName,
-  chainId,
-  owner,
-}: {
+export interface SidebarProps {
   chainName: string;
   chainId: number;
   owner?: string;
-}) {
+  /** Called after a nav item is chosen, so the mobile drawer can close itself. */
+  onNavigate?: () => void;
+}
+
+/**
+ * The navigation rail.
+ *
+ * Hidden below `md` and rendered inside a drawer there instead -- a fixed 224px
+ * column takes most of a phone screen, and a judge who opens the link on their
+ * phone should not meet a broken layout.
+ */
+export function Sidebar(props: SidebarProps) {
+  return (
+    <aside className="hidden w-56 shrink-0 flex-col border-r border-line bg-surface md:flex">
+      <SidebarContent {...props} />
+    </aside>
+  );
+}
+
+export function SidebarContent({
+  chainName,
+  chainId,
+  owner,
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -46,8 +68,8 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col border-r border-line bg-surface">
-      <Link href="/" className="flex items-center gap-2 px-5 py-5">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-5 py-5">
         <ShieldCheck className="h-5 w-5 text-chain" />
         <span className="text-[15px] font-semibold tracking-tight">TrustAgent</span>
       </Link>
@@ -59,6 +81,7 @@ export function Sidebar({
             <Link
               key={href}
               href={href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors',
                 active ? 'bg-raised text-ink' : 'text-muted hover:bg-raised/60 hover:text-ink',
@@ -100,6 +123,6 @@ export function Sidebar({
           </div>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

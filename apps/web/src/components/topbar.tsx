@@ -2,8 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { SidebarContent, type SidebarProps } from './sidebar';
 
 const TITLES: Record<string, string> = {
   dashboard: 'Overview',
@@ -17,10 +19,16 @@ const TITLES: Record<string, string> = {
   policy: 'Policy',
 };
 
-/** Breadcrumb plus the palette trigger. Keeps the page header free for content. */
-export function Topbar() {
+/**
+ * Breadcrumb, the palette trigger, and on phones the navigation drawer.
+ *
+ * The rail is hidden below `md`, so without this there is no way to move
+ * between screens on a phone at all.
+ */
+export function Topbar({ nav }: { nav: SidebarProps }) {
   const pathname = usePathname();
   const [mac, setMac] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setMac(/Mac|iPhone|iPad/.test(navigator.platform));
@@ -29,8 +37,26 @@ export function Topbar() {
   const segments = pathname.split('/').filter(Boolean);
 
   return (
-    <header className="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-line bg-bg/80 px-6 backdrop-blur">
-      <nav className="flex items-center gap-1.5 text-[13px]">
+    <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-3 border-b border-line bg-bg/80 px-4 backdrop-blur sm:px-6">
+      <div className="flex min-w-0 items-center gap-2">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <button
+              aria-label="Open navigation"
+              className="-ml-1 rounded-md p-1.5 text-muted transition-colors hover:bg-raised hover:text-ink md:hidden"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-60 border-line bg-surface p-0">
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <div className="flex h-full flex-col">
+              <SidebarContent {...nav} onNavigate={() => setOpen(false)} />
+            </div>
+          </SheetContent>
+        </Sheet>
+
+      <nav className="flex min-w-0 items-center gap-1.5 overflow-hidden text-[13px]">
         {segments.map((segment, i) => {
           const href = `/${segments.slice(0, i + 1).join('/')}`;
           const last = i === segments.length - 1;
@@ -49,6 +75,7 @@ export function Topbar() {
           );
         })}
       </nav>
+      </div>
 
       <button
         onClick={() =>
@@ -56,11 +83,11 @@ export function Topbar() {
             new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }),
           )
         }
-        className="flex items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-1 text-[12px] text-faint transition-colors hover:border-line-strong hover:text-muted"
+        className="flex shrink-0 items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-1 text-[12px] text-faint transition-colors hover:border-line-strong hover:text-muted"
       >
         <Search className="h-3.5 w-3.5" />
-        Search
-        <kbd className="mono rounded border border-line bg-raised px-1 py-px text-[10px]">
+        <span className="hidden sm:inline">Search</span>
+        <kbd className="mono hidden rounded border border-line bg-raised px-1 py-px text-[10px] sm:inline">
           {mac ? '⌘' : 'Ctrl'}K
         </kbd>
       </button>

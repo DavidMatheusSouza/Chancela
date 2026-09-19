@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getRepository } from '@/lib/store';
-import { Badge, Card, Label, Mono, StatusDot } from '@/components/primitives';
+import { Badge, Card, Empty, Label, Mono, StatusDot } from '@/components/primitives';
+import { Reveal } from '@/components/reveal';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,10 +25,17 @@ export default async function AgentsPage() {
         </p>
       </header>
 
+      {rows.length === 0 ? (
+        <Empty
+          title="No agents yet"
+          hint="Agents are seeded on first run. If this is empty, the store was reset."
+        />
+      ) : (
       <div className="space-y-3">
-        {rows.map(({ agent, policy, decisions }) => (
-          <Link key={agent.id} href={`/agents/${agent.id}`} className="block">
-            <Card className="transition-colors hover:bg-raised">
+        {rows.map(({ agent, policy, decisions }, i) => (
+          <Reveal key={agent.id} delay={i * 70}>
+          <Link href={`/agents/${agent.id}`} className="block">
+            <Card className="lift">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2.5">
@@ -56,8 +64,10 @@ export default async function AgentsPage() {
               </div>
             </Card>
           </Link>
+          </Reveal>
         ))}
       </div>
+      )}
     </div>
   );
 }

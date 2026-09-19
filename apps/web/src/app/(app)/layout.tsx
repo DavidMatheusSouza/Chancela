@@ -14,11 +14,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const agents = (await repo.listAgents()).map((a) => ({ id: a.id, name: a.name }));
   const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
 
+  const nav = { chainName: chain.name, chainId: chain.id, owner: session?.address };
+
   return (
     <div className="flex min-h-screen">
-      <Sidebar chainName={chain.name} chainId={chain.id} owner={session?.address} />
+      <Sidebar {...nav} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
+        <Topbar nav={nav} />
         <main className="min-w-0 flex-1 overflow-x-hidden">{children}</main>
       </div>
       <CommandPalette agents={agents} explorerUrl={chain.blockExplorers.default.url} />

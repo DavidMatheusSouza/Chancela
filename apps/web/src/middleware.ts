@@ -13,7 +13,9 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
  * decision, which may well be a denial. Gating it behind a browser session
  * would make TrustAgent an application rather than infrastructure.
  */
-const PUBLIC_PATHS = ['/', '/login'];
+// `/opengraph-image` is fetched by link-preview crawlers, which never carry a
+// session. It renders static marketing copy and reads nothing.
+const PUBLIC_PATHS = ['/', '/login', '/opengraph-image'];
 // `/api/network/status` joins the health checks: it reports only the chain id,
 // the public RPC and the registry addresses, all of which are already published
 // in the docs and readable on-chain by anyone.
