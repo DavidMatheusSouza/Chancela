@@ -12,8 +12,10 @@ import {
   Settings,
   ShieldCheck,
 } from 'lucide-react';
-import { cn } from '@/lib/ui';
-import { StatusDot } from './primitives';
+import { useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Mono, StatusDot } from './primitives';
 
 const NAV = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -25,8 +27,23 @@ const NAV = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export function Sidebar({ chainName, chainId }: { chainName: string; chainId: number }) {
+export function Sidebar({
+  chainName,
+  chainId,
+  owner,
+}: {
+  chainName: string;
+  chainId: number;
+  owner?: string;
+}) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function signOut() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
+  }
 
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-line bg-surface">
@@ -54,13 +71,33 @@ export function Sidebar({ chainName, chainId }: { chainName: string; chainId: nu
         })}
       </nav>
 
-      <div className="m-2.5 rounded-lg border border-line bg-raised px-3 py-2.5">
-        <div className="flex items-center gap-2 text-[12px] text-ink">
-          <StatusDot tone="chain" live />
-          Monad connected
-        </div>
-        <div className="mt-1 mono text-[11px] text-faint">
-          {chainName} - {chainId}
+      <div className="m-2.5 space-y-2">
+        {owner ? (
+          <div className="flex items-center justify-between rounded-lg border border-line px-3 py-2">
+            <div className="min-w-0">
+              <div className="label">Signed in</div>
+              <Mono className="block truncate text-[11px]">
+                {owner.slice(0, 6)}...{owner.slice(-4)}
+              </Mono>
+            </div>
+            <button
+              onClick={signOut}
+              title="Sign out"
+              className="shrink-0 rounded-md p-1.5 text-faint transition-colors hover:bg-raised hover:text-ink"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : null}
+
+        <div className="rounded-lg border border-line bg-raised px-3 py-2.5">
+          <div className="flex items-center gap-2 text-[12px] text-ink">
+            <StatusDot tone="chain" live />
+            Monad connected
+          </div>
+          <div className="mono mt-1 text-[11px] text-faint">
+            {chainName} - {chainId}
+          </div>
         </div>
       </div>
     </aside>

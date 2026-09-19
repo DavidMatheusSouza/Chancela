@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     id,
     name: parsed.data.name,
     description: parsed.data.description,
-    ownerAddress: process.env.DEMO_OWNER_ADDRESS ?? '0x82f1aA0F3A1b2C3d4e5f60718293a4B5C6D7e891',
+    ownerAddress: process.env.DEMO_OWNER_ADDRESS ?? '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
     status: 'ACTIVE',
     derivationIndex: existing.length,
     walletProvider: 'MERA',

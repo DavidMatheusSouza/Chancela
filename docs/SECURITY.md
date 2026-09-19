@@ -52,3 +52,43 @@ pnpm --filter @trustagent/web test         # capsule forgery, tampering, replay
 
 Open a GitHub security advisory rather than a public issue. Include a minimal
 reproduction. We will respond before publishing anything.
+
+## Authentication
+
+The owner of an agent is an Ethereum address — it is whatever `ownerOf()`
+returns on the ERC-8004 registry. So sign-in proves control of that address
+rather than maintaining a parallel account system: authority over a policy is
+tied to the same key the chain already recognises.
+
+| Step | Control |
+|---|---|
+| Challenge | Server-issued nonce, 5-minute TTL, bound to the requesting address |
+| Signature | EIP-191 `personal_sign`; the message states plainly that it costs no gas and authorises no transaction |
+| Nonce | Burned on first use **and on failure**, so a failed attempt cannot be retried against it |
+| Ownership | A valid signature is not enough — the address must own an agent in this deployment |
+| Session | Compact HMAC-SHA256 token in an `httpOnly`, `SameSite=Lax` cookie, 12-hour expiry inside the signed payload |
+| Gate | Middleware denies by default; only an explicit allowlist is public |
+
+### What stays public, and why
+
+`POST /api/agents/:id/authorize` and `/actions` are deliberately unauthenticated.
+They are what other agent runtimes call, and they grant nothing on their own —
+`authorize` returns a signed decision that may well be a denial, and `actions`
+refuses anything it cannot verify. Putting them behind a browser session would
+make TrustAgent an application instead of infrastructure.
+
+### Two implementation notes worth keeping
+
+**`Secure` is derived from the request scheme, not from `NODE_ENV`.** Tying it to
+`NODE_ENV` breaks an ordinary case: `pnpm start` runs in production mode, so
+someone evaluating the project on `http://localhost` receives a `Secure` cookie
+the browser then refuses to send back — and sign-in fails silently, with no
+error anywhere to explain it. A non-local plain-HTTP deployment still gets
+`Secure` and still fails, which is the correct outcome.
+
+**Session verification recomputes the HMAC and compares, rather than calling
+`crypto.subtle.verify`.** The two are equivalent in principle, but `verify`
+behaved differently between the Node and Edge runtimes, and this code runs in
+both — middleware on the edge, route handlers in Node. The symptom was a session
+that every API route accepted and every page rejected. Comparison is
+constant-time, so signature verification does not leak through timing.

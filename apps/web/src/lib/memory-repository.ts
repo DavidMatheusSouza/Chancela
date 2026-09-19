@@ -155,7 +155,7 @@ export class MemoryRepository implements Repository {
   }
 }
 
-const DEMO_OWNER = '0x82f1aA0F3A1b2C3d4e5f60718293a4B5C6D7e891';
+const DEMO_OWNER = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
 
 /** The demo dataset. Mirrors docs/DEMO.md step by step. */
 export async function seed(repo: Repository): Promise<void> {

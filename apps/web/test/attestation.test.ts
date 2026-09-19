@@ -16,7 +16,7 @@ function capsule(over: Partial<AuthorizationCapsule> = {}): AuthorizationCapsule
   return {
     version: 1,
     agentId: 'TA-001',
-    ownerAddress: '0x82f1aA0F3A1b2C3d4e5f60718293a4B5C6D7e891',
+    ownerAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
     action: 'CREATE_CUSTOMER',
     intentHash,
     policyId: 'pol_1',
