@@ -1,10 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { PERMISSIONS, PERMISSION_LABELS, TOOL_REGISTRY } from '@trustagent/shared';
 import { getRepository } from '@/lib/store';
-import { Badge, Card, Field, Label, Mono } from '@/components/primitives';
-import { RISK_STYLE, shortHash } from '@/lib/ui';
-import { cn } from '@/lib/ui';
+import { Badge, Card, Field, Mono } from '@/components/primitives';
+import { shortHash } from '@/lib/ui';
+import { PolicyBuilder } from './policy-builder';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +14,6 @@ export default async function PolicyPage({ params }: { params: { id: string } })
 
   const active = await repo.getActivePolicy(params.id);
   const history = await repo.listPolicies(params.id);
-  const granted = new Set(active?.document.permissions ?? []);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-6 py-8">
@@ -35,43 +33,25 @@ export default async function PolicyPage({ params }: { params: { id: string } })
 
       <Card className="space-y-5">
         <div className="grid gap-5 sm:grid-cols-3">
-          <Field label="Version" value={`v${active?.version ?? 0}`} mono />
-          <Field label="Policy hash" value={shortHash(active?.policyHash, 12, 8)} mono />
+          <Field label="Active version" value={`v${active?.version ?? 0}`} mono />
+          <Field label="Active hash" value={shortHash(active?.policyHash, 12, 8)} mono />
           <Field label="Step-up threshold" value={active?.document.stepUpThreshold ?? '--'} mono />
         </div>
 
-        <div className="border-t border-line pt-5">
-          <Label>Permissions</Label>
-          <ul className="mt-2.5 grid gap-1.5 sm:grid-cols-2">
-            {PERMISSIONS.map((code) => {
-              const has = granted.has(code);
-              const tool = TOOL_REGISTRY.find((t) => t.requiredPermission === code);
-              return (
-                <li
-                  key={code}
-                  className={cn(
-                    'flex items-center gap-2.5 rounded-md border px-2.5 py-2 text-[13px]',
-                    has ? 'border-allow/30 bg-allow/[0.05]' : 'border-line',
-                  )}
-                >
-                  <span className={cn('mono', has ? 'text-allow' : 'text-faint')}>{has ? '☑' : '☐'}</span>
-                  <span className={has ? 'text-ink' : 'text-faint'}>{PERMISSION_LABELS[code]}</span>
-                  {tool ? (
-                    <span className={`ml-auto rounded border px-1.5 py-0.5 text-[10px] ${RISK_STYLE[tool.risk]}`}>
-                      {tool.risk}
-                    </span>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="grid gap-5 border-t border-line pt-5 sm:grid-cols-3">
-          <Field label="Max transaction" value={`$${((active?.document.limits.maxTransactionValue ?? 0) / 100).toFixed(2)}`} mono />
-          <Field label="Daily transactions" value={active?.document.limits.dailyTransactions ?? 0} mono />
-          <Field label="Daily value cap" value={`$${((active?.document.limits.dailyValueCap ?? 0) / 100).toFixed(2)}`} mono />
-        </div>
+        {active ? (
+          <div className="border-t border-line pt-5">
+            <PolicyBuilder
+              agentId={agent.id}
+              activeVersion={active.version}
+              activeHash={active.policyHash}
+              document={active.document}
+            />
+          </div>
+        ) : (
+          <p className="border-t border-line pt-5 text-[13px] text-muted">
+            This agent has no active policy, so there is nothing to base a new version on.
+          </p>
+        )}
       </Card>
 
       <Card className="space-y-3">
