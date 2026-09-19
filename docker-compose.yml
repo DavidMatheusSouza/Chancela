@@ -1,0 +1,48 @@
+# TrustAgent local stack.
+#
+# The database is namespaced and bound to its own volume so it cannot collide
+# with anything else on a shared host.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: trustagent-db
+    environment:
+      POSTGRES_USER: trustagent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trustagent}
+      POSTGRES_DB: trustagent
+    volumes:
+      - trustagent-pgdata:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:${DB_PORT:-5442}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U trustagent -d trustagent']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    container_name: trustagent-web
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://trustagent:${POSTGRES_PASSWORD:-trustagent}@db:5432/trustagent
+      ATTESTATION_PRIVATE_KEY: ${ATTESTATION_PRIVATE_KEY}
+      NEXT_PUBLIC_CHAIN_ID: ${NEXT_PUBLIC_CHAIN_ID:-10143}
+      MONAD_RPC_URL: ${MONAD_RPC_URL:-https://testnet-rpc.monad.xyz}
+      POLICY_REGISTRY_ADDRESS: ${POLICY_REGISTRY_ADDRESS:-}
+      ERC8004_IDENTITY_REGISTRY: ${ERC8004_IDENTITY_REGISTRY:-}
+      QWEN_API_KEY: ${QWEN_API_KEY:-}
+      KIMI_API_KEY: ${KIMI_API_KEY:-}
+      NANSEN_API_KEY: ${NANSEN_API_KEY:-}
+      ENVIO_GRAPHQL_URL: ${ENVIO_GRAPHQL_URL:-}
+      PORT: 3080
+    ports:
+      - '127.0.0.1:${WEB_PORT:-3080}:3080'
+    restart: unless-stopped
+
+volumes:
+  trustagent-pgdata:
+    name: trustagent-pgdata

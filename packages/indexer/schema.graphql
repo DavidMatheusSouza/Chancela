@@ -1,0 +1,45 @@
+type Agent {
+  id: ID! # agentTokenId
+  suspended: Boolean!
+  attestor: String
+  currentPolicyHash: String
+  currentPolicyVersion: BigInt
+  totalDecisions: BigInt!
+  totalAllowed: BigInt!
+  totalDenied: BigInt!
+  lastActivityAt: BigInt
+}
+
+type PolicyAnchor {
+  id: ID!
+  agentTokenId: BigInt! @index
+  version: BigInt!
+  policyHash: String!
+  owner: String!
+  anchoredAt: BigInt!
+  blockNumber: BigInt!
+  txHash: String!
+}
+
+type Decision {
+  id: ID!
+  agentTokenId: BigInt! @index
+  decisionHash: String! @index
+  intentHash: String!
+  action: String! @index
+  decision: String! @index
+  risk: String! @index
+  policyHash: String!
+  ts: BigInt!
+  blockNumber: BigInt!
+  txHash: String!
+}
+
+type AgentStatusChange {
+  id: ID!
+  agentTokenId: BigInt! @index
+  suspended: Boolean!
+  reasonCode: String
+  ts: BigInt!
+  txHash: String!
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@trustagent/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "PATH=\"$HOME/.foundry/bin:$PATH\" forge build",
+    "test": "PATH=\"$HOME/.foundry/bin:$PATH\" forge test -vv",
+    "test:gas": "PATH=\"$HOME/.foundry/bin:$PATH\" forge test --gas-report",
+    "coverage": "PATH=\"$HOME/.foundry/bin:$PATH\" forge coverage",
+    "fmt": "PATH=\"$HOME/.foundry/bin:$PATH\" forge fmt",
+    "deploy:testnet": "PATH=\"$HOME/.foundry/bin:$PATH\" forge script script/Deploy.s.sol:Deploy --rpc-url monad_testnet --broadcast -vvvv",
+    "deploy:mainnet": "PATH=\"$HOME/.foundry/bin:$PATH\" forge script script/Deploy.s.sol:Deploy --rpc-url monad --broadcast --verify -vvvv",
+    "typecheck": "echo 'solidity package - no tsc'"
+  }
+}

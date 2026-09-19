@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# NEVER commit key material
+*.key
+*.pem
+keystore/
+deployments/*.private.json
+
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/broadcast/
+packages/contracts/lib/
+
+generated/
+.envio/

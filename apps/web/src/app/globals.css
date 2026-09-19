@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Dark security infrastructure.
+ *
+ * Reference points: Linear, Cloudflare dashboard, Vercel. Not crypto-casino.
+ * Glow is reserved for four things and nothing else: agent status, wallet
+ * state, authorization verdict, chain confirmation.
+ */
+:root {
+  --bg: 9 10 13;
+  --surface: 15 17 21;
+  --raised: 21 24 30;
+  --line: 35 39 47;
+  --ink: 237 240 245;
+  --muted: 145 153 166;
+  --faint: 98 106 118;
+
+  --allow: 61 200 128;
+  --deny: 240 92 92;
+  --warn: 232 168 64;
+  --chain: 124 122 255;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}
+
+* {
+  border-color: rgb(var(--line));
+}
+
+html,
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-feature-settings: 'cv02', 'cv03', 'cv04';
+}
+
+::selection {
+  background: rgb(var(--chain) / 0.3);
+}
+
+/* Scrollbars that do not shout. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
+  border-radius: 6px;
+  border: 3px solid rgb(var(--bg));
+}
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--faint)); }
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface;
+  }
+
+  .card-raised {
+    @apply rounded-xl border border-line bg-raised;
+  }
+
+  .label {
+    @apply text-[11px] font-medium uppercase tracking-[0.08em] text-faint;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+  }
+
+  .hairline {
+    @apply border-t border-line;
+  }
+
+  /*
+   * Verdict styling.
+   *
+   * ALLOW and DENY differ in border weight, icon, background fill and layout --
+   * not only hue. A colour-blind judge, a bad projector or a compressed GIF all
+   * still read the difference.
+   */
+  .verdict-allow {
+    @apply border-l-2 border-l-allow bg-allow/[0.04];
+  }
+
+  .verdict-deny {
+    @apply border-2 border-deny/60 bg-deny/[0.07];
+  }
+
+  .verdict-approval {
+    @apply border-2 border-dashed border-warn/60 bg-warn/[0.06];
+  }
+
+  .glow-allow { box-shadow: 0 0 0 1px rgb(var(--allow) / 0.25), 0 0 24px -8px rgb(var(--allow) / 0.5); }
+  .glow-deny  { box-shadow: 0 0 0 1px rgb(var(--deny) / 0.3), 0 0 28px -6px rgb(var(--deny) / 0.55); }
+  .glow-chain { box-shadow: 0 0 0 1px rgb(var(--chain) / 0.25), 0 0 24px -8px rgb(var(--chain) / 0.5); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.dot-live { animation: pulse-dot 2s ease-in-out infinite; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: slide-up 180ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-live, .animate-in { animation: none; }
+}

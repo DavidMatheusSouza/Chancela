@@ -1,0 +1,14 @@
+{
+  "name": "@trustagent/indexer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "envio codegen",
+    "dev": "envio dev",
+    "start": "envio start",
+    "typecheck": "echo 'envio package - codegen required first'",
+    "test": "echo 'no unit tests; verified against a live indexer'"
+  },
+  "dependencies": { "envio": "^2.10.0" }
+}

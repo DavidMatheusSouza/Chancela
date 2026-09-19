@@ -1,0 +1,288 @@
+// TrustAgent data model.
+//
+// Two rules shape this schema:
+//   1. Decision is append-only. Nothing updates a decision, ever. The audit
+//      trail is worthless the moment a row can be rewritten.
+//   2. Every decision carries a *copy* of policyHash and policyVersion rather
+//      than only a foreign key, so a decision still proves which policy governed
+//      it even if the Policy row is later lost or tampered with.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AgentStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum PolicyStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum DecisionOutcome {
+  ALLOW
+  DENY
+  REQUIRE_APPROVAL
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AnchorStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  SKIPPED
+}
+
+enum ActionStatus {
+  PENDING
+  EXECUTED
+  FAILED
+  BLOCKED
+}
+
+enum WalletProvider {
+  PRIVY
+  MERA
+  EXTERNAL
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String?  @unique
+  privyUserId  String?  @unique
+  ownerAddress String   @unique
+  displayName  String?
+  createdAt    DateTime @default(now())
+
+  agents Agent[]
+
+  @@map("users")
+}
+
+model Agent {
+  id              String      @id
+  userId          String
+  name            String
+  description     String?
+  status          AgentStatus @default(ACTIVE)
+  erc8004TokenId  String?     @unique
+  agentCardUri    String?
+  derivationIndex Int         @default(0)
+  activePolicyId  String?
+  attestorAddress String?
+  createdAt       DateTime    @default(now())
+  suspendedAt     DateTime?
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallets   AgentWallet[]
+  policies  Policy[]
+  decisions Decision[]
+  actions   Action[]
+  audits    AuditEvent[]
+  scores    TrustScore[]
+  signals   RiskSignal[]
+
+  @@index([userId])
+  @@map("agents")
+}
+
+model AgentWallet {
+  id        String         @id @default(cuid())
+  agentId   String
+  address   String
+  provider  WalletProvider
+  chainId   Int
+  isPrimary Boolean        @default(false)
+  createdAt DateTime       @default(now())
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, address, chainId])
+  @@index([agentId])
+  @@map("agent_wallets")
+}
+
+model Policy {
+  id             String       @id @default(cuid())
+  agentId        String
+  name           String
+  version        Int
+  policyHash     String
+  document       Json
+  status         PolicyStatus @default(DRAFT)
+  onchainTxHash  String?
+  anchoredBlock  BigInt?
+  activatedAt    DateTime?
+  supersededById String?
+  createdAt      DateTime     @default(now())
+
+  agent      Agent      @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  superseded Policy?    @relation("PolicyChain", fields: [supersededById], references: [id])
+  supersedes Policy[]   @relation("PolicyChain")
+  decisions  Decision[]
+
+  @@unique([agentId, version])
+  @@index([agentId, status])
+  @@map("policies")
+}
+
+/// Append-only. No code path issues an UPDATE against this table.
+model Decision {
+  id            String          @id @default(cuid())
+  agentId       String
+  policyId      String?
+  action        String
+  outcome       DecisionOutcome
+  risk          RiskLevel
+  reasonCode    String
+  reasonDetail  String?
+  policyVersion Int
+  policyHash    String
+  intentHash    String
+  decisionHash  String          @unique
+  nonce         String          @unique
+  capsule       Json
+  signature     String
+  trace         Json
+  riskFactors   Json
+  rawIntent     Json?
+  aiProvider    String?
+  aiModel       String?
+  environment   String          @default("production")
+  requestId     String?
+  issuedAt      DateTime
+  expiresAt     DateTime
+  createdAt     DateTime        @default(now())
+
+  agent    Agent            @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  policy   Policy?          @relation(fields: [policyId], references: [id])
+  action_  Action?
+  audit    AuditEvent?
+  approval ApprovalRequest?
+
+  @@index([agentId, createdAt])
+  @@index([outcome])
+  @@index([risk])
+  @@map("decisions")
+}
+
+/// An Action can only exist downstream of a Decision. The required relation
+/// enforces the ordering that the whole product depends on.
+model Action {
+  id         String       @id @default(cuid())
+  agentId    String
+  decisionId String       @unique
+  toolId     String
+  intentHash String
+  parameters Json
+  status     ActionStatus @default(PENDING)
+  result     Json?
+  error      String?
+  executedAt DateTime?
+  createdAt  DateTime     @default(now())
+
+  agent    Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  decision Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, createdAt])
+  @@map("actions")
+}
+
+model AuditEvent {
+  id            String       @id
+  agentId       String
+  decisionId    String       @unique
+  eventType     String
+  payloadHash   String
+  onchainTxHash String?
+  blockNumber   BigInt?
+  anchorStatus  AnchorStatus @default(PENDING)
+  anchorError   String?
+  createdAt     DateTime     @default(now())
+  confirmedAt   DateTime?
+
+  agent    Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  decision Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, createdAt])
+  @@index([anchorStatus])
+  @@map("audit_events")
+}
+
+model ApprovalRequest {
+  id             String    @id @default(cuid())
+  decisionId     String    @unique
+  requiredSigner String
+  signature      String?
+  status         String    @default("PENDING")
+  expiresAt      DateTime
+  resolvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  decision Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@map("approval_requests")
+}
+
+model TrustScore {
+  id         String   @id @default(cuid())
+  agentId    String
+  score      Int
+  breakdown  Json
+  computedAt DateTime @default(now())
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, computedAt])
+  @@map("trust_scores")
+}
+
+model RiskSignal {
+  id             String   @id @default(cuid())
+  agentId        String?
+  source         String
+  subjectAddress String
+  labels         Json
+  severity       Int
+  fetchedAt      DateTime @default(now())
+
+  agent Agent? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  @@index([subjectAddress])
+  @@map("risk_signals")
+}
+
+model Integration {
+  id          String    @id @default(cuid())
+  provider    String    @unique
+  status      String
+  config      Json?
+  lastCheckAt DateTime?
+
+  @@map("integrations")
+}
+
+/// Consumed nonces. A capsule can be redeemed exactly once.
+model UsedNonce {
+  nonce   String   @id
+  agentId String
+  usedAt  DateTime @default(now())
+
+  @@index([agentId])
+  @@map("used_nonces")
+}

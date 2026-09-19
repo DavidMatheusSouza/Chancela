@@ -1,0 +1,24 @@
+# Envio HyperIndex configuration.
+#
+# Indexes TrustAgentPolicyRegistry events off Monad into a GraphQL API. The
+# Trust Activity Explorer reads this, not our own database -- which is the
+# point: the explorer shows what the chain says, independently of the service
+# that produced it.
+
+name: trustagent
+description: Authorization decisions and policy anchors for AI agents on Monad
+
+networks:
+  - id: 10143 # Monad testnet. Use 143 for mainnet.
+    start_block: 0
+    contracts:
+      - name: TrustAgentPolicyRegistry
+        address:
+          - "0x0000000000000000000000000000000000000000" # replace after deploy
+        handler: src/handlers.ts
+        events:
+          - event: PolicyAnchored(uint256 indexed agentTokenId, uint32 indexed version, bytes32 policyHash, address owner, uint64 anchoredAt)
+          - event: DecisionRecorded(uint256 indexed agentTokenId, bytes32 indexed decisionHash, bytes4 indexed action, uint8 decision, uint8 risk, bytes32 intentHash, bytes32 policyHash, uint64 recordedAt)
+          - event: AgentSuspended(uint256 indexed agentTokenId, bytes32 reasonCode, uint64 at)
+          - event: AgentReactivated(uint256 indexed agentTokenId, uint64 at)
+          - event: AttestorSet(uint256 indexed agentTokenId, address indexed attestor, address indexed setBy)

@@ -1,0 +1,25 @@
+{
+  "name": "@trustagent/policy-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit false --emitDeclarationOnly",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:security": "vitest run test/security",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@trustagent/shared": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "fast-check": "^3.22.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}
