@@ -32,9 +32,16 @@ Landing page. The five-step diagram is on screen.
 
 ## 0:15 — Identity (10s)
 
-Sign in. Face ID / passkey.
+Sign in by signing the challenge with your wallet (SIWE), or **Continue as demo
+owner** if you are running this without one.
 
-> "One passkey. It derives a separate key for every agent. No seed phrase."
+> "The owner signs in with their wallet. Every agent below them gets its own
+> derived key — one owner, many keys, no shared secret."
+
+> **Do not say "Face ID" or "passkey" here.** The key model is built for it and
+> the Passport shows the derivation path, but the mera passkey ceremony is not
+> wired yet — see SPONSORS.md. Claiming it on camera is the kind of thing a
+> judge checks.
 
 ## 0:25 — Agent Passport (20s)
 

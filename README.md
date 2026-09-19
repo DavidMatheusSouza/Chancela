@@ -193,6 +193,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | [SMART_CONTRACT.md](docs/SMART_CONTRACT.md) | Registry design and ERC-8004 binding |
 | [API.md](docs/API.md) | REST reference |
 | [SPONSORS.md](docs/SPONSORS.md) | Integration status, stated honestly |
+| [BOUNTIES.md](docs/BOUNTIES.md) | Official bounty matrix, researched and prioritised |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | VPS, Docker, Cloudflare Tunnel |
 | [DEMO.md](docs/DEMO.md) | The 2:40 demo script |
 
