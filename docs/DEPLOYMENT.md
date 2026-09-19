@@ -78,6 +78,17 @@ initialise if something is already listening on the port rather than guessing.
 `/api/health` reports `"storage": "postgres"` once the app is pointed at it, and
 `"memory (not durable)"` when it is not.
 
+### Daily work-in-progress commits
+
+```bash
+./scripts/daily-commit.sh          # run it by hand
+crontab -l | grep daily-commit     # it is scheduled at 22:00
+```
+
+It commits only when something actually changed. There are no empty
+commits, and nothing is backdated: the history says when the work
+happened, which is the only thing that makes it worth reading.
+
 ### Without root
 
 Everything here runs in user space. Foundry installs to `~/.foundry`; the package
