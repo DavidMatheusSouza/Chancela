@@ -157,6 +157,39 @@ structurally impossible to violate by accident — there is no `string` field.
 **Control.** Per-agent rate limiting. Note the failure mode is a `429`, not a
 fail-open.
 
+### 17. Persistence — the attacker who just keeps trying
+
+A refusal costs an attacker nothing. With unlimited attempts, a compromised
+runtime or a hostile user can iterate on phrasing, parameters and timing until
+something gets through a gap nobody has found yet.
+
+**Control.** A circuit breaker (`apps/web/src/lib/breaker.ts`). Three critical
+refusals inside ninety seconds suspend the agent. From then on the first gate of
+the pipeline refuses everything it asks for — including actions its policy
+grants — and only the owner can reactivate it. The breaker is arithmetic over
+the audit trail: no model is consulted, so it cannot be argued out of tripping.
+Measured on the live deployment, three hostile calls and the suspension complete
+in about 110 ms.
+
+Refusals issued *because* the agent is suspended are excluded from the count, or
+the breaker would hold itself open forever. A reactivation clears the window,
+since the owner has looked and said carry on.
+
+**The cost, stated plainly.** Whoever can submit requests in an agent's name can
+suspend it. `/authorize` is public by design (the reasoning is at the top of
+`apps/web/src/middleware.ts`), so this is
+a denial-of-service lever available to anyone who knows an agent id. It is the
+deliberate choice: an agent that can be made to *look* hostile should be off
+until a human has looked, and the price of a false positive is one click, while
+the price of a false negative is unlimited attempts. A deployment that finds
+that trade wrong should authenticate callers of `/authorize` rather than weaken
+the breaker.
+
+**Verified by:** `apps/web/test/breaker.test.ts` — stays closed below threshold,
+trips on the crossing refusal, refuses granted actions at gate 1 afterwards,
+ignores its own suspensions, ignores low-risk refusals, and restarts from zero
+after a reactivation.
+
 ## Residual risks
 
 Stated plainly rather than hidden:

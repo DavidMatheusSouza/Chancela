@@ -7,6 +7,7 @@ import { computeTrustScore } from '@/lib/trust-score';
 import { activeChain, explorerAddressUrl, explorerTxUrl } from '@/lib/chain';
 import { Badge, Card, Field, Label, Mono, StatusDot } from '@/components/primitives';
 import { DecisionHistory } from '@/components/decision-history';
+import { SuspendedBanner } from '@/components/suspended-banner';
 import { cn, formatTime, shortHash } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
@@ -48,6 +49,8 @@ export default async function AgentPassport({ params }: { params: { id: string }
           </Link>
         </div>
       </div>
+
+      {agent.status === 'SUSPENDED' ? <SuspendedBanner agentId={agent.id} name={agent.name} /> : null}
 
       {/* The single spotlight element on the whole product. */}
       <Card className="relative overflow-hidden border-chain/20 glow-chain">

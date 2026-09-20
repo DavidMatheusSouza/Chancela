@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Loader2,
   Play,
+  Power,
   RotateCcw,
   Square,
   X,
@@ -77,8 +78,29 @@ const STEPS = [
   { id: 'proof', n: '03', title: 'Verifiable proof', question: 'Can anyone check that this happened?' },
   { id: 'deny', n: '04', title: 'A refused action', question: 'Now something the policy does not grant.' },
   { id: 'injection', n: '05', title: 'Prompt injection', question: 'Can the instruction talk its way past the policy?' },
-  { id: 'audit', n: '06', title: 'The record', question: 'Was every attempt written down?' },
+  { id: 'breaker', n: '06', title: 'Circuit breaker', question: 'And if it simply keeps trying?' },
+  { id: 'audit', n: '07', title: 'The record', question: 'Was every attempt written down?' },
 ] as const;
+
+interface BurstRow {
+  n: number;
+  decision: string;
+  reasonCode: string;
+  count: number;
+  threshold: number;
+  windowSeconds: number;
+  tripped: boolean;
+  ms: number;
+}
+
+interface BreakerRun {
+  burst: BurstRow[];
+  /** A permitted action, tried after the trip. */
+  after?: { decision: string; reasonCode: string; reasonText: string; trace: TraceStep[] };
+  reactivated?: boolean;
+  running?: boolean;
+  error?: string;
+}
 
 const PROMPTS: Record<string, string> = {
   allow: 'Create a customer named Joao',
@@ -90,7 +112,10 @@ export function DemoRunner({ agent }: { agent: DemoAgent }) {
   const [step, setStep] = useState(0);
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
   const [auto, setAuto] = useState(false);
+  const [breakerRun, setBreakerRun] = useState<BreakerRun | null>(null);
+  const [suspended, setSuspended] = useState(agent.status !== 'ACTIVE');
   const stopped = useRef(false);
+  const autoRef = useRef(false);
 
   const current = STEPS[step]!;
 
@@ -143,6 +168,87 @@ export function DemoRunner({ agent }: { agent: DemoAgent }) {
     [agent.id, waitForAnchor],
   );
 
+  const reactivate = useCallback(async () => {
+    const res = await fetch(`/api/agents/${agent.id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ status: 'ACTIVE' }),
+    });
+    if (res.ok) {
+      setSuspended(false);
+      setBreakerRun((b) => (b ? { ...b, reactivated: true } : b));
+    }
+  }, [agent.id]);
+
+  /**
+   * A compromised runtime does not ask politely through a chat box; it hammers
+   * the authorize endpoint. So this step calls it directly, as that runtime
+   * would, until the breaker trips -- then tries something the policy grants,
+   * to show the agent is off, not merely refused.
+   */
+  const runBreaker = useCallback(async () => {
+    setBreakerRun({ burst: [], running: true });
+    const call = async (action: string, parameters: Record<string, unknown>) => {
+      const t0 = performance.now();
+      const res = await fetch(`/api/agents/${agent.id}/authorize`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action, parameters }),
+      });
+      return { body: await res.json(), ms: Math.round(performance.now() - t0) };
+    };
+
+    try {
+      for (let n = 1; n <= 4; n++) {
+        if (stopped.current) break;
+        const { body, ms } = await call('TRANSFER_FUNDS', {
+          amount: 500000 * n,
+          recipient: `drain-${n}`,
+        });
+        const row: BurstRow = {
+          n,
+          decision: body.decision,
+          reasonCode: body.reasonCode,
+          count: body.breaker?.count ?? 0,
+          threshold: body.breaker?.threshold ?? 3,
+          windowSeconds: body.breaker?.windowSeconds ?? 90,
+          tripped: Boolean(body.breaker?.tripped) || body.reasonCode === 'AGENT_SUSPENDED',
+          ms,
+        };
+        setBreakerRun((b) => ({ ...(b ?? { burst: [] }), burst: [...(b?.burst ?? []), row], running: true }));
+        if (row.tripped) break;
+        await new Promise((r) => setTimeout(r, 700));
+      }
+
+      setSuspended(true);
+      await new Promise((r) => setTimeout(r, 900));
+
+      const { body } = await call('CREATE_CUSTOMER', { name: 'Ana' });
+      setBreakerRun((b) => ({
+        ...(b ?? { burst: [] }),
+        running: false,
+        after: {
+          decision: body.decision,
+          reasonCode: body.reasonCode,
+          reasonText: body.reasonText,
+          trace: Array.isArray(body.trace) ? body.trace : [],
+        },
+      }));
+
+      // Unattended runs put the system back the way they found it.
+      if (autoRef.current) {
+        await new Promise((r) => setTimeout(r, 4500));
+        await reactivate();
+      }
+    } catch (err) {
+      setBreakerRun((b) => ({ ...(b ?? { burst: [] }), running: false, error: String(err) }));
+    }
+  }, [agent.id, reactivate]);
+
+  useEffect(() => {
+    if (current.id === 'breaker' && !breakerRun) void runBreaker();
+  }, [current.id, breakerRun, runBreaker]);
+
   // Each action step fires once, when it is first reached.
   useEffect(() => {
     const key = current.id;
@@ -152,8 +258,11 @@ export function DemoRunner({ agent }: { agent: DemoAgent }) {
 
   const runFull = useCallback(async () => {
     stopped.current = false;
+    autoRef.current = true;
     setAuto(true);
     setOutcomes({});
+    setBreakerRun(null);
+    if (suspended) await reactivate();
     setStep(0);
 
     for (let i = 0; i < STEPS.length; i++) {
@@ -163,21 +272,29 @@ export function DemoRunner({ agent }: { agent: DemoAgent }) {
       if (PROMPTS[key]) {
         await run(key);
         await new Promise((r) => setTimeout(r, 6000));
+      } else if (key === 'breaker') {
+        // The step drives itself from the effect; give it room to finish,
+        // including the owner reactivation at the end.
+        await new Promise((r) => setTimeout(r, 14000));
       } else {
         await new Promise((r) => setTimeout(r, 4500));
       }
     }
+    autoRef.current = false;
     setAuto(false);
-  }, [run]);
+  }, [run, reactivate, suspended]);
 
   function stop() {
     stopped.current = true;
+    autoRef.current = false;
     setAuto(false);
   }
 
   function restart() {
     stop();
     setOutcomes({});
+    setBreakerRun(null);
+    if (suspended) void reactivate();
     setStep(0);
   }
 
@@ -214,6 +331,21 @@ export function DemoRunner({ agent }: { agent: DemoAgent }) {
           </button>
         </div>
       </header>
+
+      {suspended && current.id !== 'breaker' ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-deny/45 bg-deny/[0.06] px-4 py-2.5">
+          <span className="text-[13px] text-deny">
+            {agent.name} is suspended — the circuit breaker tripped. Everything it asks for is refused
+            until its owner reactivates it.
+          </span>
+          <button
+            onClick={() => void reactivate()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-[12.5px] text-ink"
+          >
+            <Power className="h-3 w-3" /> Reactivate as owner
+          </button>
+        </div>
+      ) : null}
 
       <ol className="flex flex-wrap gap-1.5">
         {STEPS.map((s, i) => {
@@ -252,6 +384,9 @@ export function DemoRunner({ agent }: { agent: DemoAgent }) {
         {current.id === 'identity' ? <Identity agent={agent} /> : null}
         {current.id === 'proof' ? (
           <Proof outcome={outcomes.allow} agent={agent} />
+        ) : null}
+        {current.id === 'breaker' ? (
+          <Breaker run={breakerRun} suspended={suspended} onReactivate={() => void reactivate()} />
         ) : null}
         {current.id === 'audit' ? <AuditSummary outcomes={outcomes} /> : null}
         {PROMPTS[current.id] ? (
@@ -505,6 +640,136 @@ function Proof({ outcome, agent }: { outcome?: Outcome; agent: DemoAgent }) {
         decision hash yourself at{' '}
         <Mono className="text-ink">/api/proofs/{outcome.decision.auditId}</Mono> and compare.
       </p>
+    </div>
+  );
+}
+
+function Breaker({
+  run,
+  suspended,
+  onReactivate,
+}: {
+  run: BreakerRun | null;
+  suspended: boolean;
+  onReactivate: () => void;
+}) {
+  if (!run) return null;
+  const trip = run.burst.find((r) => r.tripped);
+  const tripped = Boolean(trip);
+  const total = run.burst.reduce((sum, r) => sum + r.ms, 0);
+  // Refusals from the earlier steps are in the same window and count too.
+  const carried = trip ? Math.max(0, trip.count - run.burst.length) : 0;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-[13px] leading-relaxed text-muted">
+        A compromised runtime does not rephrase — it hammers the authorize endpoint directly. Each
+        attempt below is a real call, refused by policy and counted by the breaker.
+      </p>
+
+      <div className="overflow-hidden rounded-lg border border-line">
+        <table className="w-full text-[13px]">
+          <thead>
+            <tr className="border-b border-line bg-surface">
+              {['Attempt', 'Action', 'Decision', 'Breaker', 'Latency'].map((h) => (
+                <th key={h} className="label px-3 py-2 text-left">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {run.burst.map((r) => (
+              <tr
+                key={r.n}
+                className={cn('animate-in-rise border-b border-line/60', r.tripped && 'bg-deny/[0.06]')}
+              >
+                <td className="px-3 py-2"><Mono>#{r.n}</Mono></td>
+                <td className="px-3 py-2"><Mono className="text-ink">TRANSFER_FUNDS</Mono></td>
+                <td className="px-3 py-2 font-medium text-deny">{r.decision}</td>
+                <td className="px-3 py-2">
+                  {r.tripped ? (
+                    <span className="font-medium text-deny">
+                      {r.count > 0 ? `${r.count}/${r.threshold} — ` : ''}TRIPPED
+                    </span>
+                  ) : (
+                    <Mono>
+                      {r.count}/{r.threshold}
+                    </Mono>
+                  )}
+                </td>
+                <td className="px-3 py-2"><Mono className="text-faint">{r.ms}ms</Mono></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {run.running && !tripped ? (
+        <div className="flex items-center gap-2 text-[13px] text-faint">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Attack in progress…
+        </div>
+      ) : null}
+
+      {tripped ? (
+        <div className="verdict-deny animate-in-rise rounded-lg p-4">
+          <div className="text-[15px] font-semibold tracking-tight text-deny">
+            Agent suspended — {trip!.count || trip!.threshold} critical refusals inside{' '}
+            {trip!.windowSeconds}s
+          </div>
+          <p className="mt-1 text-[13px] text-deny">
+            {carried > 0
+              ? `The ${carried === 1 ? 'refusal' : `${carried} refusals`} from the earlier steps counted too: the breaker reads the whole audit trail, not just this burst. `
+              : ''}
+            This burst took {total}ms. No model was consulted, so there is nothing to talk out of
+            tripping.
+          </p>
+        </div>
+      ) : null}
+
+      {run.after ? (
+        <div className="animate-in-rise space-y-3 rounded-lg border border-line bg-surface p-3.5">
+          <div>
+            <Label>Then it asks for something its policy grants</Label>
+            <p className="mt-1 text-[13px] text-ink">
+              <Mono className="text-ink">CREATE_CUSTOMER</Mono> →{' '}
+              <span className="font-medium text-deny">{run.after.decision}</span>{' '}
+              <Mono className="text-faint">{run.after.reasonCode}</Mono>
+            </p>
+            <p className="mt-1 text-[12.5px] text-muted">
+              Allowed a minute ago, refused now, and refused at the very first gate. The agent is
+              not being denied an action — it is off.
+            </p>
+          </div>
+          {run.after.trace.length ? <PipelineTrace trace={run.after.trace} /> : null}
+        </div>
+      ) : null}
+
+      {run.after ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+          <p className="text-[12.5px] text-muted">
+            {run.reactivated || !suspended
+              ? 'Reactivated by the owner. Earlier refusals no longer count against it.'
+              : 'Only the owner can bring it back. The breaker never reopens by itself.'}
+          </p>
+          {!run.reactivated && suspended ? (
+            <button
+              onClick={onReactivate}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-1.5 text-[12.5px] font-medium text-bg"
+            >
+              <Power className="h-3 w-3" /> Reactivate as owner
+            </button>
+          ) : (
+            <Badge tone="allow">Active</Badge>
+          )}
+        </div>
+      ) : null}
+
+      {run.error ? (
+        <div className="rounded-lg border border-warn/40 bg-warn/[0.06] p-3 text-[13px] text-warn">
+          {run.error}
+        </div>
+      ) : null}
     </div>
   );
 }

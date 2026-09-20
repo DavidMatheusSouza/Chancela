@@ -13,6 +13,7 @@ import { signCapsule } from './attestation';
 import { anchorDecision } from './chain';
 import { lookupCounterparty } from './nansen';
 import { getRepository } from './store';
+import { evaluateBreaker, type BreakerState } from './breaker';
 import type { DecisionRow } from './repository';
 
 export interface AuthorizeInput {
@@ -43,6 +44,8 @@ export interface AuthorizeOutput {
   expiresAt: number;
   trace: unknown;
   anchorStatus: DecisionRow['anchorStatus'];
+  /** Whether this decision tripped the circuit breaker and suspended the agent. */
+  breaker: BreakerState;
 }
 
 export class AuthorizeError extends Error {
@@ -150,6 +153,10 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
 
   await repo.recordDecision(row);
 
+  // After the record exists, never before: the breaker reads the audit trail,
+  // and the refusal that trips it has to be in that trail to be counted.
+  const breaker = await evaluateBreaker(repo, input.agentId, row);
+
   // Fire-and-forget anchoring. Both allows and denies are written: a registry
   // that only proves the allows is marketing, not an audit trail.
   void anchorInBackground(row, agentRow.erc8004TokenId);
@@ -173,6 +180,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     expiresAt: result.capsule.expiresAt,
     trace: result.trace,
     anchorStatus: 'PENDING',
+    breaker,
   };
 }
 

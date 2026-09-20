@@ -44,9 +44,9 @@ try {
   await page.getByRole('button', { name: /run full demo/i }).click();
   log('started the run');
 
-  // The run is six steps; the action steps wait on a live model and a live
+  // The run is seven steps; the action steps wait on a live model and a live
   // anchor, so this follows the clock rather than racing it.
-  for (let elapsed = 0; elapsed < 75; elapsed += 5) {
+  for (let elapsed = 0; elapsed < 85; elapsed += 5) {
     await page.waitForTimeout(5000);
     log(`  ${elapsed + 5}s`);
   }

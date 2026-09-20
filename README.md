@@ -16,9 +16,10 @@ three agents registered, policies anchored, every decision recorded.
 **[Open the guided demo →](https://crops-morgan-hose-lloyd.trycloudflare.com/demo)** — sign in with
 **Continue as demo owner**, no wallet needed, then press **Run full demo**.
 
-Six steps, all of them live: the agent's identity and permissions, an action its
+Seven steps, all of them live: the agent's identity and permissions, an action its
 policy allows, the proof landing on Monad, an action the policy refuses, a prompt
-injection that changes nothing, and the record of all three. Nothing is staged —
+injection that changes nothing, a burst attack that trips the circuit breaker and
+suspends the agent, and the record of every attempt. Nothing is staged —
 the intent goes through a real model, the decision through the real policy engine,
 and the proof anchors on testnet in about two seconds. When something is not
 anchored yet, the screen says so instead of showing a hash that does not exist.
@@ -87,6 +88,18 @@ INTENT_MISMATCH: expected 0x31f74a17…, parameters hash to 0xaac2fdcb…
 
 ---
 
+## Nothing here is simulated
+
+Every claim on this page can be checked without trusting this repository:
+
+| Claim | Check it |
+|---|---|
+| The registry is deployed | [`0x649DD587…6d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) holds bytecode on Monad testnet; `GET /api/network/status` re-checks it live |
+| Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
+| The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
+| The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
+| The security properties hold | `pnpm verify:all` — 180 tests, including property-based and fuzzed |
+
 ## Why the model cannot be talked into anything
 
 The policy engine has never seen the agent's policy in a prompt, because the
@@ -106,6 +119,12 @@ reason   : Agent does not have permission to perform this action.
 ```
 
 The model read the injection. The policy engine never did.
+
+And if the attacker simply keeps trying, the **circuit breaker** ends the
+conversation: three critical refusals in ninety seconds suspend the agent. After
+that the first gate refuses everything — even actions its policy grants — until
+the owner reactivates it. No model is consulted, so there is nothing to talk out
+of tripping. Measured live: three hostile calls and the suspension in ~110 ms.
 
 Swap the model mid-conversation and the **authorization outcome does not move**:
 same action, same `DENY`, same `CRITICAL`, same `PERMISSION_DENIED`, same policy
@@ -191,7 +210,7 @@ trustagent/
 ## Verify
 
 ```bash
-pnpm verify:all      # typecheck + 173 tests + contracts
+pnpm verify:all      # typecheck + 180 tests + contracts
 pnpm test:security   # injection, replay, forgery, privilege escalation
 ```
 
@@ -204,8 +223,9 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Attestation + end-to-end flow | 20 |
 | Wallet sign-in, sessions and SIWE | 13 |
 | Demo mode invariants | 6 |
+| Circuit breaker | 7 |
 | MetaMask plugin | 6 |
-| **Total** | **173** |
+| **Total** | **180** |
 
 ## Documentation
 

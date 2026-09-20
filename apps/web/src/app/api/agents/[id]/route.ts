@@ -1,6 +1,7 @@
 import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
 import { fail, ok } from '@/lib/http';
+import { noteReactivation } from '@/lib/breaker';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,5 +50,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     status: body.status as 'ACTIVE' | 'SUSPENDED' | 'REVOKED' | undefined,
   });
   if (!updated) return fail(404, 'NOT_FOUND', `Unknown agent ${params.id}`);
+  // The owner has looked and said carry on: earlier refusals stop counting.
+  if (body.status === 'ACTIVE') noteReactivation(params.id);
   return ok({ agent: updated });
 }
