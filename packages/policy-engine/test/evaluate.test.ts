@@ -153,6 +153,39 @@ describe('deny matrix', () => {
   });
 });
 
+describe('an owner approval', () => {
+  const stepUp = {
+    policy: { ...salesPolicy, permissions: [...salesPolicy.permissions, 'CHANGE_POLICY' as const] },
+    action: 'CHANGE_POLICY',
+    parameters: { policyId: 'pol_2' },
+  };
+  const approval = { stepUpDecisionHash: `0x${'ab'.repeat(32)}` as const };
+
+  it('turns the step-up into an ALLOW that says why', () => {
+    const r = evaluate(input({ ...stepUp, approval }));
+    expect(r.decision).toBe('ALLOW');
+    expect(r.reasonCode).toBe('APPROVED_BY_OWNER');
+    expect(r.capsule.decision).toBe('ALLOW');
+    expect(r.trace.find((t) => t.name === 'step-up')).toMatchObject({ passed: true });
+  });
+
+  it('changes nothing when no step-up was needed', () => {
+    const r = evaluate(input({ approval }));
+    expect(r.decision).toBe('ALLOW');
+    expect(r.reasonCode).toBe('OK');
+  });
+
+  it.each([
+    ['a suspended agent', { agent: { ...agent, status: 'SUSPENDED' as const } }, 'AGENT_SUSPENDED'],
+    ['a permission the policy no longer grants', { policy: salesPolicy }, 'PERMISSION_DENIED'],
+    ['an expired policy', { policy: { ...stepUp.policy, expiresAt: NOW - 1 } }, 'POLICY_EXPIRED'],
+  ])('cannot resurrect a request ruled out by %s', (_name, change, reason) => {
+    const r = evaluate(input({ ...stepUp, ...change, approval }));
+    expect(r.decision).toBe('DENY');
+    expect(r.reasonCode).toBe(reason);
+  });
+});
+
 describe('step-up', () => {
   it('requires approval when risk reaches the threshold', () => {
     const r = evaluate(

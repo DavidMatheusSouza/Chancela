@@ -36,6 +36,12 @@ export interface EvaluateInput {
   nonce: string;
   /** Capsule lifetime in seconds. Short on purpose. */
   ttlSeconds?: number;
+  /**
+   * The owner's approval of an earlier REQUIRE_APPROVAL decision for this same
+   * request. It satisfies the step-up gate and nothing else. The caller must
+   * have verified the owner's signature over that decision's hash.
+   */
+  approval?: { stepUpDecisionHash: Hex };
 }
 
 export interface EvaluateResult {
@@ -232,7 +238,15 @@ function run(input: EvaluateInput): EvaluateResult {
   trace.push({ step: 9, name: 'risk', passed: true, detail: riskAssessment.level });
 
   // ---- Step 10: step-up -- risk at/above threshold needs a human -------------
-  if (compareRisk(riskAssessment.level, policy.stepUpThreshold) >= 0) {
+  // An approval answers this step and only this step. Everything above has just
+  // been re-evaluated against the agent, policy and limits as they are *now*, so
+  // an approval cannot resurrect a request that a suspension, a policy change or
+  // a spent limit has since ruled out. Whether the approval is genuine is not
+  // this function's business: the caller verifies the owner's signature over
+  // `stepUpDecisionHash` before passing it in.
+  const needsHuman = compareRisk(riskAssessment.level, policy.stepUpThreshold) >= 0;
+  const approved = needsHuman && input.approval !== undefined;
+  if (needsHuman && !approved) {
     const reason: ReasonCode =
       riskAssessment.counterpartySeverity >= 50
         ? 'APPROVAL_REQUIRED_COUNTERPARTY'
@@ -247,12 +261,18 @@ function run(input: EvaluateInput): EvaluateResult {
     });
     return build(input, 'REQUIRE_APPROVAL', reason, riskAssessment, trace, policy, parameters);
   }
-  trace.push({ step: 10, name: 'step-up', passed: true });
+  trace.push({
+    step: 10,
+    name: 'step-up',
+    passed: true,
+    ...(approved ? { detail: `approved by owner: ${input.approval!.stepUpDecisionHash.slice(0, 10)}` } : {}),
+  });
 
   // ---- Step 11: allow -------------------------------------------------------
   // Reached only by passing every step above. There is no other return of ALLOW
   // anywhere in this file -- asserted by a test that greps the source.
-  return build(input, 'ALLOW', 'OK', riskAssessment, trace, policy, parameters);
+  const allowReason: ReasonCode = approved ? 'APPROVED_BY_OWNER' : 'OK';
+  return build(input, 'ALLOW', allowReason, riskAssessment, trace, policy, parameters);
 }
 
 function extractCounterparty(parameters: Record<string, unknown>): string | undefined {

@@ -53,6 +53,8 @@ export const REASON_CODES = [
   'APPROVAL_REQUIRED_RISK',
   'APPROVAL_REQUIRED_AMOUNT',
   'APPROVAL_REQUIRED_COUNTERPARTY',
+  // step-up, satisfied
+  'APPROVED_BY_OWNER',
 ] as const;
 export type ReasonCode = (typeof REASON_CODES)[number];
 
@@ -77,6 +79,7 @@ export const REASON_TEXT: Record<ReasonCode, string> = {
   APPROVAL_REQUIRED_RISK: 'Risk level requires explicit owner approval.',
   APPROVAL_REQUIRED_AMOUNT: 'Transaction value requires explicit owner approval.',
   APPROVAL_REQUIRED_COUNTERPARTY: 'Counterparty risk requires explicit owner approval.',
+  APPROVED_BY_OWNER: 'Inside policy, and the step-up was approved by the owner with a passkey.',
 };
 
 export interface PolicyLimits {
