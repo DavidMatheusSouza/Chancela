@@ -2,6 +2,12 @@
 
 **Identity, authorization and accountability for AI agents.**
 
+[![CI](https://github.com/DavidMatheusSouza/Chancela/actions/workflows/ci.yml/badge.svg)](https://github.com/DavidMatheusSouza/Chancela/actions/workflows/ci.yml)
+[![chancela-sdk](https://img.shields.io/npm/v/chancela-sdk?label=chancela-sdk)](https://www.npmjs.com/package/chancela-sdk)
+[![chancela-mcp](https://img.shields.io/npm/v/chancela-mcp?label=chancela-mcp)](https://www.npmjs.com/package/chancela-mcp)
+[![mm-plugin-chancela](https://img.shields.io/npm/v/mm-plugin-chancela?label=mm-plugin-chancela)](https://www.npmjs.com/package/mm-plugin-chancela)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 *Chancela* (shan-SEH-la) is Portuguese for the official seal that makes a document
 valid — related to *chancery*, the office that issued writs. Here it is the signed
 capsule without which nothing an agent asks for is carried out.

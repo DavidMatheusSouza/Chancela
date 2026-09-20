@@ -15,12 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # No version here: package.json's packageManager field names it, and the
+      # action refuses to run when two places disagree about which pnpm to use.
       - uses: pnpm/action-setup@v4
-        with: { version: 9 }
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
 
       - run: pnpm install --no-frozen-lockfile
+      # The Prisma client is generated code, not a dependency: without this the
+      # web app's types do not exist yet. It needs the schema, not a database.
+      - run: pnpm db:generate
       - name: Typecheck
         run: pnpm -r --filter '!@chancela/contracts' typecheck
       - name: Unit and integration tests
