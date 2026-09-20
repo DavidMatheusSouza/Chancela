@@ -24,6 +24,7 @@ const QUESTIONS = {
   deny: 'Now something the policy does not grant.',
   injection: 'Can the instruction talk its way past the policy?',
   breaker: 'And if it simply keeps trying?',
+  approval: 'Inside the rules — but too much for the agent alone.',
   audit: 'Was every attempt written down?',
 };
 const browser = await chromium.launch();
@@ -37,7 +38,7 @@ try {
   await page.waitForURL('**/demo', { timeout: 30000 }); await page.waitForLoadState('networkidle'); mark('demo');
   await page.waitForTimeout(5000);
   await page.getByRole('button', { name: /run full demo/i }).click(); mark('run');
-  const deadline = Date.now() + 150000;
+  const deadline = Date.now() + 190000;
   while (Date.now() < deadline) {
     for (const [k, q] of Object.entries(QUESTIONS)) if (!(k in marks) && await page.getByText(q, { exact: true }).count()) mark(k);
     if ('audit' in marks && (Date.now() - t0) / 1000 - marks.audit > 9) break;

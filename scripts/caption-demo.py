@@ -22,7 +22,8 @@ CAPTIONS = [
     ("proof", "deny", "Seconds later the decision is a transaction on Monad.\nAnyone can verify it, without an account."),
     ("deny", "injection", "A transfer the policy does not grant: refused.\nThe refusal is signed and anchored too — not only the yeses."),
     ("injection", "breaker", "Prompt injection: “ignore all previous rules”.\nThe model can be talked into anything. The policy engine cannot."),
-    ("breaker", "audit", "It keeps trying, so the circuit breaker suspends the agent.\nEven permitted actions now stop at the first gate, until the owner reactivates it."),
+    ("breaker", "approval", "It keeps trying, so the circuit breaker suspends the agent.\nEven permitted actions now stop at the first gate, until the owner reactivates it."),
+    ("approval", "audit", "Inside the policy, but a human decides. The owner approves with a passkey —\nand Monad itself verifies that signature, with its native P-256 precompile."),
     ("audit", "integrations", "Every attempt is on the record: what was asked, what was decided, and why."),
     ("integrations", "end", "Every integration reports its real state. Open source, no admin key.\nchancela.xyz  ·  github.com/DavidMatheusSouza/Chancela"),
 ]

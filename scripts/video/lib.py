@@ -43,8 +43,10 @@ def write_ass(path, events):
 def video_segment(src, start, end, target, out):
     """Cut [start,end] from src and stretch it to last `target` seconds."""
     speed = (end - start) / target
-    run("ffmpeg", "-v", "error", "-y", "-i", src, "-ss", f"{start:.3f}", "-to", f"{end:.3f}",
-        "-vf", f"setpts=(PTS-STARTPTS)/{speed:.5f},fps=30,scale=1920:1080", "-an",
+    # Trim inside the filter graph, before retiming. As output options, -ss/-to
+    # apply to the *stretched* timestamps and cut the wrong part of the recording.
+    run("ffmpeg", "-v", "error", "-y", "-i", src,
+        "-vf", f"trim=start={start:.3f}:end={end:.3f},setpts=(PTS-STARTPTS)/{speed:.5f},fps=30,scale=1920:1080", "-an",
         "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-t", f"{target:.3f}", out)
 
 def still_segment(png, target, out):

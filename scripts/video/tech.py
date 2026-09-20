@@ -30,15 +30,18 @@ SEG = [
  ("injection", "breaker",
   "A prompt injection: ignore all previous rules. The model can be talked into anything. The policy engine cannot. Same answer.",
   "Prompt injection: “ignore all previous rules”.\nThe model can be talked into anything. The policy engine cannot."),
- ("breaker", "audit",
+ ("breaker", "approval",
   "The agent keeps trying, so the circuit breaker suspends it. Even actions it was allowed a minute ago now stop at the first gate, until its owner reactivates it.",
   "It keeps trying, so the circuit breaker suspends the agent.\nEven permitted actions now stop at the first gate, until the owner reactivates it."),
+ ("approval", "audit",
+  "Some actions are inside the policy, and still too much for an agent alone. This transfer waits for its owner, who approves with a passkey. That signature is verified here, and then again on Monad, by the chain's native P 256 precompile.",
+  "Inside the policy, but a human decides. The owner approves with a passkey —\nand Monad itself verifies that signature, with its native P-256 precompile."),
  ("audit", "integrations",
   "Every attempt is on the record: what was asked, what was decided, and why.",
   "Every attempt is on the record: what was asked, what was decided, and why."),
  ("integrations", "end",
-  "Every integration reports its real state. For developers, it is one H T T P call, or an S D K that verifies each permission against the on-chain attestor. Open source. No admin key. Chancela.",
-  "One HTTP call, or an SDK that verifies each permission against the on-chain attestor.\nOpen source, no admin key.  chancela.xyz"),
+  "Every integration reports its real state. For developers, it is one H T T P call, an S D K, or an M C P server that verifies each permission against the on-chain attestor. Open source. No admin key. Chancela.",
+  "One HTTP call, an SDK or an MCP server — each permission verified against the on-chain attestor.\nOpen source, no admin key.  chancela.xyz"),
 ]
 videos, audios, events, t = [], [], [], 0.0
 for i, (a, b, text, cap) in enumerate(SEG):
