@@ -17,7 +17,6 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
     "contracts:build": "pnpm --filter=@chancela/contracts build",
     "contracts:test": "pnpm --filter=@chancela/contracts test",
     "verify:all": "pnpm typecheck && pnpm test && pnpm contracts:test"

@@ -121,7 +121,11 @@ export default async function AgentPassport({ params }: { params: { id: string }
               value={
                 <span className="inline-flex items-center gap-1.5">
                   <KeyRound className="h-3.5 w-3.5 text-muted" />
-                  {agent.walletProvider === 'MERA' ? `passkey / m/44'/60'/0'/0/${agent.derivationIndex}` : agent.walletProvider ?? '--'}
+                  {agent.walletProvider === 'MERA'
+                    ? `passkey / m/44'/60'/0'/0/${agent.derivationIndex}`
+                    : agent.walletProvider === 'PRIVY'
+                      ? 'PRIVY'
+                      : 'no key bound'}
                 </span>
               }
               mono
