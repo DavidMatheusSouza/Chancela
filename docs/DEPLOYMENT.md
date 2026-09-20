@@ -129,6 +129,8 @@ TLS terminates at Cloudflare, so no certificate management and no inbound ports.
 - [ ] After binding passkey-derived keys on `/keys`: `pnpm tsx scripts/sync-agent-wallets.ts --send`, until every passport shows the wallet as *in registry*
 - [ ] Every agent's policy anchored via `anchorPolicy()`
 - [ ] `DATABASE_URL` set and `prisma migrate deploy` run
+- [ ] The database starts by itself after a reboot. With the user-space cluster that is one crontab line: `@reboot /usr/pgsql-16/bin/pg_ctl -D <PGROOT>/data -l <PGROOT>/server.log start`
+- [ ] `.env` backed up somewhere that is not this server — it holds the only copy of the attestation and deployer keys
 - [ ] `/api/health` reports `anchoring: enabled`
 - [ ] `/integrations` reviewed — every entry reports its real state
 - [ ] `gitleaks` clean

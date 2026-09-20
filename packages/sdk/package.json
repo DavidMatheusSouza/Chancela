@@ -1,21 +1,49 @@
 {
-  "name": "@chancela/sdk",
+  "name": "chancela-sdk",
   "version": "0.1.0",
-  "private": true,
-  "description": "Ask Chancela whether an AI agent may act, and check the answer yourself instead of trusting the server that gave it.",
+  "description": "Ask Chancela whether an AI agent may act, and verify the signed answer yourself instead of trusting the server that gave it.",
   "type": "module",
   "license": "MIT",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": { ".": "./src/index.ts" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit false --emitDeclarationOnly",
+    "build": "node build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "pnpm build"
   },
   "dependencies": {
-    "@chancela/shared": "workspace:*",
     "viem": "^2.21.32"
   },
-  "devDependencies": { "typescript": "^5.6.3", "vitest": "^2.1.3" }
+  "devDependencies": {
+    "@chancela/shared": "workspace:*",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  },
+  "author": "David Matheus Souza",
+  "repository": "https://github.com/DavidMatheusSouza/Chancela",
+  "keywords": [
+    "chancela",
+    "ai-agents",
+    "authorization",
+    "policy",
+    "monad",
+    "erc-8004",
+    "audit"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false
 }

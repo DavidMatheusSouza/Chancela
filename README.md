@@ -180,11 +180,11 @@ curl -s -X POST https://chancela.xyz/api/agents/TA-001/authorize \
 always written to the audit trail and anchored on Monad. Then read the proof,
 also without logging in: `GET /api/proofs/<auditId>`.
 
-In TypeScript, `@chancela/sdk` wraps the part that matters — your code runs only
+In TypeScript, [`chancela-sdk`](packages/sdk) wraps the part that matters — your code runs only
 if the policy allows it **and** the permission verifies locally:
 
 ```ts
-import { attestorFromRegistry, createClient } from '@chancela/sdk';
+import { attestorFromRegistry, createClient } from 'chancela-sdk';
 
 const chancela = createClient({
   baseUrl: 'https://chancela.xyz',
@@ -265,8 +265,9 @@ Built by one person in the Metropolis build window; there are no outside
 integrations yet, and this section will say so until there are. The plan, in
 order:
 
-1. **Publish** `@chancela/sdk` and `mm-plugin-chancela` to npm, so integration is
-   an install rather than a clone.
+1. **Publish** `chancela-sdk` and `mm-plugin-chancela` to npm, so integration is
+   an install rather than a clone. Both build to self-contained packages today;
+   `npm publish` in each directory is all that is left.
 2. **Three design partners** from agent teams building on Monad. The offer is
    concrete: a policy gate and public audit trail for their agent in an
    afternoon, in exchange for telling us where it chafes.

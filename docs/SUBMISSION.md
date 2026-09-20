@@ -15,17 +15,18 @@ Track 04 page of the hackathon platform, read on 20 September 2026.
 | On-chain | Policy registry [`0xb403392D…412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) — every decision, refusals included, is a transaction there |
 | Code | <https://github.com/DavidMatheusSouza/Chancela> (public, MIT) |
 
-The demo owner is a published test key, shared by everyone who presses that
-button, so another visitor may have changed something. The guided demo
-reactivates its agent by itself; if anything else looks off, the agent's
-**Policy** page shows exactly what it is currently allowed to do.
+The demo owner is a published test key, shared by every visitor. It can look at
+everything and run the breaker, which resets itself; it cannot publish a policy,
+revoke an agent or replace a bound key, because those would outlast the visit
+and break the demo for the next judge. To try them, create an account with a
+passkey on the sign-in page: it comes with an agent of your own.
 
 ## What judges look for, and where to find it
 
 | Criterion | Weight | Where it is answered |
 |---|---|---|
 | Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator (`scripts/e2e-passkey.mjs`). 225 tests including contract fuzzing; [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
-| Design & Craft — developer experience | 20% | One endpoint, one `curl`, no account ([README](../README.md#integrate-in-five-minutes)). [`@chancela/sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
+| Design & Craft — developer experience | 20% | One endpoint, one `curl`, no account ([README](../README.md#integrate-in-five-minutes)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
 | Originality & Track Insight — privacy-preserving, not capturable | 15% | [README: Not capturable by a single platform](../README.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
 | Founder & Market Readiness — who adopts it, why not roll their own | 25% | [README: Who this is for](../README.md#who-this-is-for), and the pitch video. |
 | Traction & Path Forward | 20% | [README: Where this goes next](../README.md#where-this-goes-next). **Open — see below.** |
@@ -34,7 +35,7 @@ reactivates its agent by itself; if anything else looks off, the agent's
 
 - [x] **Logo** — [`docs/assets/chancela-logo.png`](assets/chancela-logo.png), 1024×1024, 35 KB. Upload as is.
 - [x] **Public GitHub repository** — public, so `metropolis@hackathon.monad.xyz` can read it.
-- [ ] **Technical demo video, ≤ 3:00** — script below. YouTube (unlisted is fine), Loom or Vimeo.
+- [ ] **Technical demo video, ≤ 3:00** — recorded: 1:48, 1080p, captioned, against the live site with the Monad transaction on screen (`node scripts/record-demo-captioned.mjs`). Still to do: upload to YouTube (unlisted is fine), Loom or Vimeo. A voiceover is optional; the script below is for one.
 - [ ] **Pitch video, ≤ 2:00** — script below.
 - [x] **Live product link** with access instructions — the table above; paste it into the form.
 - [ ] Product advertisement, ≤ 0:30 — optional, not judged. The first 30 seconds of the technical video, cut at the refusal, would do.
