@@ -2,6 +2,7 @@ import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
 import { fail, ok } from '@/lib/http';
 import { noteReactivation } from '@/lib/breaker';
+import { requireOwner } from '@/lib/owner';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 }
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  // Suspending, reactivating and revoking belong to the owner alone.
+  const guard = await requireOwner(params.id);
+  if (!guard.ok) return guard.response;
+
   const body = (await req.json().catch(() => ({}))) as { status?: string };
   if (body.status && !['ACTIVE', 'SUSPENDED', 'REVOKED'].includes(body.status)) {
     return fail(400, 'INVALID_STATUS', 'status must be ACTIVE, SUSPENDED or REVOKED');

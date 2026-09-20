@@ -88,6 +88,17 @@ and requires owner approval. On-chain, `anchorPolicy()` is restricted to
 `identityRegistry.ownerOf(tokenId)` — ownership is read live from ERC-8004, so
 there is no cached owner mapping to go stale or be poisoned.
 
+Off-chain, `POST /api/agents/:id/policies` and `PATCH /api/agents/:id` require
+the session's address to equal the agent's owner (`apps/web/src/lib/owner.ts`).
+Being signed in is not enough. This was a real gap until it was found in
+review: the middleware checked for *a* session, so any signed-in owner could
+publish a policy for an agent they did not own, or suspend it. Every seeded
+agent shares one owner, which is why the demo never showed it.
+
+**Verified by:** `apps/web/test/owner.test.ts`, and against the running service
+with a validly signed session for a non-owner address — `403 NOT_THE_OWNER` on
+both routes, with the active policy unchanged.
+
 ### 8. Policy rollback
 
 An attacker re-anchors an older, more permissive policy version.

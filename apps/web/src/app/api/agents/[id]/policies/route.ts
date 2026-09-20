@@ -1,6 +1,7 @@
 import { hashPolicyDocument, policyDocumentSchema } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { fail, ok } from '@/lib/http';
+import { requireOwner } from '@/lib/owner';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,11 +19,13 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
  * the on-chain rule in TrustAgentPolicyRegistry.anchorPolicy().
  */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
+  // The most powerful write in the system: a policy decides what an agent may
+  // do, so only that agent's owner may publish one.
+  const guard = await requireOwner(params.id);
+  if (!guard.ok) return guard.response;
+
   const body = await request.json().catch(() => null);
   const repo = await getRepository();
-
-  const agent = await repo.getAgent(params.id);
-  if (!agent) return fail(404, 'NOT_FOUND', `Unknown agent ${params.id}`);
 
   const current = await repo.getActivePolicy(params.id);
   const nextVersion = (current?.version ?? 0) + 1;

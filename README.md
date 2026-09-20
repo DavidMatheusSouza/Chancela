@@ -102,7 +102,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — 180 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — 185 tests, including property-based and fuzzed |
 
 ## Why the model cannot be talked into anything
 
@@ -214,7 +214,7 @@ chancela/
 ## Verify
 
 ```bash
-pnpm verify:all      # typecheck + 180 tests + contracts
+pnpm verify:all      # typecheck + 185 tests + contracts
 pnpm test:security   # injection, replay, forgery, privilege escalation
 ```
 
@@ -228,8 +228,9 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Wallet sign-in, sessions and SIWE | 13 |
 | Demo mode invariants | 6 |
 | Circuit breaker | 7 |
+| Agent ownership | 5 |
 | MetaMask plugin | 6 |
-| **Total** | **180** |
+| **Total** | **185** |
 
 ## Documentation
 
