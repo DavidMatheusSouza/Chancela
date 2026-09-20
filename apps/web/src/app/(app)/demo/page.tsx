@@ -1,4 +1,7 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { SESSION_COOKIE, readSession } from '@/lib/session';
+import { ownsAgent } from '@/lib/owner';
 import { PERMISSIONS } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig } from '@/lib/chain';
@@ -39,6 +42,12 @@ export default async function DemoPage() {
     blocked: PERMISSIONS.filter((p) => !granted.includes(p)),
   };
 
+  // The breaker step suspends the agent, and only its owner can bring it back.
+  // Someone who signed up with their own passkey a minute ago is not that
+  // owner, and letting them trip it would leave the demo broken for everyone.
+  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const canAdminister = ownsAgent(session, record);
+
   const chain = activeChain();
   const anchoring = Boolean(chainConfig());
 
@@ -60,7 +69,7 @@ export default async function DemoPage() {
         </div>
       </header>
 
-      <DemoRunner agent={agent} />
+      <DemoRunner agent={agent} canAdminister={canAdminister} />
 
       <section className="rounded-lg border border-line bg-surface p-4">
         <h2 className="label">How it works</h2>

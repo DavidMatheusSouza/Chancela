@@ -2,6 +2,7 @@ import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { SignIn } from './sign-in';
 import { PrivySignIn } from './privy-sign-in';
+import { PasskeySignIn } from './passkey-sign-in';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,13 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
           </div>
 
           <SignIn next={searchParams.next ?? '/dashboard'} demoOwner={demoOwner} devSignIn={devSignIn} />
+
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-[11px] uppercase tracking-wider text-faint">or</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
+          <PasskeySignIn next={searchParams.next ?? '/dashboard'} />
 
           {privyAppId ? (
             <>

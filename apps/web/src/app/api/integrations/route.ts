@@ -1,4 +1,6 @@
 import { availableProviders } from '@chancela/ai';
+import { meraStatus } from '@/lib/mera-status';
+import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
 import { isNansenConfigured } from '@/lib/nansen';
 import { ok } from '@/lib/http';
@@ -13,6 +15,7 @@ export const dynamic = 'force-dynamic';
  * so, and says what is missing.
  */
 export async function GET() {
+  const mera = await meraStatus(await getRepository());
   const chain = activeChain();
   const config = chainConfig();
   const providers = availableProviders();
@@ -49,8 +52,7 @@ export async function GET() {
         id: 'mera',
         name: 'mera (Monad)',
         role: 'One owner passkey derives one BIP-44 key per agent. No seed phrase.',
-        status: process.env.NEXT_PUBLIC_MERA_ENABLED === 'true' ? 'CONNECTED' : 'NOT_CONFIGURED',
-        detail: 'Passkey-derived agent keys',
+        ...mera,
         docs: 'https://www.monad.xyz/blog/introducing-mera',
       },
       {

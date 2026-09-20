@@ -58,10 +58,10 @@ owner** if you are running this without one.
 > "The owner signs in with their wallet. Every agent below them gets its own
 > derived key — one owner, many keys, no shared secret."
 
-> **Do not say "Face ID" or "passkey" here.** The key model is built for it and
-> the Passport shows the derivation path, but the mera passkey ceremony is not
-> wired yet — see SPONSORS.md. Claiming it on camera is the kind of thing a
-> judge checks.
+> Passkey sign-in is real now (mera): **Create an account with a passkey** on
+> `/login` works on any device with a platform authenticator, and `/keys` shows
+> the one-passkey-many-keys derivation live. If you demo it, do it on camera —
+> it is ten seconds and it is the strongest onboarding beat there is.
 
 ## 0:25 — Agent Passport (20s)
 

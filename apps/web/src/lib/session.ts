@@ -19,7 +19,7 @@ export interface SessionPayload {
   /** Owner address, EIP-55 checksummed. */
   address: string;
   /** Where the session came from. */
-  method: 'wallet' | 'privy';
+  method: 'wallet' | 'privy' | 'passkey';
   issuedAt: number;
   expiresAt: number;
 }

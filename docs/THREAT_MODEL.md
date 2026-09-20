@@ -201,6 +201,21 @@ trips on the crossing refusal, refuses granted actions at gate 1 afterwards,
 ignores its own suspensions, ignores low-risk refusals, and restarts from zero
 after a reactivation.
 
+### 18. Unauthenticated onboarding
+
+`POST /api/auth/passkey` creates an agent for an address that owns none. That is
+an unauthenticated write, and it exists because onboarding is impossible without
+one: a brand-new passkey has, by construction, never owned anything.
+
+**Control.** The caller must first prove control of the address by signing the
+login challenge, the route is rate limited, and what it creates is deliberately
+close to useless — one read permission, zero limits. Deny-by-default holds for a
+stranger who arrived ten seconds ago exactly as it does for anyone else.
+
+**Cost.** Anyone can create rows. Agents are listed to every signed-in owner in
+this single-tenant deployment, so a determined visitor can add clutter. They
+cannot change, suspend or re-policy an agent they do not own (§7).
+
 ## Residual risks
 
 Stated plainly rather than hidden:

@@ -38,9 +38,9 @@ agent authorization?
 | Monad | Track 04 | $10,000 | Core | Registry deployed on 10143, every decision anchored | **P0** |
 | Alibaba Cloud | Best Builds with Qwen 3.8 Max | $5,000 credits | Direct | Implemented — needs `QWEN_API_KEY` | **P0** |
 | Kimi | Best Builds Powered by KIMI | $3,000 credits | Direct | Implemented — needs `KIMI_API_KEY` | **P0** |
-| Privy | "Privy!" | $5,000 | High | **Partial** — wallet modelling and status only | **P0** |
-| Monad Foundation | Mera: One Passkey, Many Keys | $2,500 | Literal | **Partial** — key model built, ceremony not wired | **P0** |
-| Monad Foundation | Best Mera-Powered UX on Monad | $2,500 | High | **Partial** — same dependency | **P1** |
+| Privy | "Privy!" | $5,000 | High | Implemented — live sign-in, token verified server-side | **P0** |
+| Monad Foundation | Mera: One Passkey, Many Keys | $2,500 | Literal | Implemented — passkey → owner key + one key per agent, verified end to end | **P0** |
+| Monad Foundation | Best Mera-Powered UX on Monad | $2,500 | High | Implemented — passkey sign-up creates the account and a first agent in one ceremony | **P0** |
 | Nansen AI | Best use of Nansen | $5,000 | High | Implemented — denylist fallback without a key | **P1** |
 | MetaMask | Best Agent Wallet Plugin | $2,500 | High | Implemented — not published to npm | **P1** |
 | Envio | Best Use of Envio | $1,000 | High | Implemented — needs codegen and a run | **P1** |
@@ -83,8 +83,6 @@ decision from differently-worded intents, the better the point lands.
 
 | Blocked | Worth |
 |---|---|
-| Privy live auth | $5,000 |
-| mera passkey ceremony | $5,000 across two bounties |
 | `QWEN_API_KEY` | $5,000 in credits, and the demo's central beat |
 | `KIMI_API_KEY` | $3,000 in credits, and the provider-swap claim |
 | `NANSEN_API_KEY` | strengthens an already-implemented integration |

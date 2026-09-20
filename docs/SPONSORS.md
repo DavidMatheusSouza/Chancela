@@ -84,6 +84,36 @@ does not have.
 
 | | |
 |---|---|
+| Technology | `@category-labs/mera` — WebAuthn PRF → BIP-32, in the browser |
+| Purpose | One owner passkey derives the owner key and one key per agent. No seed phrase. |
+| Integration | `apps/web/src/lib/passkey-keys.ts`, `/login`, `/keys`, `POST /api/auth/passkey` |
+| Status | **Implemented** — verified end to end with a virtual CTAP2 authenticator (`scripts/e2e-passkey.mjs`) |
+
+"One passkey, many keys" is this project's key model stated literally, so the
+integration is the model made real rather than a feature bolted on:
+
+- **Sign up and sign in with a passkey.** The PRF output seeds BIP-32; the owner
+  key at `m/44'/60'/1'/0/0` signs the same SIWE challenge a wallet would and is
+  zeroed immediately after. The server sees a signature, never a passkey. A new
+  owner gets one starter agent with a single read permission — onboarding in
+  seconds, with deny-by-default intact.
+- **One key per agent** at `m/44'/60'/0'/0/{index}`, the path the Agent Passport
+  has always displayed. `/keys` derives them on unlock, lets each prove itself by
+  signing a message verified on the spot, and zeroes them on lock or navigation.
+- **Binding needs proof of possession.** The server stores a derived address as
+  an agent's wallet only after verifying a signature from that key naming both
+  the address and the agent, so it cannot be replayed or pointed at a key the
+  owner does not hold.
+
+The status on `/integrations` is read from the store — it says connected only
+when a key has actually been bound. It was previously an environment flag, which
+is the decorative green dot this document promises not to have.
+
+**Not done:** the derived agent keys do not yet sign on-chain transactions; the
+attestation key still anchors decisions. mera's `toViemAccount` makes that a
+short step, and it is the honest next one.
+
+---|---|
 | Technology | Passkey (P256 / WebAuthn) → BIP-44 derivation |
 | Purpose | One owner passkey derives one key per agent. No seed phrase. |
 | Integration | `derivationIndex` on every agent; surfaced on the Agent Passport |

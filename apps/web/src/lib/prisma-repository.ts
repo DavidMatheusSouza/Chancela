@@ -141,6 +141,25 @@ export class PrismaRepository implements Repository {
         attestorAddress: patch.attestorAddress,
       },
     });
+
+    if (patch.walletAddress) {
+      const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? 10143);
+      // One primary wallet per agent: demote the rest, then upsert this one.
+      await this.db.$transaction([
+        this.db.agentWallet.updateMany({ where: { agentId: id }, data: { isPrimary: false } }),
+        this.db.agentWallet.upsert({
+          where: { agentId_address_chainId: { agentId: id, address: patch.walletAddress, chainId } },
+          create: {
+            agentId: id,
+            address: patch.walletAddress,
+            provider: (patch.walletProvider ?? 'EXTERNAL') as never,
+            chainId,
+            isPrimary: true,
+          },
+          update: { isPrimary: true, provider: (patch.walletProvider ?? 'EXTERNAL') as never },
+        }),
+      ]);
+    }
     return this.getAgent(id);
   }
 

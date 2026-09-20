@@ -3,6 +3,8 @@ import { computeTrustScore } from '@/lib/trust-score';
 import { fail, ok } from '@/lib/http';
 import { noteReactivation } from '@/lib/breaker';
 import { requireOwner } from '@/lib/owner';
+import { getAddress, isAddress, verifyMessage } from 'viem';
+import { bindMessage } from '@/lib/bind-message';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,13 +48,42 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const guard = await requireOwner(params.id);
   if (!guard.ok) return guard.response;
 
-  const body = (await req.json().catch(() => ({}))) as { status?: string };
+  const body = (await req.json().catch(() => ({}))) as {
+    status?: string;
+    walletAddress?: string;
+    signature?: string;
+  };
   if (body.status && !['ACTIVE', 'SUSPENDED', 'REVOKED'].includes(body.status)) {
     return fail(400, 'INVALID_STATUS', 'status must be ACTIVE, SUSPENDED or REVOKED');
   }
+
+  /*
+   * Binding a wallet requires proof of possession. Ownership says the caller
+   * may change this agent; it does not say the address they typed is one they
+   * control. The derived key signs a message naming both the address and the
+   * agent, so a signature lifted from one binding cannot be replayed onto
+   * another agent or another address.
+   */
+  let wallet: { walletAddress: string; walletProvider: 'MERA' } | undefined;
+  if (body.walletAddress !== undefined) {
+    if (!isAddress(body.walletAddress) || !body.signature) {
+      return fail(400, 'INVALID_WALLET', 'walletAddress and signature are required together');
+    }
+    const valid = await verifyMessage({
+      address: getAddress(body.walletAddress),
+      message: bindMessage(params.id, body.walletAddress),
+      signature: body.signature as `0x${string}`,
+    }).catch(() => false);
+    if (!valid) {
+      return fail(403, 'NOT_THE_KEY_HOLDER', 'The signature does not come from that address.');
+    }
+    wallet = { walletAddress: getAddress(body.walletAddress), walletProvider: 'MERA' };
+  }
+
   const repo = await getRepository();
   const updated = await repo.updateAgent(params.id, {
     status: body.status as 'ACTIVE' | 'SUSPENDED' | 'REVOKED' | undefined,
+    ...wallet,
   });
   if (!updated) return fail(404, 'NOT_FOUND', `Unknown agent ${params.id}`);
   // The owner has looked and said carry on: earlier refusals stop counting.

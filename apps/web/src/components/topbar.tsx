@@ -20,6 +20,7 @@ const TITLES: Record<string, string> = {
   policy: 'Policy',
   trust: 'Trust',
   demo: 'Demo Mode',
+  keys: 'Keys',
 };
 
 /**

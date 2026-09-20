@@ -1,4 +1,6 @@
 import { availableProviders } from '@chancela/ai';
+import { meraStatus } from '@/lib/mera-status';
+import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
 import { isNansenConfigured } from '@/lib/nansen';
 import { Badge, Card, Mono } from '@/components/primitives';
@@ -21,7 +23,8 @@ interface Row {
  * what is missing. A fake green dot on this page would undermine the one thing
  * the product is selling.
  */
-export default function IntegrationsPage() {
+export default async function IntegrationsPage() {
+  const mera = await meraStatus(await getRepository());
   const chain = activeChain();
   const config = chainConfig();
   const providers = availableProviders();
@@ -51,8 +54,7 @@ export default function IntegrationsPage() {
     {
       name: 'mera',
       role: "One owner passkey derives one BIP-44 key per agent. No seed phrase.",
-      status: process.env.NEXT_PUBLIC_MERA_ENABLED === 'true' ? 'CONNECTED' : 'NOT_CONFIGURED',
-      detail: 'Passkey-derived agent keys (P256 / WebAuthn)',
+      ...mera,
       docs: 'https://www.monad.xyz/blog/introducing-mera',
     },
     {
