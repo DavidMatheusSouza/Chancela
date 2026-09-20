@@ -165,7 +165,7 @@ requires the variable. The deployed addresses are written to
 |---|---|
 | Address (testnet 10143) | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) |
 | Source | `packages/contracts/src/ChancelaApprovals.sol` · 15 tests in `test/ChancelaApprovals.t.sol` |
-| Status | **Contract deployed and verified on-chain. The approval screen that feeds it is not wired yet** — a `REQUIRE_APPROVAL` decision still has nowhere to be approved in the app. |
+| Status | **Live end to end.** Owners approve on `/approvals`; the first real approval — a passkey in Google Password Manager, Chrome on Windows — was verified by this contract on 20 Sep 2026 in [`0xe35a3c24…`](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa) for 82,012 gas. |
 
 When a policy answers `REQUIRE_APPROVAL`, "the owner clicked approve" must not be
 the service's word. The owner's passkey signs a WebAuthn assertion whose
@@ -195,12 +195,21 @@ sender. Because the decision hash commits to the intent hash, the policy hash
 and the nonce, approving it approves exactly those parameters under exactly
 that policy.
 
-Measured on Monad testnet by simulation against the deployed contract: a
-well-formed assertion is accepted for **about 82,000 gas**; the same assertion
+Measured on Monad testnet: the first real approval cost **82,012 gas**. By
+simulation against the deployed contract, a well-formed assertion is accepted; the same assertion
 presented for another decision, and one with a flipped signature bit, are
 refused. The Solidity fallback OpenZeppelin uses where the precompile is missing
 costs roughly four times that, which is the practical meaning of "native P-256"
 here.
+
+The path around it: `POST /authorize` answers `REQUIRE_APPROVAL` and opens an
+approval request; the agent's runtime polls `GET /api/approvals/:id` (public,
+hashes only); the owner signs on `/approvals`; the server verifies the assertion
+with the same checks as the contract, **evaluates the request again** with the
+approval in hand — so a suspension or a policy change in between still wins —
+and issues an ordinary signed `ALLOW` whose reason is `APPROVED_BY_OWNER`. Then
+the assertion goes to this contract. The approver's public key reaches the
+contract through `scripts/set-approver.ts`, run by hand with the owner key.
 
 It is a separate contract on purpose: approvals are an addition, and the
 registry that already holds the record stays as deployed.

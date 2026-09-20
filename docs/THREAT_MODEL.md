@@ -230,6 +230,24 @@ stranger who arrived ten seconds ago exactly as it does for anyone else.
 this single-tenant deployment, so a determined visitor can add clutter. They
 cannot change, suspend or re-policy an agent they do not own (§7).
 
+### 19. A forged or misdirected human approval
+
+**Attack.** A step-up decision waits for its owner. An attacker — or the service
+itself — claims the owner approved; or phishes a passkey signature on a lookalike
+site; or replays a real approval onto a bigger transfer.
+
+**Control.** An approval is a WebAuthn assertion whose challenge is the decision
+hash, which commits to the intent, the parameters' hash, the policy and the nonce.
+It is verified twice with the same checks: on the server before anything is
+issued, and by `ChancelaApprovals` on Monad with the native P-256 precompile —
+relying-party hash (a phished assertion carries another site's), user
+verification, assertion type, exact challenge, the key the on-chain owner
+registered, once per decision. The service holds no passkey, so it cannot approve
+on anyone's behalf. After verification the request is **evaluated again**: an
+approval satisfies the step-up gate and nothing else, so it cannot revive a
+request that a suspension or a policy change has since ruled out. The shared demo
+account cannot enrol an approver without the operator's code.
+
 ## Residual risks
 
 Stated plainly rather than hidden:

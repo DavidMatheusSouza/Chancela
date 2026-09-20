@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { PipelineTrace, type TraceStep } from '@/components/pipeline-trace';
+import { HumanApproval } from './human-approval';
 import { Badge, Card, Field, Label, Mono } from '@/components/primitives';
 import { cn, shortHash } from '@/lib/ui';
 
@@ -79,7 +80,8 @@ const ALL_STEPS = [
   { id: 'deny', n: '04', title: 'A refused action', question: 'Now something the policy does not grant.' },
   { id: 'injection', n: '05', title: 'Prompt injection', question: 'Can the instruction talk its way past the policy?' },
   { id: 'breaker', n: '06', title: 'Circuit breaker', question: 'And if it simply keeps trying?' },
-  { id: 'audit', n: '07', title: 'The record', question: 'Was every attempt written down?' },
+  { id: 'approval', n: '07', title: 'A human decides', question: 'Inside the rules — but too much for the agent alone.' },
+  { id: 'audit', n: '08', title: 'The record', question: 'Was every attempt written down?' },
 ] as const;
 
 interface BurstRow {
@@ -279,6 +281,8 @@ export function DemoRunner({ agent, canAdminister }: { agent: DemoAgent; canAdmi
         // The step drives itself from the effect; give it room to finish,
         // including the owner reactivation at the end.
         await new Promise((r) => setTimeout(r, 14000));
+      } else if (key === 'approval') {
+        await new Promise((r) => setTimeout(r, 9500));
       } else {
         await new Promise((r) => setTimeout(r, 4500));
       }
@@ -403,6 +407,7 @@ export function DemoRunner({ agent, canAdminister }: { agent: DemoAgent; canAdmi
         {current.id === 'breaker' ? (
           <Breaker run={breakerRun} suspended={suspended} onReactivate={() => void reactivate()} />
         ) : null}
+        {current.id === 'approval' ? <HumanApproval /> : null}
         {current.id === 'audit' ? <AuditSummary outcomes={outcomes} /> : null}
         {PROMPTS[current.id] ? (
           <Exchange

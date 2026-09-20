@@ -20,10 +20,11 @@ three agents registered, policies anchored, every decision recorded.
 **[Open the guided demo →](https://crops-morgan-hose-lloyd.trycloudflare.com/demo)** — sign in with
 **Continue as demo owner**, no wallet needed, then press **Run full demo**.
 
-Seven steps, all of them live: the agent's identity and permissions, an action its
+Eight steps, all of them live: the agent's identity and permissions, an action its
 policy allows, the proof landing on Monad, an action the policy refuses, a prompt
 injection that changes nothing, a burst attack that trips the circuit breaker and
-suspends the agent, and the record of every attempt. Nothing is staged —
+suspends the agent, a transfer that waits for its owner's passkey, and the record
+of every attempt. Nothing is staged —
 the intent goes through a real model, the decision through the real policy engine,
 and the proof anchors on testnet in about two seconds. When something is not
 anchored yet, the screen says so instead of showing a hash that does not exist.
@@ -243,6 +244,22 @@ anchored on Monad is something a counterparty can check without asking you.
 
 ---
 
+## A human in the loop, verified by the chain
+
+Some actions are inside the policy and still too much for an agent alone. The
+policy answers `REQUIRE_APPROVAL`, and the owner answers back with a **passkey**:
+a WebAuthn assertion whose challenge is the decision hash. The server checks it,
+evaluates the request again — a suspension in between still wins — and issues a
+signed `ALLOW`. Then [`ChancelaApprovals`](docs/SMART_CONTRACT.md) checks the same
+signature **on Monad, with the native P-256 precompile**, for about 82,000 gas:
+the right website, user verification, this exact decision, this owner's key, once.
+
+"The owner approved" is therefore not this service's word. The service holds no
+passkey and could not produce that signature;
+[here is the first one](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa).
+
+---
+
 ## Not capturable by a single platform
 
 A trust layer that everyone must rent from one company has only moved the
@@ -279,13 +296,9 @@ order:
    afternoon, in exchange for telling us where it chafes.
 3. **Mainnet.** The contracts and the app already switch on a chain id; what is
    missing is a funded attestor and the ERC-8004 mainnet registry, which exists.
-4. **Wire the approval screen to `ChancelaApprovals`.** The contract is live: a
-   passkey assertion over the decision hash, verified by Monad's native P-256
-   precompile for about 82k gas ([SMART_CONTRACT.md](docs/SMART_CONTRACT.md)).
-   What is missing is the screen where an owner approves a `REQUIRE_APPROVAL`.
-5. **A second, independent attestor** run by someone else — the point at which
+4. **A second, independent attestor** run by someone else — the point at which
    "not capturable" stops being a design property and becomes a fact.
-6. **Policy templates** for the common cases — treasury, support, sales — so a
+5. **Policy templates** for the common cases — treasury, support, sales — so a
    sane default is one click.
 
 ---

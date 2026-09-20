@@ -38,6 +38,7 @@ function isPublic(pathname: string): boolean {
   // unguessable capability; approving through the same path checks the session
   // and the ownership itself.
   if (/^\/api\/approvals\/apr_[0-9a-f-]{36}$/.test(pathname)) return true;
+  if (pathname === '/api/approvals/showcase') return true;
   // Agent cards are public by design: ERC-8004 discovery depends on them.
   if (pathname.startsWith('/.well-known/agent-card/')) return true;
   return false;

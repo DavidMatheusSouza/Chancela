@@ -43,7 +43,8 @@ curl -X POST localhost:3080/api/agents/TA-001/authorize \
   "attestationAddress": "0x…",
   "expiresAt": 1760000060,
   "trace": [ { "step": 1, "name": "agent-status", "passed": true } ],
-  "anchorStatus": "PENDING"
+  "anchorStatus": "PENDING",
+  "approval": { "id": "apr_…", "status": "PENDING", "expiresAt": "…", "url": "/api/approvals/apr_…" } // only on REQUIRE_APPROVAL
 }
 ```
 
@@ -107,6 +108,11 @@ is `decision.risk`, recomputed from the tool registry.
 |---|---|---|
 | `GET` | `/api/agents` | With policy version, hash and permissions |
 | `POST` | `/api/agents` | New agents get only the permissions requested |
+| `GET` | `/api/approvals/:id` | **Public.** Where a runtime waits after `REQUIRE_APPROVAL`: status, hashes, the on-chain verification, and — once approved — the signed `ALLOW` capsule. Never the parameters. |
+| `POST` | `/api/approvals/:id` | Owner only. A WebAuthn assertion over the decision hash: `{ credentialId, authenticatorData, clientDataJSON, signature }`, base64url. |
+| `GET` | `/api/approvals` | Owner only. Requests for the owner's agents, with parameters. |
+| `GET` `POST` | `/api/approver` | Owner only. The approver passkey: read it, or enrol one (`{ credentialId, publicKeySpki }`). |
+| `GET` | `/api/approvals/showcase` | **Public.** The latest approval of a demo agent that Monad verified. |
 | `GET` | `/api/agents/:id` | Passport: agent, policy, trust score, stats, and `wallet.inRegistry` — whether the registry's `agentWalletOf()` matches the bound address (`null` when the chain could not be read) |
 | `PATCH` | `/api/agents/:id` | `{ "status": "SUSPENDED" }` |
 
