@@ -113,16 +113,6 @@ is the decorative green dot this document promises not to have.
 attestation key still anchors decisions. mera's `toViemAccount` makes that a
 short step, and it is the honest next one.
 
----|---|
-| Technology | Passkey (P256 / WebAuthn) → BIP-44 derivation |
-| Purpose | One owner passkey derives one key per agent. No seed phrase. |
-| Integration | `derivationIndex` on every agent; surfaced on the Agent Passport |
-| Status | **Partial** — key model and UI implemented; passkey ceremony not yet wired |
-
-"One passkey, many keys" describes Chancela's key model literally. It also
-satisfies the track's other listed example — *"passkey-native accounts using
-P256 and WebAuthn, with no seed phrase"* — at the same time.
-
 ---
 
 ## MetaMask Agent Wallet
@@ -150,17 +140,6 @@ the CLI has. It was rebuilt from MetaMask's plugin reference: a `mm` manifest
 block, a prebuilt `oclif.manifest.json`, commands extending `PluginCommand`, no
 oclif hooks. The tests validate against MetaMask's own `PluginManifestSchema` and
 base class, one test per install-time error.
-
----|---|
-| Technology | Agent Wallet plugin (npm package, `mm` CLI) |
-| Purpose | Policy checks inside the wallet agents actually use |
-| Integration | `packages/mm-plugin` — `passport`, `authorize`, `audit` |
-| Status | **Implemented** — plugin and tests complete; not yet published to npm |
-
-Agent Wallet already simulates, scans with Blockaid and enforces outflow limits.
-It cannot answer whether *this agent under this policy* may attempt the action at
-all. `mm chancela authorize` exits non-zero on DENY so the wallet aborts rather
-than merely printing a warning.
 
 ---
 
