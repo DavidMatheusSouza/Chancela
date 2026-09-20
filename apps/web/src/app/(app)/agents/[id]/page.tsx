@@ -4,7 +4,7 @@ import { ExternalLink, KeyRound, Wallet } from 'lucide-react';
 import { PERMISSIONS, PERMISSION_LABELS, REASON_TEXT } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
-import { activeChain, explorerAddressUrl, explorerTxUrl } from '@/lib/chain';
+import { activeChain, explorerAddressUrl, explorerTxUrl, onchainAgentWallet } from '@/lib/chain';
 import { Badge, Card, Field, Label, Mono, StatusDot } from '@/components/primitives';
 import { DecisionHistory } from '@/components/decision-history';
 import { SuspendedBanner } from '@/components/suspended-banner';
@@ -33,6 +33,12 @@ export default async function AgentPassport({ params }: { params: { id: string }
 
   const granted = new Set(policy?.document.permissions ?? []);
   const chain = activeChain();
+
+  // What the registry says, next to what we say. Null is "could not ask".
+  const registered =
+    agent.erc8004TokenId && agent.walletAddress ? await onchainAgentWallet(agent.erc8004TokenId) : null;
+  const walletOnchain =
+    registered === null ? null : registered.toLowerCase() === agent.walletAddress?.toLowerCase();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
@@ -79,10 +85,17 @@ export default async function AgentPassport({ params }: { params: { id: string }
               label="Agent wallet"
               value={
                 agent.walletAddress ? (
-                  <a href={explorerAddressUrl(agent.walletAddress)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-chain hover:underline">
-                    {shortHash(agent.walletAddress, 8, 6)}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                  <span className="inline-flex flex-wrap items-center gap-1.5">
+                    <a href={explorerAddressUrl(agent.walletAddress)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-chain hover:underline">
+                      {shortHash(agent.walletAddress, 8, 6)}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    {walletOnchain === null ? null : walletOnchain ? (
+                      <Badge tone="chain">in registry</Badge>
+                    ) : (
+                      <Badge tone="warn">not in registry</Badge>
+                    )}
+                  </span>
                 ) : (
                   '--'
                 )

@@ -109,9 +109,21 @@ The status on `/integrations` is read from the store — it says connected only
 when a key has actually been bound. It was previously an environment flag, which
 is the decorative green dot this document promises not to have.
 
-**Not done:** the derived agent keys do not yet sign on-chain transactions; the
-attestation key still anchors decisions. mera's `toViemAccount` makes that a
-short step, and it is the honest next one.
+**On-chain.** A bound key reaches the registry through
+`scripts/sync-agent-wallets.ts`, which calls `setAgentWallet()` with the token
+owner's key -- by hand, because that key is never loaded by the running service.
+The passport and `GET /api/agents/:id` then compare the bound address with
+`agentWalletOf()` and say whether the registry agrees, so the binding is
+checkable without trusting this deployment.
+
+**Not done, and not by accident:** a derived agent key does not anchor
+decisions and never will. The registry rejects an attestor that equals the
+agent's wallet, because an agent that signs its own authorizations proves
+nothing. What a derived key *could* sign is the agent's own transactions, but it
+exists only in the owner's browser while `/keys` is unlocked, it holds no gas,
+and nothing in this repository moves value to give it any. An autonomous agent
+cannot use a key that needs its owner's fingerprint; that is the honest limit of
+passkey-derived agent keys, not a missing feature.
 
 ---
 

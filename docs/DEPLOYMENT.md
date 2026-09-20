@@ -126,6 +126,7 @@ TLS terminates at Cloudflare, so no certificate management and no inbound ports.
 - [ ] Attestation key funded with MON for anchoring
 - [ ] `setAttestor()` called on-chain for every agent
 - [ ] `setAgentWallet()` called, so the attestor/agent separation is enforced
+- [ ] After binding passkey-derived keys on `/keys`: `pnpm tsx scripts/sync-agent-wallets.ts --send`, until every passport shows the wallet as *in registry*
 - [ ] Every agent's policy anchored via `anchorPolicy()`
 - [ ] `DATABASE_URL` set and `prisma migrate deploy` run
 - [ ] `/api/health` reports `anchoring: enabled`

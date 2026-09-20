@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, defineChain, http, type Hex } from 'viem';
+import { createPublicClient, createWalletClient, defineChain, getAddress, http, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 /** Monad mainnet. Chain ID 143, ~300ms blocks, ~600ms finality. */
@@ -93,6 +93,13 @@ export const POLICY_REGISTRY_ABI = [
       { name: 'anchoredAt', type: 'uint64' },
     ],
   },
+  {
+    type: 'function',
+    name: 'agentWalletOf',
+    stateMutability: 'view',
+    inputs: [{ name: 'agentTokenId', type: 'uint256' }],
+    outputs: [{ type: 'address' }],
+  },
 ] as const;
 
 export interface ChainConfig {
@@ -120,6 +127,37 @@ export function publicClient() {
     chain: activeChain(),
     transport: http(config?.rpcUrl ?? activeChain().rpcUrls.default.http[0]),
   });
+}
+
+/**
+ * The wallet the registry holds for an agent, or null when it cannot be read.
+ *
+ * The service stores a bound wallet itself, but that is its own word. The
+ * registry entry is written by the token owner (scripts/sync-agent-wallets.ts)
+ * and is what `setAttestor` is checked against, so the passport compares the
+ * two rather than assuming they agree. Read-only, so it needs the registry
+ * address but no key. Null means "unknown", never "mismatch"; an agent with
+ * nothing registered comes back as the zero address.
+ */
+export async function onchainAgentWallet(agentTokenId: string): Promise<string | null> {
+  const registry = process.env.POLICY_REGISTRY_ADDRESS;
+  if (!registry || !/^0x[0-9a-fA-F]{40}$/.test(registry)) return null;
+  try {
+    const chain = activeChain();
+    const client = createPublicClient({
+      chain,
+      transport: http(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
+    });
+    const wallet = await client.readContract({
+      address: registry as Hex,
+      abi: POLICY_REGISTRY_ABI,
+      functionName: 'agentWalletOf',
+      args: [BigInt(agentTokenId)],
+    });
+    return getAddress(wallet);
+  } catch {
+    return null;
+  }
 }
 
 export interface AnchorResult {

@@ -107,7 +107,7 @@ is `decision.risk`, recomputed from the tool registry.
 |---|---|---|
 | `GET` | `/api/agents` | With policy version, hash and permissions |
 | `POST` | `/api/agents` | New agents get only the permissions requested |
-| `GET` | `/api/agents/:id` | Passport: agent, policy, trust score, stats |
+| `GET` | `/api/agents/:id` | Passport: agent, policy, trust score, stats, and `wallet.inRegistry` — whether the registry's `agentWalletOf()` matches the bound address (`null` when the chain could not be read) |
 | `PATCH` | `/api/agents/:id` | `{ "status": "SUSPENDED" }` |
 
 ## Policies

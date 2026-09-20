@@ -5,6 +5,7 @@ import { noteReactivation } from '@/lib/breaker';
 import { requireOwner } from '@/lib/owner';
 import { getAddress, isAddress, verifyMessage } from 'viem';
 import { bindMessage } from '@/lib/bind-message';
+import { onchainAgentWallet } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,8 +23,21 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     decisions,
   });
 
+  // The registry's own record of the wallet, so a caller can check the bound
+  // address against the chain without taking this service's word for it.
+  const registryWallet =
+    agent.erc8004TokenId && agent.walletAddress ? await onchainAgentWallet(agent.erc8004TokenId) : null;
+
   return ok({
     agent,
+    wallet: agent.walletAddress
+      ? {
+          address: agent.walletAddress,
+          registry: registryWallet,
+          inRegistry:
+            registryWallet === null ? null : registryWallet.toLowerCase() === agent.walletAddress.toLowerCase(),
+        }
+      : null,
     policy: policy
       ? {
           id: policy.id,
