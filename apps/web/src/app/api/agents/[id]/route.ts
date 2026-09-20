@@ -29,8 +29,13 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const registryWallet =
     agent.erc8004TokenId && agent.walletAddress ? await onchainAgentWallet(agent.erc8004TokenId) : null;
 
+  // The approver passkey's public key is public by nature; publishing it is what
+  // lets the on-chain owner register exactly this key (scripts/set-approver.ts).
+  const approverKey = await repo.getApproverKey(agent.ownerAddress);
+
   return ok({
     agent,
+    approver: approverKey ? { x: approverKey.publicKeyX, y: approverKey.publicKeyY } : null,
     wallet: agent.walletAddress
       ? {
           address: agent.walletAddress,

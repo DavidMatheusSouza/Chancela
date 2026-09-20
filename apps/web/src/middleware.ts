@@ -34,6 +34,10 @@ function isPublic(pathname: string): boolean {
   // an ownership check, so opening the path here does not open the write.
   if (/^\/api\/agents\/[^/]+(\/audit)?$/.test(pathname)) return true;
   if (pathname.startsWith('/api/proofs/')) return true;
+  // Where an agent's runtime waits for its owner's answer. The id is an
+  // unguessable capability; approving through the same path checks the session
+  // and the ownership itself.
+  if (/^\/api\/approvals\/apr_[0-9a-f-]{36}$/.test(pathname)) return true;
   // Agent cards are public by design: ERC-8004 discovery depends on them.
   if (pathname.startsWith('/.well-known/agent-card/')) return true;
   return false;
