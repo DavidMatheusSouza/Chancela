@@ -1,5 +1,15 @@
 # Demo script — 2:40
 
+> **Judging is asynchronous.** Submissions close 13 Oct and are reviewed between
+> 14 and 27 Oct, with nobody in the room to narrate. So the primary artefact is
+> **`/demo`**, which walks the same six beats by itself and runs against the live
+> system. This script is for recording a voiceover over it, and for presenting
+> live if the chance comes up.
+>
+> To record: open `/demo`, press **Run full demo**, and read the lines below as
+> each step lands. The run takes about 60 seconds, leaving room to pause on the
+> refusal.
+
 ## The one thing to land
 
 A judge who watches only twenty seconds should leave with this:

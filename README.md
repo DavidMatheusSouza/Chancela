@@ -11,6 +11,18 @@ Built for **Monad Metropolis 2026**, Track 04: *Trust, Identity & AI Infrastruct
 ERC-8004 identity [`0xA3Ee05B6…9824`](https://testnet.monadexplorer.com/address/0xA3Ee05B6A2956676964Bc1476617682660109824) ·
 three agents registered, policies anchored, every decision recorded.
 
+### See it in two minutes
+
+**[Open the guided demo →](https://crops-morgan-hose-lloyd.trycloudflare.com/demo)** — sign in with
+**Continue as demo owner**, no wallet needed, then press **Run full demo**.
+
+Six steps, all of them live: the agent's identity and permissions, an action its
+policy allows, the proof landing on Monad, an action the policy refuses, a prompt
+injection that changes nothing, and the record of all three. Nothing is staged —
+the intent goes through a real model, the decision through the real policy engine,
+and the proof anchors on testnet in about two seconds. When something is not
+anchored yet, the screen says so instead of showing a hash that does not exist.
+
 ---
 
 ## The problem
@@ -207,7 +219,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | [SPONSORS.md](docs/SPONSORS.md) | Integration status, stated honestly |
 | [BOUNTIES.md](docs/BOUNTIES.md) | Official bounty matrix, researched and prioritised |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | VPS, Docker, Cloudflare Tunnel |
-| [DEMO.md](docs/DEMO.md) | The 2:40 demo script |
+| [DEMO.md](docs/DEMO.md) | Voiceover script for the guided demo |
 
 ---
 
@@ -230,3 +242,8 @@ These are enforced by tests, not by convention:
 7. **No code path in this repository can move value.** `TRANSFER_FUNDS` has no
    implementation on purpose, so a policy-engine bug cannot cost anyone money.
 
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
