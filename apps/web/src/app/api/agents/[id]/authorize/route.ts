@@ -1,5 +1,6 @@
 import { authorizeRequestSchema } from '@chancela/shared';
 import { AuthorizeError, authorize } from '@/lib/authorize';
+import { callerKey } from '@/lib/anchor-budget';
 import { fail, ok, rateLimit } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +30,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       parameters: parsed.data.parameters,
       environment: parsed.data.context.environment,
       requestId: parsed.data.context.requestId,
+      caller: callerKey(request),
     });
     return ok(result);
   } catch (err) {

@@ -168,6 +168,20 @@ structurally impossible to violate by accident — there is no `string` field.
 **Control.** Per-agent rate limiting. Note the failure mode is a `429`, not a
 fail-open.
 
+**Gas drain.** The endpoint is public and every answer is anchored with gas the
+attestation key pays for, so the rate limit alone left a cheaper attack open:
+at 120 requests a minute per agent, a loop of `curl` empties the key in
+minutes, and from then on nobody's decisions reach the chain. Anchoring now has
+its own budget (`apps/web/src/lib/anchor-budget.ts`): 25 anchors per caller per
+ten minutes, 120 per hour and 400 per day overall, each overridable by
+environment. The budget can only ever cost the *anchor* -- an over-budget
+decision is still computed, signed, stored and returned, and is recorded as
+`SKIPPED`, which the UI and the proof already report as not on-chain. The
+caller is the address Cloudflare reports; the origin listens on loopback only,
+so the header cannot be forged. `/api/network/status` reports the key's balance
+as the number of anchors it still buys, and the status bar warns below one
+day's budget.
+
 ### 17. Persistence — the attacker who just keeps trying
 
 A refusal costs an attacker nothing. With unlimited attempts, a compromised

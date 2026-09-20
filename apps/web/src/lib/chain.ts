@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, defineChain, getAddress, http, type Hex } from 'viem';
+import { createPublicClient, createWalletClient, defineChain, formatEther, getAddress, http, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 /** Monad mainnet. Chain ID 143, ~300ms blocks, ~600ms finality. */
@@ -155,6 +155,45 @@ export async function onchainAgentWallet(agentTokenId: string): Promise<string |
       args: [BigInt(agentTokenId)],
     });
     return getAddress(wallet);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Gas one `recordDecision` costs. Monad charges the gas *limit*, not the gas
+ * used, so this is the estimate viem sends rather than an execution trace;
+ * measured on testnet at 92,490 and rounded up.
+ */
+const ANCHOR_GAS = 95_000n;
+
+export interface AttestorFunds {
+  address: string;
+  balance: string;
+  anchorsLeft: number;
+  /** Fewer than a day of the anchor budget left: top the key up. */
+  low: boolean;
+}
+
+/**
+ * What the attestation key can still pay for, or null when it cannot be read.
+ *
+ * An empty key fails quietly -- decisions keep being made and every anchor
+ * turns FAILED -- so the health check says how far away that is, in the unit
+ * that matters: anchors, not MON.
+ */
+export async function attestorFunds(lowWatermark: number): Promise<AttestorFunds | null> {
+  const config = chainConfig();
+  if (!config) return null;
+  try {
+    const client = createPublicClient({
+      chain: activeChain(),
+      transport: http(config.rpcUrl, { timeout: 2_500 }),
+    });
+    const address = privateKeyToAccount(config.attestorKey).address;
+    const [balance, gasPrice] = await Promise.all([client.getBalance({ address }), client.getGasPrice()]);
+    const anchorsLeft = gasPrice > 0n ? Number(balance / (gasPrice * ANCHOR_GAS)) : 0;
+    return { address, balance: formatEther(balance), anchorsLeft, low: anchorsLeft < lowWatermark };
   } catch {
     return null;
   }

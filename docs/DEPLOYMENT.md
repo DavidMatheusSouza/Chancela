@@ -123,7 +123,7 @@ TLS terminates at Cloudflare, so no certificate management and no inbound ports.
 ## Production checklist
 
 - [ ] `ATTESTATION_PRIVATE_KEY` in a KMS/HSM, not an environment variable
-- [ ] Attestation key funded with MON for anchoring
+- [ ] Attestation key funded with MON for anchoring — `/api/network/status` → `attestorFunds.anchorsLeft`; keep it above one day of `ANCHOR_MAX_PER_DAY`
 - [ ] `setAttestor()` called on-chain for every agent
 - [ ] `setAgentWallet()` called, so the attestor/agent separation is enforced
 - [ ] After binding passkey-derived keys on `/keys`: `pnpm tsx scripts/sync-agent-wallets.ts --send`, until every passport shows the wallet as *in registry*

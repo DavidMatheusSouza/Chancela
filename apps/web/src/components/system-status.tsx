@@ -8,6 +8,7 @@ interface Status {
   blockNumber?: string;
   registryDeployed?: boolean;
   chain: { id: number; name: string };
+  attestorFunds?: { anchorsLeft: number; low: boolean } | null;
 }
 
 /**
@@ -75,6 +76,12 @@ export function SystemStatus() {
 
       {ok && status.registryDeployed === false ? (
         <span className="text-warn">registry missing</span>
+      ) : null}
+
+      {ok && status.attestorFunds?.low ? (
+        <span className="text-warn" title="Gas left on the attestation key, in anchors">
+          attestor low: {status.attestorFunds.anchorsLeft} anchors
+        </span>
       ) : null}
     </div>
   );

@@ -10,6 +10,7 @@ import {
 } from '@chancela/shared';
 import { keccak256, toHex } from 'viem';
 import { signCapsule } from './attestation';
+import { anchorBudget } from './anchor-budget';
 import { anchorDecision } from './chain';
 import { lookupCounterparty } from './nansen';
 import { getRepository } from './store';
@@ -23,6 +24,8 @@ export interface AuthorizeInput {
   environment?: string;
   requestId?: string;
   ai?: { provider: string; model: string; rawIntent: unknown };
+  /** Who is asking, for the anchor budget only. Never an input to the decision. */
+  caller?: string;
 }
 
 export interface AuthorizeOutput {
@@ -159,7 +162,16 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
 
   // Fire-and-forget anchoring. Both allows and denies are written: a registry
   // that only proves the allows is marketing, not an audit trail.
-  void anchorInBackground(row, agentRow.erc8004TokenId);
+  //
+  // The budget is consulted here, after the decision is signed and stored, so
+  // that running out of it can only ever cost the anchor.
+  const slot = agentRow.erc8004TokenId ? anchorBudget.take(input.caller ?? 'direct') : null;
+  const overBudget = slot !== null && !slot.ok;
+  if (overBudget) {
+    await repo.updateAnchor(row.id, { anchorStatus: 'SKIPPED' });
+  } else {
+    void anchorInBackground(row, agentRow.erc8004TokenId);
+  }
 
   return {
     decisionId,
@@ -179,7 +191,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     attestationAddress: signed.attestationAddress,
     expiresAt: result.capsule.expiresAt,
     trace: result.trace,
-    anchorStatus: 'PENDING',
+    anchorStatus: overBudget ? 'SKIPPED' : 'PENDING',
     breaker,
   };
 }

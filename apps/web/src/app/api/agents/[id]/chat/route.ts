@@ -1,6 +1,7 @@
 import { TOOL_REGISTRY } from '@chancela/shared';
 import { resolveProvider } from '@chancela/ai';
 import { z } from 'zod';
+import { callerKey } from '@/lib/anchor-budget';
 import { AuthorizeError, authorize } from '@/lib/authorize';
 import { getRepository } from '@/lib/store';
 import { fail, ok, rateLimit } from '@/lib/http';
@@ -66,6 +67,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         model: intent.model,
         rawIntent: intent.intent,
       },
+      caller: callerKey(request),
     });
 
     return ok({

@@ -1,4 +1,5 @@
-import { activeChain, chainConfig, identityRegistryAddress, publicClient } from '@/lib/chain';
+import { anchorBudget, anchorBudgetLimits } from '@/lib/anchor-budget';
+import { activeChain, attestorFunds, chainConfig, identityRegistryAddress, publicClient } from '@/lib/chain';
 import { ok } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
@@ -30,9 +31,11 @@ export async function GET() {
 
   try {
     const client = publicClient();
-    const [blockNumber, registryCode] = await Promise.all([
+    const [blockNumber, registryCode, funds] = await Promise.all([
       client.getBlockNumber(),
       client.getBytecode({ address: config.registryAddress as `0x${string}` }),
+      // "Low" is less than one day of the anchor budget: time to top up.
+      attestorFunds(anchorBudgetLimits().perDay),
     ]);
 
     return ok({
@@ -42,6 +45,11 @@ export async function GET() {
       // A configured address that holds no code would make every proof link a
       // dead end, so it is checked rather than trusted.
       registryDeployed: Boolean(registryCode && registryCode !== '0x'),
+      // An empty attestation key fails quietly: decisions keep being made and
+      // every anchor turns FAILED. The address and balance are public already;
+      // what is added is how many anchors they still buy.
+      attestorFunds: funds,
+      anchorBudget: anchorBudget.usage(),
     });
   } catch (err) {
     return ok({ ...base, reachable: false, reason: (err as Error).message });
