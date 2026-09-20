@@ -71,6 +71,13 @@ export async function middleware(request: NextRequest) {
       ? `${request.headers.get('x-forwarded-proto') ?? 'https'}://${forwardedHost}`
       : request.nextUrl.origin);
 
+  // The guided demo is the one page a signed-out visitor is walked into rather
+  // than stopped at: judges arrive by link, with nobody to tell them which
+  // button to press. The route decides whether a demo session is on offer.
+  if (pathname === '/demo') {
+    return NextResponse.redirect(new URL('/api/auth/demo?next=%2Fdemo', base));
+  }
+
   return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, base));
 }
 

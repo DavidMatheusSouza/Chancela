@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Boxes, FileCheck2, LogIn, ScrollText, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Boxes, FileCheck2, LogIn, Play, ScrollText, ShieldCheck } from 'lucide-react';
 import { InjectionTerminal } from '@/components/injection-terminal';
 import { Reveal } from '@/components/reveal';
 import { Counter } from '@/components/counter';
@@ -43,6 +43,12 @@ export default async function Landing() {
           </div>
 
           <nav className="flex items-center gap-2">
+            <a
+              href="/demo"
+              className="rounded-lg px-3 py-1.5 text-sm text-ink transition-colors hover:text-chain"
+            >
+              Live demo
+            </a>
             <Link
               href="/login"
               className="rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink"
@@ -84,20 +90,21 @@ export default async function Landing() {
 
           <Reveal delay={180}>
             <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href="/demo"
+                className="lift inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-bg hover:opacity-90"
+              >
+                <Play className="h-4 w-4" />
+                Run the live demo
+              </a>
               <Link
                 href="/login?next=/dashboard"
-                className="lift inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-bg hover:opacity-90"
+                className="lift inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-ink"
               >
                 <LogIn className="h-4 w-4" />
                 Sign in
               </Link>
-              <Link
-                href="/login?next=/demo"
-                className="lift rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-ink"
-              >
-                Watch the 2-minute demo
-              </Link>
-              <span className="text-[12.5px] text-faint">No wallet needed — continue as demo owner.</span>
+              <span className="text-[12.5px] text-faint">No login, no wallet — two minutes, against the real system.</span>
             </div>
           </Reveal>
         </section>
