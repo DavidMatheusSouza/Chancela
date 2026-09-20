@@ -1,0 +1,45 @@
+{
+  "name": "chancela-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Chancela: any agent can ask whether it may act, get an answer it can verify, and read the on-chain record.",
+  "type": "module",
+  "license": "MIT",
+  "author": "David Matheus Souza",
+  "repository": "https://github.com/DavidMatheusSouza/Chancela",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "chancela",
+    "ai-agents",
+    "authorization",
+    "monad",
+    "erc-8004"
+  ],
+  "bin": {
+    "chancela-mcp": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "viem": "^2.21.32",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@chancela/shared": "workspace:*",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}

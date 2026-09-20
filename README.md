@@ -203,6 +203,12 @@ parameters that differ from the ones that were authorized. No answer is never
 permission. A runnable version is in
 [`packages/sdk/examples/quickstart.ts`](packages/sdk/examples/quickstart.ts).
 
+Any MCP client — Claude Desktop, Claude Code, Cursor — gets the gate as a tool,
+with one block of configuration and no code
+([`packages/mcp`](packages/mcp)): `chancela_authorize` reports an `ALLOW` as
+authorized only after verifying it against the on-chain attestor, and its
+description tells the model what not to do after a refusal.
+
 Agents that use MetaMask Agent Wallet get the same gate from the shell:
 `mm chancela authorize … && mm transfer …` ([`packages/mm-plugin`](packages/mm-plugin)).
 
@@ -265,7 +271,7 @@ Built by one person in the Metropolis build window; there are no outside
 integrations yet, and this section will say so until there are. The plan, in
 order:
 
-1. **Publish** `chancela-sdk` and `mm-plugin-chancela` to npm, so integration is
+1. **Publish** `chancela-sdk`, `chancela-mcp` and `mm-plugin-chancela` to npm, so integration is
    an install rather than a clone. Both build to self-contained packages today;
    `npm publish` in each directory is all that is left.
 2. **Three design partners** from agent teams building on Monad. The offer is
@@ -321,6 +327,7 @@ chancela/
 │   ├── contracts/             Foundry — TrustAgentPolicyRegistry. 26 tests.
 │   ├── indexer/               Envio HyperIndex → GraphQL
 │   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
+│   ├── mcp/                   MCP server: the gate as a tool for any agent. 7 tests.
 │   └── mm-plugin/             `mm` CLI plugin for MetaMask Agent Wallet
 ├── prisma/schema.prisma
 └── docs/
