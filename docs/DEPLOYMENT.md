@@ -149,6 +149,7 @@ curl -s localhost:3080/api/health
 |---|---|
 | `TrustAgentPolicyRegistry` | [`0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) |
 | `ERC8004IdentityRegistry` | [`0x41db378FE661f9c6D31B031f42107C85eCad88b7`](https://testnet.monadexplorer.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) |
+| `ChancelaApprovals` | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) — relying party `chancela.xyz` |
 
 These are the second deployment. On 20 September 2026 the server's `.env` was
 lost, and with it the deployer and attestation keys -- the only copies. Nobody

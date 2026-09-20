@@ -156,3 +156,51 @@ On mainnet the ERC-8004 address defaults to `0x8004A169FB4a3325136EB29fA0ceB6D2e
 On testnet no address is published, so the script **refuses to guess** and
 requires the variable. The deployed addresses are written to
 `packages/contracts/deployments/<chainId>.json`.
+
+---
+
+## ChancelaApprovals — a human's approval, verified by the chain
+
+| | |
+|---|---|
+| Address (testnet 10143) | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) |
+| Source | `packages/contracts/src/ChancelaApprovals.sol` · 15 tests in `test/ChancelaApprovals.t.sol` |
+| Status | **Contract deployed and verified on-chain. The approval screen that feeds it is not wired yet** — a `REQUIRE_APPROVAL` decision still has nowhere to be approved in the app. |
+
+When a policy answers `REQUIRE_APPROVAL`, "the owner clicked approve" must not be
+the service's word. The owner's passkey signs a WebAuthn assertion whose
+challenge is the **decision hash**, and this contract verifies it with Monad's
+native P-256 precompile (RIP-7212, `0x100`) against the key the agent's ERC-8004
+owner registered with `setApprover()`.
+
+```solidity
+function setApprover(uint256 agentTokenId, bytes32 x, bytes32 y) external;          // agent owner only
+function recordApproval(uint256 agentTokenId, bytes32 decisionHash, Assertion a) external; // anyone
+function approvedAt(bytes32 decisionHash) external view returns (uint64);
+```
+
+What is checked, and what each check stops:
+
+| Check | Stops |
+|---|---|
+| `authenticatorData[0:32] == sha256("chancela.xyz")` | an assertion phished on another website |
+| user-present **and** user-verified flags | a tap without biometric or PIN |
+| `"type":"webauthn.get"` at the given index | a registration ceremony passed off as an approval |
+| `"challenge":"<base64url(decisionHash)>"` at the given index | an approval moved to another decision |
+| P-256 signature over `authenticatorData ‖ sha256(clientDataJSON)` | any other key, any edited byte |
+| one approval per decision hash | replay |
+
+Anyone may submit the assertion: the signature carries the authority, not the
+sender. Because the decision hash commits to the intent hash, the policy hash
+and the nonce, approving it approves exactly those parameters under exactly
+that policy.
+
+Measured on Monad testnet by simulation against the deployed contract: a
+well-formed assertion is accepted for **about 82,000 gas**; the same assertion
+presented for another decision, and one with a flipped signature bit, are
+refused. The Solidity fallback OpenZeppelin uses where the precompile is missing
+costs roughly four times that, which is the practical meaning of "native P-256"
+here.
+
+It is a separate contract on purpose: approvals are an addition, and the
+registry that already holds the record stays as deployed.

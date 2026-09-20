@@ -279,9 +279,13 @@ order:
    afternoon, in exchange for telling us where it chafes.
 3. **Mainnet.** The contracts and the app already switch on a chain id; what is
    missing is a funded attestor and the ERC-8004 mainnet registry, which exists.
-4. **A second, independent attestor** run by someone else — the point at which
+4. **Wire the approval screen to `ChancelaApprovals`.** The contract is live: a
+   passkey assertion over the decision hash, verified by Monad's native P-256
+   precompile for about 82k gas ([SMART_CONTRACT.md](docs/SMART_CONTRACT.md)).
+   What is missing is the screen where an owner approves a `REQUIRE_APPROVAL`.
+5. **A second, independent attestor** run by someone else — the point at which
    "not capturable" stops being a design property and becomes a fact.
-5. **Policy templates** for the common cases — treasury, support, sales — so a
+6. **Policy templates** for the common cases — treasury, support, sales — so a
    sane default is one click.
 
 ---
@@ -324,7 +328,7 @@ chancela/
 │   ├── policy-engine/         PURE. No I/O, no clock, no network. 48 tests.
 │   ├── shared/                canonical JSON, hashing, schemas, tool registry
 │   ├── ai/                    AIProvider: Qwen · Kimi · OpenAI · deterministic
-│   ├── contracts/             Foundry — TrustAgentPolicyRegistry. 26 tests.
+│   ├── contracts/             Foundry — policy registry + passkey approvals (P-256 precompile). 41 tests.
 │   ├── indexer/               Envio HyperIndex → GraphQL
 │   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
 │   ├── mcp/                   MCP server: the gate as a tool for any agent. 7 tests.
