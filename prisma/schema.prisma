@@ -236,10 +236,31 @@ model ApprovalRequest {
   expiresAt      DateTime
   resolvedAt     DateTime?
   createdAt      DateTime  @default(now())
+  /// The ALLOW issued once the owner approved. Null until then.
+  approvedDecisionId String?
+  /// The WebAuthn assertion as received, so anyone can re-verify it later.
+  assertion      Json?
+  /// NONE | PENDING | CONFIRMED | FAILED | SKIPPED -- ChancelaApprovals.recordApproval
+  onchainStatus  String    @default("NONE")
+  onchainTxHash  String?
+  onchainError   String?
 
   decision Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
 
+  @@index([requiredSigner, status])
   @@map("approval_requests")
+}
+
+/// The passkey an owner approves step-up decisions with. Its P-256 public key
+/// is what ChancelaApprovals.setApprover() registers on-chain.
+model ApproverKey {
+  ownerAddress String   @id
+  credentialId String
+  publicKeyX   String
+  publicKeyY   String
+  createdAt    DateTime @default(now())
+
+  @@map("approver_keys")
 }
 
 model TrustScore {

@@ -11,6 +11,7 @@ import {
 import { keccak256, toHex } from 'viem';
 import { signCapsule } from './attestation';
 import { anchorBudget } from './anchor-budget';
+import { openApproval } from './approval-requests';
 import { anchorDecision } from './chain';
 import { lookupCounterparty } from './nansen';
 import { getRepository } from './store';
@@ -26,6 +27,12 @@ export interface AuthorizeInput {
   ai?: { provider: string; model: string; rawIntent: unknown };
   /** Who is asking, for the anchor budget only. Never an input to the decision. */
   caller?: string;
+  /**
+   * The owner's approval of an earlier step-up decision for this same request.
+   * Only lib/approvals passes it, after verifying the owner's passkey signature
+   * over that decision's hash.
+   */
+  approval?: { stepUpDecisionHash: Hex };
 }
 
 export interface AuthorizeOutput {
@@ -47,6 +54,8 @@ export interface AuthorizeOutput {
   expiresAt: number;
   trace: unknown;
   anchorStatus: DecisionRow['anchorStatus'];
+  /** Present on REQUIRE_APPROVAL: where the owner approves, and where to poll. */
+  approval?: { id: string; status: 'PENDING'; expiresAt: string; url: string };
   /** Whether this decision tripped the circuit breaker and suspended the agent. */
   breaker: BreakerState;
 }
@@ -116,6 +125,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     environment: input.environment ?? 'production',
     now,
     nonce,
+    approval: input.approval,
   });
 
   const signed = await signCapsule(result.capsule);
@@ -156,6 +166,10 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
 
   await repo.recordDecision(row);
 
+  // A step-up is a question to the owner, so it needs somewhere to be answered.
+  const approval =
+    result.decision === 'REQUIRE_APPROVAL' ? await openApproval(repo, row, agentRow.ownerAddress) : undefined;
+
   // After the record exists, never before: the breaker reads the audit trail,
   // and the refusal that trips it has to be in that trail to be counted.
   const breaker = await evaluateBreaker(repo, input.agentId, row);
@@ -192,6 +206,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     expiresAt: result.capsule.expiresAt,
     trace: result.trace,
     anchorStatus: overBudget ? 'SKIPPED' : 'PENDING',
+    approval,
     breaker,
   };
 }

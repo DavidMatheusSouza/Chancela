@@ -3,6 +3,8 @@ import type { UsageWindow } from '@chancela/policy-engine';
 import type {
   ActionRow,
   AgentRow,
+  ApprovalRow,
+  ApproverKeyRow,
   DecisionFilter,
   DecisionRow,
   PolicyRow,
@@ -23,6 +25,8 @@ export class MemoryRepository implements Repository {
   private actions: ActionRow[] = [];
   private nonces = new Set<string>();
   private usage = new Map<string, UsageWindow>();
+  private approvals = new Map<string, ApprovalRow>();
+  private approverKeys = new Map<string, ApproverKeyRow>();
 
   async listAgents(): Promise<AgentRow[]> {
     return [...this.agents.values()].sort((a, b) => a.id.localeCompare(b.id));
@@ -152,6 +156,40 @@ export class MemoryRepository implements Repository {
 
   async listActions(agentId: string): Promise<ActionRow[]> {
     return this.actions.filter((a) => a.agentId === agentId);
+  }
+
+  async createApproval(row: ApprovalRow): Promise<ApprovalRow> {
+    this.approvals.set(row.id, { ...row });
+    return row;
+  }
+
+  async getApproval(id: string): Promise<ApprovalRow | null> {
+    return this.approvals.get(id) ?? null;
+  }
+
+  async listApprovals(ownerAddress: string, limit = 50): Promise<ApprovalRow[]> {
+    const owner = ownerAddress.toLowerCase();
+    return [...this.approvals.values()]
+      .filter((a) => a.ownerAddress.toLowerCase() === owner)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  async updateApproval(id: string, patch: Partial<Omit<ApprovalRow, 'id' | 'decisionId'>>): Promise<ApprovalRow | null> {
+    const current = this.approvals.get(id);
+    if (!current) return null;
+    const next = { ...current, ...patch };
+    this.approvals.set(id, next);
+    return next;
+  }
+
+  async getApproverKey(ownerAddress: string): Promise<ApproverKeyRow | null> {
+    return this.approverKeys.get(ownerAddress.toLowerCase()) ?? null;
+  }
+
+  async setApproverKey(row: ApproverKeyRow): Promise<ApproverKeyRow> {
+    this.approverKeys.set(row.ownerAddress.toLowerCase(), { ...row });
+    return row;
   }
 }
 

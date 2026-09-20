@@ -319,6 +319,142 @@ export async function anchorDecision(input: {
   });
 }
 
+export const APPROVALS_ABI = [
+  {
+    type: 'function',
+    name: 'recordApproval',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'agentTokenId', type: 'uint256' },
+      { name: 'decisionHash', type: 'bytes32' },
+      {
+        name: 'a',
+        type: 'tuple',
+        components: [
+          { name: 'authenticatorData', type: 'bytes' },
+          { name: 'clientDataJSON', type: 'string' },
+          { name: 'typeIndex', type: 'uint256' },
+          { name: 'challengeIndex', type: 'uint256' },
+          { name: 'r', type: 'bytes32' },
+          { name: 's', type: 'bytes32' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'approverOf',
+    stateMutability: 'view',
+    inputs: [{ name: 'agentTokenId', type: 'uint256' }],
+    outputs: [
+      { name: 'x', type: 'bytes32' },
+      { name: 'y', type: 'bytes32' },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'approvedAt',
+    stateMutability: 'view',
+    inputs: [{ name: 'decisionHash', type: 'bytes32' }],
+    outputs: [{ type: 'uint64' }],
+  },
+] as const;
+
+export function approvalsAddress(): Hex | null {
+  const address = process.env.APPROVALS_ADDRESS;
+  return address && /^0x[0-9a-fA-F]{40}$/.test(address) ? (address as Hex) : null;
+}
+
+/** The approver key the registry holds for an agent, or null when it cannot be read or is unset. */
+export async function onchainApprover(agentTokenId: string): Promise<{ x: Hex; y: Hex } | null> {
+  const address = approvalsAddress();
+  if (!address) return null;
+  try {
+    const chain = activeChain();
+    const client = createPublicClient({
+      chain,
+      transport: http(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
+    });
+    const [x, y] = await client.readContract({
+      address,
+      abi: APPROVALS_ABI,
+      functionName: 'approverOf',
+      args: [BigInt(agentTokenId)],
+    });
+    return /^0x0{64}$/.test(x) && /^0x0{64}$/.test(y) ? null : { x, y };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Hand a passkey approval to ChancelaApprovals, which verifies it again with
+ * Monad's P-256 precompile.
+ *
+ * Anyone could send this transaction -- the signature is the authority -- so
+ * the attestation key does, because it is the key that already holds gas. It
+ * shares the anchor queue and nonce for the same reason anchoring has them.
+ * As with anchoring, a chain failure is recorded, never thrown: the approval
+ * has already been verified here and acted on.
+ */
+export async function recordApprovalOnchain(input: {
+  agentTokenId: string;
+  decisionHash: Hex;
+  assertion: {
+    authenticatorData: Hex;
+    clientDataJSON: string;
+    typeIndex: bigint;
+    challengeIndex: bigint;
+    r: Hex;
+    s: Hex;
+  };
+}): Promise<AnchorResult> {
+  const config = chainConfig();
+  const address = approvalsAddress();
+  if (!config || !address) return { status: 'SKIPPED', error: 'APPROVALS_ADDRESS or chain not configured' };
+
+  return enqueue(async () => {
+    const account = privateKeyToAccount(config.attestorKey);
+    const chain = activeChain();
+    const wallet = createWalletClient({ account, chain, transport: http(config.rpcUrl) });
+    const client = createPublicClient({ chain, transport: http(config.rpcUrl) });
+    const args = [BigInt(input.agentTokenId), input.decisionHash, input.assertion] as const;
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        if (nextNonce === null) {
+          nextNonce = await client.getTransactionCount({ address: account.address, blockTag: 'pending' });
+        }
+        const nonce = nextNonce;
+        const txHash = await wallet.writeContract({
+          address,
+          abi: APPROVALS_ABI,
+          functionName: 'recordApproval',
+          args,
+          nonce,
+        });
+        nextNonce = nonce + 1;
+        const receipt = await client.waitForTransactionReceipt({ hash: txHash, timeout: 30_000 });
+        return {
+          status: receipt.status === 'success' ? ('CONFIRMED' as const) : ('FAILED' as const),
+          txHash,
+          blockNumber: receipt.blockNumber.toString(),
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'approval record failed';
+        if (attempt === 0 && isNonceError(message)) {
+          nextNonce = null;
+          continue;
+        }
+        nextNonce = null;
+        return { status: 'FAILED' as const, error: message.slice(0, 300) };
+      }
+    }
+    return { status: 'FAILED' as const, error: 'exhausted retries' };
+  });
+}
+
 /** Test seam: forget the cached nonce (used after a key or network change). */
 export function resetAnchorNonce(): void {
   nextNonce = null;

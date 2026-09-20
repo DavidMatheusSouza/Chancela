@@ -80,6 +80,31 @@ export interface ActionRow {
   executedAt?: string;
 }
 
+/** One owner approval of one step-up decision. */
+export interface ApprovalRow {
+  id: string;
+  decisionId: string;
+  ownerAddress: string;
+  status: 'PENDING' | 'APPROVED' | 'EXPIRED';
+  expiresAt: string;
+  createdAt: string;
+  resolvedAt?: string;
+  approvedDecisionId?: string;
+  assertion?: unknown;
+  onchainStatus: 'NONE' | 'PENDING' | 'CONFIRMED' | 'FAILED' | 'SKIPPED';
+  onchainTxHash?: string;
+  onchainError?: string;
+}
+
+/** The passkey an owner approves with: credential id and P-256 public key. */
+export interface ApproverKeyRow {
+  ownerAddress: string;
+  credentialId: string;
+  publicKeyX: Hex;
+  publicKeyY: Hex;
+  createdAt: string;
+}
+
 export interface DecisionFilter {
   agentId?: string;
   outcome?: DecisionOutcome;
@@ -126,4 +151,12 @@ export interface Repository {
 
   recordAction(row: ActionRow): Promise<ActionRow>;
   listActions(agentId: string): Promise<ActionRow[]>;
+
+  createApproval(row: ApprovalRow): Promise<ApprovalRow>;
+  getApproval(id: string): Promise<ApprovalRow | null>;
+  listApprovals(ownerAddress: string, limit?: number): Promise<ApprovalRow[]>;
+  updateApproval(id: string, patch: Partial<Omit<ApprovalRow, 'id' | 'decisionId'>>): Promise<ApprovalRow | null>;
+
+  getApproverKey(ownerAddress: string): Promise<ApproverKeyRow | null>;
+  setApproverKey(row: ApproverKeyRow): Promise<ApproverKeyRow>;
 }

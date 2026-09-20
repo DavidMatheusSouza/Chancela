@@ -4,6 +4,8 @@ import type { UsageWindow } from '@chancela/policy-engine';
 import type {
   ActionRow,
   AgentRow,
+  ApprovalRow,
+  ApproverKeyRow,
   DecisionFilter,
   DecisionRow,
   PolicyRow,
@@ -523,4 +525,115 @@ export class PrismaRepository implements Repository {
       executedAt: a.executedAt ? iso(a.executedAt) : undefined,
     }));
   }
+
+  // ── approvals ─────────────────────────────────────────────────────────────
+
+  async createApproval(row: ApprovalRow): Promise<ApprovalRow> {
+    await this.db.approvalRequest.create({
+      data: {
+        id: row.id,
+        decisionId: row.decisionId,
+        requiredSigner: row.ownerAddress,
+        status: row.status,
+        expiresAt: new Date(row.expiresAt),
+        createdAt: new Date(row.createdAt),
+        onchainStatus: row.onchainStatus,
+      },
+    });
+    return row;
+  }
+
+  async getApproval(id: string): Promise<ApprovalRow | null> {
+    const row = await this.db.approvalRequest.findUnique({ where: { id } });
+    return row ? toApproval(row) : null;
+  }
+
+  async listApprovals(ownerAddress: string, limit = 50): Promise<ApprovalRow[]> {
+    const rows = await this.db.approvalRequest.findMany({
+      where: { requiredSigner: { equals: ownerAddress, mode: 'insensitive' } },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+    return rows.map(toApproval);
+  }
+
+  async updateApproval(
+    id: string,
+    patch: Partial<Omit<ApprovalRow, 'id' | 'decisionId'>>,
+  ): Promise<ApprovalRow | null> {
+    const exists = await this.db.approvalRequest.findUnique({ where: { id }, select: { id: true } });
+    if (!exists) return null;
+    const row = await this.db.approvalRequest.update({
+      where: { id },
+      data: {
+        status: patch.status,
+        resolvedAt: patch.resolvedAt ? new Date(patch.resolvedAt) : undefined,
+        approvedDecisionId: patch.approvedDecisionId,
+        assertion: patch.assertion === undefined ? undefined : json(patch.assertion),
+        onchainStatus: patch.onchainStatus,
+        onchainTxHash: patch.onchainTxHash,
+        onchainError: patch.onchainError,
+      },
+    });
+    return toApproval(row);
+  }
+
+  async getApproverKey(ownerAddress: string): Promise<ApproverKeyRow | null> {
+    const row = await this.db.approverKey.findFirst({
+      where: { ownerAddress: { equals: ownerAddress, mode: 'insensitive' } },
+    });
+    return row
+      ? {
+          ownerAddress: row.ownerAddress,
+          credentialId: row.credentialId,
+          publicKeyX: row.publicKeyX as Hex,
+          publicKeyY: row.publicKeyY as Hex,
+          createdAt: iso(row.createdAt),
+        }
+      : null;
+  }
+
+  async setApproverKey(row: ApproverKeyRow): Promise<ApproverKeyRow> {
+    const data = {
+      credentialId: row.credentialId,
+      publicKeyX: row.publicKeyX,
+      publicKeyY: row.publicKeyY,
+    };
+    await this.db.approverKey.upsert({
+      where: { ownerAddress: row.ownerAddress },
+      create: { ownerAddress: row.ownerAddress, createdAt: new Date(row.createdAt), ...data },
+      update: data,
+    });
+    return row;
+  }
+}
+
+function toApproval(row: {
+  id: string;
+  decisionId: string;
+  requiredSigner: string;
+  status: string;
+  expiresAt: Date;
+  createdAt: Date;
+  resolvedAt: Date | null;
+  approvedDecisionId: string | null;
+  assertion: unknown;
+  onchainStatus: string;
+  onchainTxHash: string | null;
+  onchainError: string | null;
+}): ApprovalRow {
+  return {
+    id: row.id,
+    decisionId: row.decisionId,
+    ownerAddress: row.requiredSigner,
+    status: row.status as ApprovalRow['status'],
+    expiresAt: iso(row.expiresAt),
+    createdAt: iso(row.createdAt),
+    resolvedAt: row.resolvedAt ? iso(row.resolvedAt) : undefined,
+    approvedDecisionId: row.approvedDecisionId ?? undefined,
+    assertion: row.assertion ?? undefined,
+    onchainStatus: row.onchainStatus as ApprovalRow['onchainStatus'],
+    onchainTxHash: row.onchainTxHash ?? undefined,
+    onchainError: row.onchainError ?? undefined,
+  };
 }
