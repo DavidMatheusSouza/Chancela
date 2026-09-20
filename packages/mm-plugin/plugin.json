@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "chancela-authorization",
+  "version": "0.1.0",
+  "description": "Gate MetaMask Agent Wallet commands behind a deterministic policy engine, with every decision — refusals included — anchored on Monad.",
+  "author": { "name": "David Matheus Souza" },
+  "homepage": "https://github.com/DavidMatheusSouza/Chancela",
+  "repository": "https://github.com/DavidMatheusSouza/Chancela",
+  "license": "MIT",
+  "keywords": ["metamask", "agent-wallet", "authorization", "policy", "ai-agents", "monad", "erc-8004"]
+}

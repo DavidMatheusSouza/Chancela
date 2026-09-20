@@ -26,6 +26,14 @@ function isPublic(pathname: string): boolean {
   if (PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) return true;
   // Agent-facing authorization and execution endpoints.
   if (/^\/api\/agents\/[^/]+\/(authorize|actions)$/.test(pathname)) return true;
+  // Reading a passport, an audit trail or a proof. These are what accountability
+  // means to anyone outside this service -- a wallet, another agent's runtime, a
+  // reviewer -- and a proof that needs a login is verifiable by nobody but us.
+  // The audit projection carries no parameters and no prompts, only what is
+  // anchored plus the action name. PATCH on the agent path guards itself with
+  // an ownership check, so opening the path here does not open the write.
+  if (/^\/api\/agents\/[^/]+(\/audit)?$/.test(pathname)) return true;
+  if (pathname.startsWith('/api/proofs/')) return true;
   // Agent cards are public by design: ERC-8004 discovery depends on them.
   if (pathname.startsWith('/.well-known/agent-card/')) return true;
   return false;

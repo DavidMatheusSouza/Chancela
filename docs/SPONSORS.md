@@ -129,6 +129,29 @@ P256 and WebAuthn, with no seed phrase"* — at the same time.
 
 | | |
 |---|---|
+| Technology | `mm` CLI plugin (oclif, `@metamask/agent-wallet/plugin`), plus an agent skill |
+| Purpose | A policy gate in front of the wallet agents actually use |
+| Integration | `packages/mm-plugin` — `mm chancela authorize`, `passport`, `audit` |
+| Status | **Implemented** — installed into a real `mm` 7.0.0 and run against a live deployment; not yet published to npm |
+
+Agent Wallet already simulates, scans with Blockaid and enforces outflow limits.
+It cannot answer whether *this agent under this policy* may attempt the action at
+all. `mm chancela authorize` exits non-zero on anything but ALLOW, so it composes
+as `mm chancela authorize … && mm transfer …` and a refusal stops the chain. It
+also fails closed: an unreachable deployment is an error, never permission.
+
+The plugin requests **no capabilities and no data access**. A policy gate that
+cannot itself touch the wallet is one fewer thing to trust, and it is what the
+consent screen shows.
+
+An earlier version of this package was written against an API that does not
+exist — a `createPlugin()` factory and `mm <vendor>` subcommands, neither of which
+the CLI has. It was rebuilt from MetaMask's plugin reference: a `mm` manifest
+block, a prebuilt `oclif.manifest.json`, commands extending `PluginCommand`, no
+oclif hooks. The tests validate against MetaMask's own `PluginManifestSchema` and
+base class, one test per install-time error.
+
+---|---|
 | Technology | Agent Wallet plugin (npm package, `mm` CLI) |
 | Purpose | Policy checks inside the wallet agents actually use |
 | Integration | `packages/mm-plugin` — `passport`, `authorize`, `audit` |

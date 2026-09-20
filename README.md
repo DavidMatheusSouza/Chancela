@@ -102,7 +102,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — 194 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — 205 tests, including property-based and fuzzed |
 
 ## Why the model cannot be talked into anything
 
@@ -206,7 +206,7 @@ chancela/
 │   ├── ai/                    AIProvider: Qwen · Kimi · OpenAI · deterministic
 │   ├── contracts/             Foundry — TrustAgentPolicyRegistry. 26 tests.
 │   ├── indexer/               Envio HyperIndex → GraphQL
-│   └── mm-plugin/             MetaMask Agent Wallet plugin
+│   └── mm-plugin/             `mm` CLI plugin for MetaMask Agent Wallet
 ├── prisma/schema.prisma
 └── docs/
 ```
@@ -214,7 +214,7 @@ chancela/
 ## Verify
 
 ```bash
-pnpm verify:all      # typecheck + 194 tests + contracts
+pnpm verify:all      # typecheck + 205 tests + contracts
 pnpm test:security   # injection, replay, forgery, privilege escalation
 ```
 
@@ -230,8 +230,8 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Circuit breaker | 7 |
 | Agent ownership | 5 |
 | Passkey keys, onboarding and wallet binding | 9 |
-| MetaMask plugin | 6 |
-| **Total** | **194** |
+| MetaMask `mm` plugin — core and install contract | 17 |
+| **Total** | **205** |
 
 ## Documentation
 

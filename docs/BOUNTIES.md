@@ -42,7 +42,7 @@ agent authorization?
 | Monad Foundation | Mera: One Passkey, Many Keys | $2,500 | Literal | Implemented — passkey → owner key + one key per agent, verified end to end | **P0** |
 | Monad Foundation | Best Mera-Powered UX on Monad | $2,500 | High | Implemented — passkey sign-up creates the account and a first agent in one ceremony | **P0** |
 | Nansen AI | Best use of Nansen | $5,000 | High | Implemented — denylist fallback without a key | **P1** |
-| MetaMask | Best Agent Wallet Plugin | $2,500 | High | Implemented — not published to npm | **P1** |
+| MetaMask | Best Agent Wallet Plugin | $2,500 | High | Implemented to the real plugin spec; verified in `mm` 7.0.0; not published to npm | **P0** |
 | Envio | Best Use of Envio | $1,000 | High | Implemented — needs codegen and a run | **P1** |
 | Dynamic | Best Use of Dynamic | $5,000 | **Re-open** | Declined — see below | **P2** |
 | Perpl | Best Analytics / Risk Tool | $3,000 | **Re-open** | Declined — see below | **P2** |

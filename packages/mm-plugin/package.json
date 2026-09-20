@@ -1,15 +1,84 @@
 {
-  "name": "@chancela/mm-plugin",
+  "name": "mm-plugin-chancela",
   "version": "0.1.0",
-  "description": "Chancela policy checks for MetaMask Agent Wallet. Ask before you act.",
+  "description": "Chancela for MetaMask Agent Wallet: ask a deterministic policy engine whether an AI agent may act, before it acts. Adds `mm chancela` commands.",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "keywords": ["metamask", "agent-wallet", "plugin", "chancela", "monad", "erc-8004"],
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+  "license": "MIT",
+  "author": "David Matheus Souza",
+  "repository": "https://github.com/DavidMatheusSouza/Chancela",
+  "keywords": [
+    "metamask",
+    "agent-wallet",
+    "mm-plugin",
+    "chancela",
+    "authorization",
+    "ai-agents",
+    "monad",
+    "erc-8004"
+  ],
+  "files": [
+    "dist",
+    "oclif.manifest.json",
+    "skills",
+    "plugin.json",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./dist/core.js"
   },
-  "dependencies": { "@chancela/shared": "workspace:*" },
-  "devDependencies": { "typescript": "^5.6.3", "vitest": "^2.1.3" }
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/write-manifest.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm build",
+    "pretest": "pnpm build"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "topics": {
+      "chancela": {
+        "description": "Authorization and accountability checks for AI agents, by Chancela."
+      }
+    }
+  },
+  "mm": {
+    "schemaVersion": 1,
+    "minCliVersion": "7.0.0",
+    "capabilities": [],
+    "commands": [
+      {
+        "id": "chancela:passport",
+        "capabilities": [],
+        "dataAccess": [],
+        "targetChains": "any"
+      },
+      {
+        "id": "chancela:authorize",
+        "capabilities": [],
+        "dataAccess": [],
+        "targetChains": "any"
+      },
+      {
+        "id": "chancela:audit",
+        "capabilities": [],
+        "dataAccess": [],
+        "targetChains": "any"
+      }
+    ]
+  },
+  "peerDependencies": {
+    "@metamask/agent-wallet": ">=7.0.0"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.14.0"
+  },
+  "devDependencies": {
+    "@metamask/agent-wallet": "^7.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
 }
