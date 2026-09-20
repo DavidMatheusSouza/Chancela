@@ -23,7 +23,7 @@ What ERC-8004 does not define is authorization. That is the gap:
 >
 > - **The contract itself.** Solidity embeds a hash of the source metadata in the
 >   bytecode. Renaming the contract would mean the source in this repository no
->   longer reproduces what is at `0x649DD587…6d4b`, and a later explorer
+>   longer reproduces what is at `0xb403392D…412e`, and a later explorer
 >   verification would fail. The deployed artefact is the record; the source
 >   matches it.
 > - **Agent ids (`TA-001`…) and audit ids (`TA-AUDIT-…`).** `hashPolicyDocument`

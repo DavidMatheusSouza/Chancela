@@ -145,8 +145,18 @@ curl -s localhost:3080/api/health
 
 | Contract | Address |
 |---|---|
-| `TrustAgentPolicyRegistry` | [`0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) |
-| `ERC8004IdentityRegistry` | [`0xA3Ee05B6A2956676964Bc1476617682660109824`](https://testnet.monadexplorer.com/address/0xA3Ee05B6A2956676964Bc1476617682660109824) |
+| `TrustAgentPolicyRegistry` | [`0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) |
+| `ERC8004IdentityRegistry` | [`0x41db378FE661f9c6D31B031f42107C85eCad88b7`](https://testnet.monadexplorer.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) |
+
+These are the second deployment. On 20 September 2026 the server's `.env` was
+lost, and with it the deployer and attestation keys -- the only copies. Nobody
+could call `setAttestor()` on the first registry again, so both contracts were
+redeployed with new keys and the agents re-registered with the same policies.
+The first registry,
+[`0x649DD587…6d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b),
+still holds the 63 decisions anchored before that date; their proofs keep
+linking to those transactions. The lesson is in the checklist above: back the
+`.env` up somewhere that is not this server.
 
 Registered agents, each with its policy anchored on-chain:
 
@@ -159,10 +169,10 @@ Registered agents, each with its policy anchored on-chain:
 Verify independently, without trusting this service:
 
 ```bash
-cast call 0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b \
+cast call 0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e \
   'activePolicy(uint256)(bytes32,uint32,uint64)' 1 \
   --rpc-url https://testnet-rpc.monad.xyz
-# 0xcd0ffd6d…  3  1789836300
+# 0xcd0ffd6d…  3  1789926908
 ```
 
 The returned hash is the same one `GET /api/agents/TA-001` serves. Recompute it

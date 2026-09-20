@@ -9,10 +9,10 @@ Track 04 page of the hackathon platform, read on 20 September 2026.
 | | |
 |---|---|
 | Live product | <https://chancela.xyz> — Monad testnet (chain 10143) |
-| Test login | On the sign-in page press **Continue as demo owner**. No wallet, no password, no install. |
-| Fastest path | <https://chancela.xyz/demo> → **Run full demo**. Seven steps, about a minute, all live. |
+| Fastest path | <https://chancela.xyz/demo> → **Run full demo**. No login: the link starts a demo session by itself. Seven steps, about a minute, all live. |
+| Test login | For the rest of the product, press **Continue as demo owner** on the sign-in page. No wallet, no password, no install. |
 | Without logging in | `curl -X POST https://chancela.xyz/api/agents/TA-001/authorize -H 'content-type: application/json' -d '{"action":"CREATE_CUSTOMER","parameters":{"name":"Maria"}}'` then `GET /api/proofs/<auditId>` |
-| On-chain | Policy registry [`0x649DD587…6d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) — every decision, refusals included, is a transaction there |
+| On-chain | Policy registry [`0xb403392D…412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) — every decision, refusals included, is a transaction there |
 | Code | <https://github.com/DavidMatheusSouza/Chancela> (public, MIT) |
 
 The demo owner is a published test key, shared by everyone who presses that

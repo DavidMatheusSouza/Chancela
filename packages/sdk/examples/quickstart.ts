@@ -13,7 +13,7 @@ const chancela = createClient({
   baseUrl: process.env.CHANCELA_API_URL ?? 'https://chancela.xyz',
   attestor: attestorFromRegistry({
     rpcUrl: 'https://testnet-rpc.monad.xyz',
-    registry: '0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b',
+    registry: '0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e',
     tokenId: (agentId) => BigInt(Number(agentId.replace('TA-', ''))),
   }),
 });

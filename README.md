@@ -11,8 +11,8 @@ capsule without which nothing an agent asks for is carried out.
 Built for **Monad Metropolis 2026**, Track 04: *Trust, Identity & AI Infrastructure*.
 
 **Live on Monad testnet (10143).** Policy registry
-[`0x649DD587…6d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) ·
-ERC-8004 identity [`0xA3Ee05B6…9824`](https://testnet.monadexplorer.com/address/0xA3Ee05B6A2956676964Bc1476617682660109824) ·
+[`0xb403392D…412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) ·
+ERC-8004 identity [`0x41db378F…88b7`](https://testnet.monadexplorer.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) ·
 three agents registered, policies anchored, every decision recorded.
 
 ### See it in two minutes
@@ -98,7 +98,7 @@ Every claim on this page can be checked without trusting this repository:
 
 | Claim | Check it |
 |---|---|
-| The registry is deployed | [`0x649DD587…6d4b`](https://testnet.monadexplorer.com/address/0x649DD58756Ee9a4b65D8d9fd2D5Aa68097d36d4b) holds bytecode on Monad testnet; `GET /api/network/status` re-checks it live |
+| The registry is deployed | [`0xb403392D…412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) holds bytecode on Monad testnet; `GET /api/network/status` re-checks it live |
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
