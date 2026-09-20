@@ -26,6 +26,19 @@ describe('allow path', () => {
   });
 });
 
+describe('a refusal before the policy is consulted', () => {
+  it.each(['SUSPENDED', 'REVOKED'] as const)('still names the live policy when the agent is %s', (status) => {
+    const allowed = evaluate(input());
+    const refused = evaluate(input({ agent: { ...agent, status } }));
+    expect(refused.decision).toBe('DENY');
+    // Same hash the registry has anchored -- a zero hash here is rejected
+    // on-chain, and the breaker's refusals would never be recorded.
+    expect(refused.policyHash).toBe(allowed.policyHash);
+    expect(refused.policyVersion).toBe(salesPolicy.version);
+    expect(refused.capsule.policyHash).toBe(allowed.policyHash);
+  });
+});
+
 describe('deny matrix', () => {
   const cases: Array<[string, Parameters<typeof input>[0], string]> = [
     [

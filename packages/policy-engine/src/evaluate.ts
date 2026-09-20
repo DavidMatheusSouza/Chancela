@@ -88,13 +88,18 @@ function run(input: EvaluateInput): EvaluateResult {
   const riskSignals = input.riskSignals ?? [];
 
   // ---- Step 1: agent status -------------------------------------------------
+  // A refusal at this gate still names the policy that was live. The policy
+  // was never consulted, but "which policy was in force when this was refused"
+  // has an answer, and without it the refusal carries a zero policy hash -- which
+  // the registry rejects, so exactly the refusals a circuit breaker produces
+  // would be the ones that never reach the chain.
   if (input.agent.status === 'REVOKED') {
     trace.push({ step: 1, name: 'agent-status', passed: false, detail: 'REVOKED' });
-    return fail(input, 'AGENT_REVOKED', trace);
+    return fail(input, 'AGENT_REVOKED', trace, input.policy ?? undefined);
   }
   if (input.agent.status !== 'ACTIVE') {
     trace.push({ step: 1, name: 'agent-status', passed: false, detail: input.agent.status });
-    return fail(input, 'AGENT_SUSPENDED', trace);
+    return fail(input, 'AGENT_SUSPENDED', trace, input.policy ?? undefined);
   }
   trace.push({ step: 1, name: 'agent-status', passed: true, detail: 'ACTIVE' });
 
