@@ -9,6 +9,16 @@
 > To record: open `/demo`, press **Run full demo**, and read the lines below as
 > each step lands. The run takes about 60 seconds, leaving room to pause on the
 > refusal.
+>
+> For a silent 1080p screen capture of exactly that run:
+>
+> ```bash
+> npx playwright install chromium          # once
+> node scripts/record-demo.mjs http://127.0.0.1:3080 recording
+> ```
+>
+> It drives the real site, so the capture shows whatever actually happened. It
+> records no audio: narrate over it, or burn in captions.
 
 ## The one thing to land
 
