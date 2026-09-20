@@ -4,14 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  OWNER_PATH,
-  createPasskeySeed,
-  deriveKey,
-  endKeys,
-  rememberedCredential,
-  unlockPasskeySeed,
-} from '@/lib/passkey-keys';
+import { OWNER_PATH, createPasskeySeed, deriveKey, endKeys, rememberedCredential, unlockPasskeySeed, passkeyErrorText } from '@/lib/passkey-keys';
 
 /**
  * Sign in -- or sign up -- with a passkey.
@@ -66,12 +59,7 @@ export function PasskeySignIn({ next }: { next: string }) {
         seed.fill(0);
       }
     } catch (err) {
-      const text = err instanceof Error ? err.message : 'Passkey sign-in failed';
-      setError(
-        /prf/i.test(text)
-          ? 'This authenticator does not support the PRF extension that key derivation needs. Try a platform passkey (Touch ID, Windows Hello, Android).'
-          : text,
-      );
+      setError(passkeyErrorText(err, 'Passkey sign-in failed'));
     } finally {
       setBusy(null);
     }

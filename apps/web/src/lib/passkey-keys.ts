@@ -65,12 +65,41 @@ function toSeed(prfOutput: Uint8Array): Uint8Array {
   return mnemonicToSeedSync(entropyToMnemonic(prfOutput, wordlist));
 }
 
+/**
+ * Tell the browser where a passkey belongs: on this device or in the account's
+ * password manager first, a phone over QR second, a USB security key last.
+ *
+ * mera sends no preference, and on a Windows machine without Windows Hello that
+ * leaves the operating system to pick -- and it picks "insert your security
+ * key", which reads as a dead end to anyone who does not own one. `hints` is
+ * the WebAuthn Level 3 way to say otherwise; browsers that do not know it
+ * ignore it. mera builds the request itself, so the hint is added on the way
+ * through and the original `create` is put back whatever happens.
+ */
+async function preferringBuiltInPasskeys<T>(ceremony: () => Promise<T>): Promise<T> {
+  const container = navigator.credentials;
+  const original = container.create;
+  container.create = function (options?: CredentialCreationOptions) {
+    const publicKey = options?.publicKey
+      ? { ...options.publicKey, hints: ['client-device', 'hybrid', 'security-key'] }
+      : undefined;
+    return original.call(container, publicKey ? { ...options, publicKey } : options);
+  };
+  try {
+    return await ceremony();
+  } finally {
+    container.create = original;
+  }
+}
+
 /** Register a new passkey and return the seed it derives. One ceremony. */
 export async function createPasskeySeed(): Promise<Uint8Array> {
-  const created = await createPasskeyWithPrfOutput({
-    rp: { id: location.hostname, name: RP_NAME },
-    user: { name: `owner-${Date.now()}`, displayName: 'Chancela owner' },
-  });
+  const created = await preferringBuiltInPasskeys(() =>
+    createPasskeyWithPrfOutput({
+      rp: { id: location.hostname, name: RP_NAME },
+      user: { name: `owner-${Date.now()}`, displayName: 'Chancela owner' },
+    }),
+  );
   remember({ credentialId: created.credentialId, transports: created.transports });
   return toSeed(created.prfOutput);
 }
@@ -104,4 +133,22 @@ export function endKeys(keys: DerivedKey[]) {
       /* already ended */
     }
   }
+}
+
+/**
+ * Say what went wrong with a passkey in terms someone can act on.
+ *
+ * The two failures people actually meet are not bugs: an authenticator without
+ * PRF, and a computer with nowhere to keep a passkey -- which shows up as the
+ * operating system asking for a USB key, then as a cancelled ceremony.
+ */
+export function passkeyErrorText(err: unknown, fallback: string): string {
+  const text = err instanceof Error ? err.message : '';
+  if (/prf/i.test(text)) {
+    return 'This authenticator does not support the PRF extension that key derivation needs. Use a built-in passkey: Android, iPhone (iOS 18+), Touch ID, an up-to-date Windows 11 with Windows Hello, or Chrome signed in to a Google account.';
+  }
+  if (/passkey (creation|operation)|cancel|not allowed|abort|timed out/i.test(text)) {
+    return 'No passkey was created. If your computer asked for a USB security key, it has nowhere built-in to keep a passkey: set up a Windows Hello PIN (Settings → Accounts → Sign-in options), or sign in to Chrome with a Google account, or open this page on your phone.';
+  }
+  return text || fallback;
 }

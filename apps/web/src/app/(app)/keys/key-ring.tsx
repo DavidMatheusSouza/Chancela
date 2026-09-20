@@ -12,6 +12,7 @@ import {
   createPasskeySeed,
   deriveKey,
   endKeys,
+  passkeyErrorText,
   rememberedCredential,
   unlockPasskeySeed,
   type DerivedKey,
@@ -70,7 +71,7 @@ export function KeyRing({ agents, ownerAddress }: { agents: KeyRingAgent[]; owne
       setKeys({ owner, agents: derived });
       setHasCredential(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not unlock the passkey');
+      setError(passkeyErrorText(err, 'Could not unlock the passkey'));
     } finally {
       setBusy(null);
     }
