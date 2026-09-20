@@ -21,8 +21,7 @@ verify instead of trust.
 ```
 
 That is the whole integration for Claude Desktop, Claude Code, Cursor or any
-other MCP client. From a checkout, before the package is on npm:
-`pnpm --filter chancela-mcp build`, then `"command": "node", "args": ["packages/mcp/dist/cli.js"]`.
+other MCP client.
 
 | Tool | |
 |---|---|

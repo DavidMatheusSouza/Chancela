@@ -142,7 +142,7 @@ passkey-derived agent keys, not a missing feature.
 | Technology | `mm` CLI plugin (oclif, `@metamask/agent-wallet/plugin`), plus an agent skill |
 | Purpose | A policy gate in front of the wallet agents actually use |
 | Integration | `packages/mm-plugin` — `mm chancela authorize`, `passport`, `audit` |
-| Status | **Implemented** — installed into a real `mm` 7.0.0 and run against a live deployment; not yet published to npm |
+| Status | **Implemented** — installed into a real `mm` 7.0.0 and run against a live deployment; published as [`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela) |
 
 Agent Wallet already simulates, scans with Blockaid and enforces outflow limits.
 It cannot answer whether *this agent under this policy* may attempt the action at

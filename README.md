@@ -181,7 +181,7 @@ curl -s -X POST https://chancela.xyz/api/agents/TA-001/authorize \
 always written to the audit trail and anchored on Monad. Then read the proof,
 also without logging in: `GET /api/proofs/<auditId>`.
 
-In TypeScript, [`chancela-sdk`](packages/sdk) wraps the part that matters — your code runs only
+In TypeScript, [`chancela-sdk`](https://www.npmjs.com/package/chancela-sdk) (`npm install chancela-sdk viem`) wraps the part that matters — your code runs only
 if the policy allows it **and** the permission verifies locally:
 
 ```ts
@@ -206,12 +206,13 @@ permission. A runnable version is in
 
 Any MCP client — Claude Desktop, Claude Code, Cursor — gets the gate as a tool,
 with one block of configuration and no code
-([`packages/mcp`](packages/mcp)): `chancela_authorize` reports an `ALLOW` as
+([`chancela-mcp`](https://www.npmjs.com/package/chancela-mcp), run with `npx -y chancela-mcp`): `chancela_authorize` reports an `ALLOW` as
 authorized only after verifying it against the on-chain attestor, and its
 description tells the model what not to do after a refusal.
 
 Agents that use MetaMask Agent Wallet get the same gate from the shell:
-`mm chancela authorize … && mm transfer …` ([`packages/mm-plugin`](packages/mm-plugin)).
+`mm plugins install mm-plugin-chancela`, then `mm chancela authorize … && mm transfer …`
+([`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela)).
 
 ---
 
@@ -288,9 +289,8 @@ Built by one person in the Metropolis build window; there are no outside
 integrations yet, and this section will say so until there are. The plan, in
 order:
 
-1. **Publish** `chancela-sdk`, `chancela-mcp` and `mm-plugin-chancela` to npm, so integration is
-   an install rather than a clone. Both build to self-contained packages today;
-   `npm publish` in each directory is all that is left.
+1. ~~Publish the packages~~ — done: `chancela-sdk`, `chancela-mcp` and
+   `mm-plugin-chancela` are on npm, so integration is an install, not a clone.
 2. **Three design partners** from agent teams building on Monad. The offer is
    concrete: a policy gate and public audit trail for their agent in an
    afternoon, in exchange for telling us where it chafes.
