@@ -70,7 +70,12 @@ export function ApprovalsPanel({
       const res = await fetch('/api/approver', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ credentialId: b64url(created.rawId), publicKeySpki: b64url(spki) }),
+        body: JSON.stringify({
+          credentialId: b64url(created.rawId),
+          publicKeySpki: b64url(spki),
+          // /approvals?enrol=<code>: how the operator enrols for the shared demo account.
+          enrolmentCode: new URLSearchParams(location.search).get('enrol') ?? undefined,
+        }),
       });
       const body = await res.json().catch(() => null);
       if (!res.ok) throw new Error(body?.error?.message ?? 'Could not enrol the passkey');

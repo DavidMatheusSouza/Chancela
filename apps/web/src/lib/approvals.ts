@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { getAddress } from 'viem';
 import type { Hex } from '@chancela/shared';
 import { authorize, type AuthorizeOutput } from './authorize';
@@ -53,9 +54,9 @@ export function relyingParty(): { rpId: string; origins: string[] } {
 export async function registerApprover(
   repo: Repository,
   ownerAddress: string,
-  input: { credentialId: string; publicKeySpki: string },
+  input: { credentialId: string; publicKeySpki: string; enrolmentCode?: string },
 ): Promise<ApproverKeyRow> {
-  if (isSharedDemoOwner(ownerAddress) && process.env.ALLOW_DEMO_APPROVER_ENROLMENT !== 'true') {
+  if (isSharedDemoOwner(ownerAddress) && !demoEnrolmentAllowed(input.enrolmentCode)) {
     throw new ApprovalError(
       403,
       'SHARED_DEMO_ACCOUNT',
@@ -78,6 +79,20 @@ export async function registerApprover(
     publicKeyY: key.y,
     createdAt: new Date().toISOString(),
   });
+}
+
+/**
+ * The operator enrols their own passkey for the demo agents with a code from
+ * configuration, so the door is open to them and to nobody who merely visits.
+ * ALLOW_DEMO_APPROVER_ENROLMENT=true opens it to everyone, for tests.
+ */
+function demoEnrolmentAllowed(code: string | undefined): boolean {
+  if (process.env.ALLOW_DEMO_APPROVER_ENROLMENT === 'true') return true;
+  const expected = process.env.DEMO_APPROVER_ENROLMENT_CODE;
+  if (!expected || expected.length < 16 || !code) return false;
+  const a = Buffer.from(code);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 /** Mark as expired anything past its deadline, so a list never shows a dead request as live. */

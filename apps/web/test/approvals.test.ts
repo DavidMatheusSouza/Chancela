@@ -118,6 +118,16 @@ describe('owner approval of a step-up', () => {
     ).rejects.toBeInstanceOf(ApprovalError);
   });
 
+  it('lets the operator enrol for the demo account with the configured code, and nobody else', async () => {
+    const repo = await getRepository();
+    const spki = toBase64Url(new Uint8Array(passkey.publicKey.export({ format: 'der', type: 'spki' })));
+    vi.stubEnv('DEMO_APPROVER_ENROLMENT_CODE', 'a-long-enough-operator-code');
+    await expect(registerApprover(repo, DEMO_OWNER, { credentialId: CRED, publicKeySpki: spki, enrolmentCode: 'guess' })).rejects.toMatchObject({ status: 403 });
+    await expect(registerApprover(repo, DEMO_OWNER, { credentialId: CRED, publicKeySpki: spki })).rejects.toMatchObject({ status: 403 });
+    const key = await registerApprover(repo, DEMO_OWNER, { credentialId: CRED, publicKeySpki: spki, enrolmentCode: 'a-long-enough-operator-code' });
+    expect(key.publicKeyX).toMatch(/^0x[0-9a-f]{64}$/);
+  });
+
   it('only enrols a P-256 key', async () => {
     const repo = await getRepository();
     const rsa = generateKeyPairSync('rsa', { modulusLength: 2048 });

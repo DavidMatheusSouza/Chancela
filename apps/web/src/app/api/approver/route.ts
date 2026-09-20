@@ -7,7 +7,13 @@ import { getRepository } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
 
-const schema = z.object({ credentialId: z.string().min(8).max(1024), publicKeySpki: z.string().min(40).max(2048) }).strict();
+const schema = z
+  .object({
+    credentialId: z.string().min(8).max(1024),
+    publicKeySpki: z.string().min(40).max(2048),
+    enrolmentCode: z.string().max(200).optional(),
+  })
+  .strict();
 
 /** The signed-in owner's approver passkey: whether one is enrolled, and its public key. */
 export async function GET() {
