@@ -166,6 +166,119 @@ Merkle root.
 
 ---
 
+## Integrate in five minutes
+
+One HTTP call before your agent acts. No account, no API key, no SDK required:
+
+```bash
+curl -s -X POST https://chancela.xyz/api/agents/TA-001/authorize \
+  -H 'content-type: application/json' \
+  -d '{"action":"CREATE_CUSTOMER","parameters":{"name":"Maria"}}' | jq '{decision, reasonCode, auditId}'
+```
+
+`ALLOW`, `DENY` or `REQUIRE_APPROVAL` — always `200`, always a signed capsule,
+always written to the audit trail and anchored on Monad. Then read the proof,
+also without logging in: `GET /api/proofs/<auditId>`.
+
+In TypeScript, `@chancela/sdk` wraps the part that matters — your code runs only
+if the policy allows it **and** the permission verifies locally:
+
+```ts
+import { attestorFromRegistry, createClient } from '@chancela/sdk';
+
+const chancela = createClient({
+  baseUrl: 'https://chancela.xyz',
+  // Whose signature counts is read from Monad, not from the server being checked.
+  attestor: attestorFromRegistry({ rpcUrl, registry, tokenId: (id) => tokenIds[id] }),
+});
+
+await chancela.guard('TA-003', 'TRANSFER_FUNDS', { amount, recipientAddress }, () =>
+  wallet.sendTransaction({ to: recipientAddress, value: amount }),
+);
+```
+
+`guard` throws — and never calls your function — on a refusal, a step-up, an
+unreachable deployment, a malformed answer, a signature from the wrong key, or
+parameters that differ from the ones that were authorized. No answer is never
+permission. A runnable version is in
+[`packages/sdk/examples/quickstart.ts`](packages/sdk/examples/quickstart.ts).
+
+Agents that use MetaMask Agent Wallet get the same gate from the shell:
+`mm chancela authorize … && mm transfer …` ([`packages/mm-plugin`](packages/mm-plugin)).
+
+---
+
+## Who this is for
+
+Teams that give an LLM agent a tool that costs something when it goes wrong:
+moving funds, sending messages as the company, writing to a customer database.
+Concretely:
+
+- **Agent builders on Monad** — trading, treasury and payment agents — who need
+  a spending policy the model cannot argue with, and a record their users can
+  check. The MetaMask Agent Wallet plugin is aimed at them.
+- **Products that let customers bring their own agent.** They need to answer
+  "what is this third-party agent allowed to do here?" with something stronger
+  than an API key. An ERC-8004 identity plus an anchored policy is that answer.
+- **Anyone who will be asked to explain an agent's action afterwards** — to a
+  customer, an auditor or a counterparty. The refusals are recorded too, which
+  is what makes the record evidence rather than marketing.
+
+**Why not roll your own?** The first version is an `if` statement, and every team
+writes it. What they do not write is the rest: binding the permission to the
+exact parameters so nothing can be swapped after the check; nonces and expiry so
+a permission cannot be replayed; keeping the signing key away from the agent;
+recording refusals; policy versions that cannot be rolled back; a breaker for the
+agent that just keeps trying. [THREAT_MODEL.md](docs/THREAT_MODEL.md) lists
+eighteen such attacks and how each is stopped. And a home-grown check has one
+flaw no amount of work fixes: **nobody outside your company can verify it.**
+A decision log in your own database is your word. A policy hash and a decision
+anchored on Monad is something a counterparty can check without asking you.
+
+---
+
+## Not capturable by a single platform
+
+A trust layer that everyone must rent from one company has only moved the
+problem. Chancela is built so that it cannot become that:
+
+- **The owner chooses whose signature counts, on-chain.** `setAttestor()` is
+  per agent and callable only by the holder of the agent's ERC-8004 identity. If
+  this deployment misbehaves, the owner points the agent at another attestor in
+  one transaction. Identity, policy history and audit trail stay where they are.
+- **Clients verify, they do not trust.** The SDK checks each permission against
+  the attestor read from the registry. A deployment can refuse to answer; it
+  cannot forge a yes.
+- **Anyone can run it.** MIT-licensed, one `docker compose up`, no call home.
+  The registry is a public contract with no admin key and no upgrade proxy.
+- **Identity is a standard, not ours.** Agents are ERC-8004 tokens; keys come
+  from the owner's own passkey (WebAuthn PRF → BIP-32 via mera), never from us.
+- **Private by construction.** Only hashes go on-chain — no prompts, no
+  parameters, no customer data. The public audit view carries the action name
+  and the verdict, nothing else.
+
+---
+
+## Where this goes next
+
+Built by one person in the Metropolis build window; there are no outside
+integrations yet, and this section will say so until there are. The plan, in
+order:
+
+1. **Publish** `@chancela/sdk` and `mm-plugin-chancela` to npm, so integration is
+   an install rather than a clone.
+2. **Three design partners** from agent teams building on Monad. The offer is
+   concrete: a policy gate and public audit trail for their agent in an
+   afternoon, in exchange for telling us where it chafes.
+3. **Mainnet.** The contracts and the app already switch on a chain id; what is
+   missing is a funded attestor and the ERC-8004 mainnet registry, which exists.
+4. **A second, independent attestor** run by someone else — the point at which
+   "not capturable" stops being a design property and becomes a fact.
+5. **Policy templates** for the common cases — treasury, support, sales — so a
+   sane default is one click.
+
+---
+
 ## Quick start
 
 Runs with **no database, no API keys and no RPC**. Seeded demo data, deterministic
@@ -206,6 +319,7 @@ chancela/
 │   ├── ai/                    AIProvider: Qwen · Kimi · OpenAI · deterministic
 │   ├── contracts/             Foundry — TrustAgentPolicyRegistry. 26 tests.
 │   ├── indexer/               Envio HyperIndex → GraphQL
+│   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
 │   └── mm-plugin/             `mm` CLI plugin for MetaMask Agent Wallet
 ├── prisma/schema.prisma
 └── docs/
@@ -242,6 +356,8 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | [SECURITY.md](docs/SECURITY.md) | Controls, key handling, disclosure |
 | [SMART_CONTRACT.md](docs/SMART_CONTRACT.md) | Registry design and ERC-8004 binding |
 | [API.md](docs/API.md) | REST reference |
+| [packages/sdk](packages/sdk) | TypeScript client that verifies permissions locally |
+| [SUBMISSION.md](docs/SUBMISSION.md) | What judges need: access, criteria, video scripts |
 | [SPONSORS.md](docs/SPONSORS.md) | Integration status, stated honestly |
 | [BOUNTIES.md](docs/BOUNTIES.md) | Official bounty matrix, researched and prioritised |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | VPS, Docker, Cloudflare Tunnel |

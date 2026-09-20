@@ -22,10 +22,16 @@ Anything that could not be confirmed from an official source is marked
 | Eligibility | What is shown on 13 Oct must have been built during the six weeks, and judges must be able to verify it |
 | Open source | Encouraged, not required |
 
-**NEEDS VERIFICATION:** detailed judging criteria, per-bounty submission
-mechanics (form fields, demo video, whether a live deployment is required).
-These are not on the public programme page; they need reading on the
-authenticated platform at `hackathon.monad.xyz`.
+**Judging criteria and deliverables — verified** on the authenticated platform on
+20 Sep 2026: Technical Execution 20%, Design & Craft (developer experience) 20%,
+Originality & Track Insight 15%, Founder & Market Readiness 25%, Traction & Path
+Forward 20%. A logo, a public repository, a technical demo video (≤ 3 min, live
+product), a pitch video (≤ 2 min) and a live link on mainnet **or testnet** with
+test credentials. [SUBMISSION.md](SUBMISSION.md) maps each criterion to where
+this repository answers it, and holds the video scripts.
+
+**Still NEEDS VERIFICATION:** whether sponsor bounties need a separate entry, and
+who judges them.
 
 ## Matrix
 
