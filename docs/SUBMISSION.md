@@ -35,8 +35,8 @@ passkey on the sign-in page: it comes with an agent of your own.
 
 - [x] **Logo** — [`docs/assets/chancela-logo.png`](assets/chancela-logo.png), 1024×1024, 35 KB. Upload as is.
 - [x] **Public GitHub repository** — public, so `metropolis@hackathon.monad.xyz` can read it.
-- [ ] **Technical demo video, ≤ 3:00** — recorded: 1:48, 1080p, captioned, against the live site with the Monad transaction on screen (`node scripts/record-demo-captioned.mjs`). Still to do: upload to YouTube (unlisted is fine), Loom or Vimeo. A voiceover is optional; the script below is for one.
-- [ ] **Pitch video, ≤ 2:00** — script below.
+- [ ] **Technical demo video, ≤ 3:00** — made: 1:41, 1080p, narrated and captioned, recorded against the live site with the Monad transaction on screen. Still to do: upload (YouTube unlisted, Loom or Vimeo) and paste the link.
+- [ ] **Pitch video, ≤ 2:00** — made: 1:36, slides plus product footage, narrated and captioned; it says it is read by a synthetic voice. Still to do: upload and paste the link.
 - [x] **Live product link** with access instructions — the table above; paste it into the form.
 - [ ] Product advertisement, ≤ 0:30 — optional, not judged. The first 30 seconds of the technical video, cut at the refusal, would do.
 
