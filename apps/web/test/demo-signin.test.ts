@@ -44,3 +44,14 @@ describe('safeNext', () => {
     (raw) => expect(safeNext(raw)).toBe('/demo'),
   );
 });
+
+describe('the shared demo owner', () => {
+  it('is recognised by address, however the session started and whatever the casing', async () => {
+    const { isSharedDemoOwner } = await import('../src/lib/demo-signin.js');
+    expect(isSharedDemoOwner(DEMO_OWNER)).toBe(true);
+    expect(isSharedDemoOwner(DEMO_OWNER.toLowerCase())).toBe(true);
+    expect(isSharedDemoOwner('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC')).toBe(false);
+    expect(isSharedDemoOwner('not-an-address')).toBe(false);
+    expect(isSharedDemoOwner(undefined)).toBe(false);
+  });
+});

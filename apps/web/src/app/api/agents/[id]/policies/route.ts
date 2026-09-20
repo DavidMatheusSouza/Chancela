@@ -2,6 +2,7 @@ import { hashPolicyDocument, policyDocumentSchema } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { fail, ok } from '@/lib/http';
 import { requireOwner } from '@/lib/owner';
+import { SHARED_DEMO_REFUSAL, isSharedDemoOwner } from '@/lib/demo-signin';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +24,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
   // do, so only that agent's owner may publish one.
   const guard = await requireOwner(params.id);
   if (!guard.ok) return guard.response;
+  if (isSharedDemoOwner(guard.session.address)) {
+    return fail(403, 'SHARED_DEMO_ACCOUNT', `Publishing a policy is switched off here. ${SHARED_DEMO_REFUSAL}`);
+  }
 
   const body = await request.json().catch(() => null);
   const repo = await getRepository();

@@ -5,6 +5,7 @@ import { noteReactivation } from '@/lib/breaker';
 import { requireOwner } from '@/lib/owner';
 import { getAddress, isAddress, verifyMessage } from 'viem';
 import { bindMessage } from '@/lib/bind-message';
+import { SHARED_DEMO_REFUSAL, isSharedDemoOwner } from '@/lib/demo-signin';
 import { onchainAgentWallet } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
@@ -69,6 +70,17 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   };
   if (body.status && !['ACTIVE', 'SUSPENDED', 'REVOKED'].includes(body.status)) {
     return fail(400, 'INVALID_STATUS', 'status must be ACTIVE, SUSPENDED or REVOKED');
+  }
+
+  // The shared demo owner may suspend and reactivate -- the breaker demo needs
+  // both -- but not the writes that would outlast the visit. See isSharedDemoOwner.
+  if (isSharedDemoOwner(guard.session.address)) {
+    if (body.status === 'REVOKED') {
+      return fail(403, 'SHARED_DEMO_ACCOUNT', `Revoking is permanent, so it is switched off here. ${SHARED_DEMO_REFUSAL}`);
+    }
+    if (body.walletAddress !== undefined && guard.agent.walletProvider === 'MERA') {
+      return fail(403, 'SHARED_DEMO_ACCOUNT', `This agent already has a passkey-derived key bound. ${SHARED_DEMO_REFUSAL}`);
+    }
   }
 
   /*

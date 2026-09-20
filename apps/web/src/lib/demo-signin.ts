@@ -20,6 +20,38 @@ import { getRepository } from './store';
 const DEMO_OWNER_KEY =
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' as Hex;
 
+const DEMO_OWNER_ADDRESS = getAddress(privateKeyToAccount(DEMO_OWNER_KEY).address);
+
+/**
+ * Is this the shared demo identity?
+ *
+ * Its key is published, so it is not one person: it is every visitor at once,
+ * whether they came through the demo door or signed the wallet challenge with
+ * the same key. That is fine for looking around and for the breaker, which the
+ * demo itself resets. It is not fine for the writes that outlive a visit:
+ *
+ *   - publishing a policy changes what every later visitor sees, and because
+ *     only the on-chain owner can anchor it, every decision after it would fail
+ *     to anchor with PolicyHashMismatch until someone repaired it by hand;
+ *   - revoking an agent is permanent;
+ *   - rebinding a wallet would replace a key someone really holds.
+ *
+ * So those are refused for this address, by address rather than by how the
+ * session was started. Anyone who wants to try them signs up with a passkey and
+ * gets an agent of their own.
+ */
+export function isSharedDemoOwner(address: string | undefined | null): boolean {
+  if (!address) return false;
+  try {
+    return getAddress(address) === DEMO_OWNER_ADDRESS;
+  } catch {
+    return false;
+  }
+}
+
+export const SHARED_DEMO_REFUSAL =
+  'This is the shared demo account, used by every visitor. Create your own account with a passkey on the sign-in page and you get an agent whose policy is yours to change.';
+
 export function demoSignInAllowed(): boolean {
   return process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_SIGNIN === 'true';
 }
