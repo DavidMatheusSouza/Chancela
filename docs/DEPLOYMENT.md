@@ -18,7 +18,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Postgres is namespaced (`trustagent-db`, volume `trustagent-pgdata`) and bound to
+Postgres is namespaced (`chancela-db`, volume `chancela-pgdata`) and bound to
 `127.0.0.1:5442` so it cannot collide with anything else on a shared host.
 
 ## Contracts
@@ -52,7 +52,7 @@ export ENVIO_GRAPHQL_URL=http://localhost:8080/v1/graphql
 
 If the box already runs other services — the common case:
 
-- **Give TrustAgent its own database, its own role and its own port.** Never
+- **Give Chancela its own database, its own role and its own port.** Never
   reuse an existing cluster's credentials or database.
 - Prefer full container isolation via `docker compose`, which the compose file
   already namespaces.
@@ -108,13 +108,13 @@ Preferred over opening ports:
 tunnel: <tunnel-id>
 credentials-file: /home/<user>/.cloudflared/<tunnel-id>.json
 ingress:
-  - hostname: trustagent.example.com
+  - hostname: chancela.example.com
     service: http://127.0.0.1:3080
   - service: http_status:404
 ```
 
 ```bash
-cloudflared tunnel route dns <tunnel-id> trustagent.example.com
+cloudflared tunnel route dns <tunnel-id> chancela.example.com
 cloudflared tunnel run <tunnel-id>
 ```
 

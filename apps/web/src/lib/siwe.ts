@@ -33,10 +33,10 @@ export function issueChallenge(address: string): { nonce: string; message: strin
 
 export function buildMessage(address: string, nonce: string): string {
   return [
-    'TrustAgent wants you to sign in with your Ethereum account:',
+    'Chancela wants you to sign in with your Ethereum account:',
     address,
     '',
-    'Signing proves you control this address. TrustAgent only grants',
+    'Signing proves you control this address. Chancela only grants',
     'administration of agents whose ERC-8004 identity this address owns.',
     '',
     'This signature costs no gas and authorises no transaction.',

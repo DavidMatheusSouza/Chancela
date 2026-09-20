@@ -1,4 +1,4 @@
-import { createAgentSchema, hashPolicyDocument } from '@trustagent/shared';
+import { createAgentSchema, hashPolicyDocument } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { fail, ok } from '@/lib/http';
 

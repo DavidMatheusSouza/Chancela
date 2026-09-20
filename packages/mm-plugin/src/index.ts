@@ -1,5 +1,5 @@
 /**
- * TrustAgent plugin for MetaMask Agent Wallet.
+ * Chancela plugin for MetaMask Agent Wallet.
  *
  * MetaMask Agent Wallet already simulates transactions, scans them with
  * Blockaid and enforces outflow limits. What it cannot answer is the question
@@ -12,9 +12,9 @@
  * UI cannot disagree.
  *
  * Commands:
- *   mm trustagent passport <agentId>
- *   mm trustagent authorize <agentId> <ACTION> '<json params>'
- *   mm trustagent audit <agentId> [--limit n]
+ *   mm chancela passport <agentId>
+ *   mm chancela authorize <agentId> <ACTION> '<json params>'
+ *   mm chancela audit <agentId> [--limit n]
  */
 
 export interface PluginContext {
@@ -26,7 +26,7 @@ export interface PluginContext {
 }
 
 export interface PluginConfig {
-  /** Base URL of a TrustAgent deployment. */
+  /** Base URL of a Chancela deployment. */
   apiUrl: string;
   apiKey?: string;
 }
@@ -45,7 +45,7 @@ interface AuthorizeResponse {
 
 export function createPlugin(config: PluginConfig) {
   return {
-    name: 'trustagent',
+    name: 'chancela',
     description: 'Identity, authorization and accountability checks for AI agents.',
     commands: {
       passport: passport(config),
@@ -76,7 +76,7 @@ function passport(config: PluginConfig) {
   return async (args: string[], ctx: PluginContext) => {
     const agentId = args[0];
     if (!agentId) {
-      ctx.print('usage: mm trustagent passport <agentId>');
+      ctx.print('usage: mm chancela passport <agentId>');
       return ctx.exit(1);
     }
     const call = client(config, ctx);
@@ -101,7 +101,7 @@ function authorize(config: PluginConfig) {
   return async (args: string[], ctx: PluginContext) => {
     const [agentId, action, rawParams] = args;
     if (!agentId || !action) {
-      ctx.print("usage: mm trustagent authorize <agentId> <ACTION> '<json params>'");
+      ctx.print("usage: mm chancela authorize <agentId> <ACTION> '<json params>'");
       return ctx.exit(1);
     }
 
@@ -138,7 +138,7 @@ function audit(config: PluginConfig) {
   return async (args: string[], ctx: PluginContext) => {
     const agentId = args[0];
     if (!agentId) {
-      ctx.print('usage: mm trustagent audit <agentId> [--limit n]');
+      ctx.print('usage: mm chancela audit <agentId> [--limit n]');
       return ctx.exit(1);
     }
     const limitFlag = args.indexOf('--limit');

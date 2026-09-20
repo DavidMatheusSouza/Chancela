@@ -1,4 +1,4 @@
-// TrustAgent data model.
+// Chancela data model.
 //
 // Two rules shape this schema:
 //   1. Decision is append-only. Nothing updates a decision, ever. The audit

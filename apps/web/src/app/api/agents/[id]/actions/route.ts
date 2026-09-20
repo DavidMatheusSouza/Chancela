@@ -1,4 +1,4 @@
-import { executeRequestSchema } from '@trustagent/shared';
+import { executeRequestSchema } from '@chancela/shared';
 import { execute } from '@/lib/executor';
 import { fail, ok, rateLimit } from '@/lib/http';
 

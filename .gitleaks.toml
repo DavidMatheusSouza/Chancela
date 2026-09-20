@@ -11,7 +11,7 @@
 useDefault = true
 
 [[rules]]
-id = "trustagent-real-private-key"
+id = "chancela-real-private-key"
 description = "32-byte private key that is not a known public test vector"
 regex = '''(?i)(ATTESTATION_PRIVATE_KEY|DEPLOYER_PRIVATE_KEY)\s*[:=]\s*['"]?0x[0-9a-f]{64}'''
 tags = ["key", "private-key"]

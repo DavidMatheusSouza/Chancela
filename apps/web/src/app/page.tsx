@@ -39,7 +39,7 @@ export default async function Landing() {
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-chain" />
-            <span className="font-semibold tracking-tight">TrustAgent</span>
+            <span className="font-semibold tracking-tight">Chancela</span>
           </div>
 
           <nav className="flex items-center gap-2">
@@ -76,7 +76,7 @@ export default async function Landing() {
 
           <Reveal delay={120}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-              ERC-8004 tells you who an agent is. TrustAgent decides what it is allowed to do, and
+              ERC-8004 tells you who an agent is. Chancela decides what it is allowed to do, and
               proves why on-chain. Identity, permissions, policies and verifiable accountability for
               autonomous agents.
             </p>

@@ -1,4 +1,4 @@
-import type { ToolDescriptor } from '@trustagent/shared';
+import type { ToolDescriptor } from '@chancela/shared';
 
 /**
  * System prompt for intent extraction.

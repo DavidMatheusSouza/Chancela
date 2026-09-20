@@ -1,8 +1,12 @@
-# TrustAgent
+# Chancela
 
 **Identity, authorization and accountability for AI agents.**
 
-> ERC-8004 tells you *who* an agent is. TrustAgent decides *what it is allowed to do* — and proves why, on-chain.
+*Chancela* (shan-SEH-la) is Portuguese for the official seal that makes a document
+valid — related to *chancery*, the office that issued writs. Here it is the signed
+capsule without which nothing an agent asks for is carried out.
+
+> ERC-8004 tells you *who* an agent is. Chancela decides *what it is allowed to do* — and proves why, on-chain.
 
 Built for **Monad Metropolis 2026**, Track 04: *Trust, Identity & AI Infrastructure*.
 
@@ -39,7 +43,7 @@ is not a security control.
 
 ## The solution
 
-TrustAgent is the authorization and accountability layer that sits on top of
+Chancela is the authorization and accountability layer that sits on top of
 ERC-8004:
 
 ```
@@ -57,7 +61,7 @@ An LLM proposes. A deterministic policy engine authorizes. Monad remembers.
 ## The core idea: the Authorization Capsule
 
 Most agent frameworks leak in the gap between *"the model chose action X"* and
-*"the tool executed Y"*. TrustAgent closes it.
+*"the tool executed Y"*. Chancela closes it.
 
 The policy engine never returns a boolean. It returns a **signed capsule**:
 
@@ -148,7 +152,7 @@ An autonomous agent produces dozens to hundreds of decisions an hour. Anchoring
 every one of them — including the refusals — is only viable on a chain with
 ~300ms blocks, ~600ms finality and negligible fees.
 
-**TrustAgent would not work on Ethereum L1.** That is not a slogan; it is the
+**Chancela would not work on Ethereum L1.** That is not a slogan; it is the
 reason the architecture anchors per decision instead of batching into a daily
 Merkle root.
 
@@ -194,7 +198,7 @@ docker compose up
 ## Repository
 
 ```
-trustagent/
+chancela/
 ├── apps/web/                  Next.js — dashboard + REST API
 ├── packages/
 │   ├── policy-engine/         PURE. No I/O, no clock, no network. 48 tests.

@@ -1,5 +1,5 @@
-import { hashPolicyDocument } from '@trustagent/shared';
-import type { UsageWindow } from '@trustagent/policy-engine';
+import { hashPolicyDocument } from '@chancela/shared';
+import type { UsageWindow } from '@chancela/policy-engine';
 import type {
   ActionRow,
   AgentRow,

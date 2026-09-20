@@ -1,5 +1,5 @@
 {
-  "name": "@trustagent/policy-engine",
+  "name": "@chancela/policy-engine",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@trustagent/shared": "workspace:*",
+    "@chancela/shared": "workspace:*",
     "zod": "^3.23.8"
   },
   "devDependencies": {

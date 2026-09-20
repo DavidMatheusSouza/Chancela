@@ -5,7 +5,7 @@ import {
   type AuthorizationCapsule,
   type Hex,
   type SignedCapsule,
-} from '@trustagent/shared';
+} from '@chancela/shared';
 import { privateKeyToAccount } from 'viem/accounts';
 import { recoverMessageAddress, isAddressEqual, type Address } from 'viem';
 

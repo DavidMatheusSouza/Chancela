@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { evaluate } from '@trustagent/policy-engine';
+import { evaluate } from '@chancela/policy-engine';
 import {
   REASON_TEXT,
   lookupTool,
@@ -7,7 +7,7 @@ import {
   type Hex,
   type PolicyDocument,
   type ReasonCode,
-} from '@trustagent/shared';
+} from '@chancela/shared';
 import { keccak256, toHex } from 'viem';
 import { signCapsule } from './attestation';
 import { anchorDecision } from './chain';

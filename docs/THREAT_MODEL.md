@@ -200,11 +200,11 @@ Stated plainly rather than hidden:
   still cannot get a transaction signed. Not implemented in this build.
 - **Owner key compromise.** Full control, by design — the owner is the root of
   authority. Multi-sig ownership of the ERC-8004 NFT is the mitigation.
-- **Tool-side vulnerabilities.** TrustAgent authorizes a call; it does not audit
+- **Tool-side vulnerabilities.** Chancela authorizes a call; it does not audit
   what the called system does with it.
 - **Model quality.** A bad intent extraction produces a *wrong but authorized*
   action — for example creating the wrong customer. Authorization is not
-  correctness, and TrustAgent does not claim to make a confused agent competent.
+  correctness, and Chancela does not claim to make a confused agent competent.
 - **Anchor lag.** Between decision and confirmation the proof is `PENDING`. An
   attacker who compromises the service in that window could suppress the record.
   Batched anchoring with a Merkle root would shrink but not eliminate this.

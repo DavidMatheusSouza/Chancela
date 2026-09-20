@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# A Postgres for TrustAgent, without Docker and without root.
+# A Postgres for Chancela, without Docker and without root.
 #
 # docker-compose.yml remains the intended path. This exists for hosts where
 # Docker is not installed and cannot be -- a shared box where you are not root,
@@ -18,11 +18,11 @@ set -euo pipefail
 PGPORT="${PGPORT:-5442}"
 # Sibling of the repository, not $HOME: on a shared host the account's home and
 # the project's directory are often different owners entirely.
-PGROOT="${PGROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.trustagent-pg}"
+PGROOT="${PGROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.chancela-pg}"
 PGDATA="$PGROOT/data"
-PGUSER="${PGUSER:-trustagent}"
-PGPASS="${PGPASS:-trustagent}"
-PGDB="${PGDB:-trustagent}"
+PGUSER="${PGUSER:-chancela}"
+PGPASS="${PGPASS:-chancela}"
+PGDB="${PGDB:-chancela}"
 
 BIN="$(ls -d /usr/pgsql-*/bin 2>/dev/null | sort -V | tail -1 || true)"
 [ -z "$BIN" ] && BIN="$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1 || true)"

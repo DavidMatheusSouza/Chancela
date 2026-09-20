@@ -5,7 +5,7 @@
 # point: the explorer shows what the chain says, independently of the service
 # that produced it.
 
-name: trustagent
+name: chancela
 description: Authorization decisions and policy anchors for AI agents on Monad
 
 # Note: the public Monad testnet RPC silently caps eth_getLogs block ranges.

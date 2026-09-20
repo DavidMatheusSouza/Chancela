@@ -44,8 +44,8 @@ for the tool's handler and finding a `throw`.
 
 ```bash
 pnpm test:security          # policy engine: injection, invariants, fail-closed
-pnpm --filter @trustagent/contracts test   # access control, replay, monotonicity
-pnpm --filter @trustagent/web test         # capsule forgery, tampering, replay
+pnpm --filter @chancela/contracts test   # access control, replay, monotonicity
+pnpm --filter @chancela/web test         # capsule forgery, tampering, replay
 ```
 
 ## Reporting a vulnerability
@@ -75,7 +75,7 @@ tied to the same key the chain already recognises.
 They are what other agent runtimes call, and they grant nothing on their own —
 `authorize` returns a signed decision that may well be a denial, and `actions`
 refuses anything it cannot verify. Putting them behind a browser session would
-make TrustAgent an application instead of infrastructure.
+make Chancela an application instead of infrastructure.
 
 ### Two implementation notes worth keeping
 

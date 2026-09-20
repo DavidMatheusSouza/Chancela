@@ -19,24 +19,24 @@ FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY . .
-RUN pnpm --filter @trustagent/web build
+RUN pnpm --filter @chancela/web build
 
 # ---- runtime ----------------------------------------------------------------
 FROM base AS runner
 ENV NODE_ENV=production
-RUN addgroup -g 1001 -S nodejs && adduser -S trustagent -u 1001
+RUN addgroup -g 1001 -S nodejs && adduser -S chancela -u 1001
 
-COPY --from=build --chown=trustagent:nodejs /app/node_modules ./node_modules
-COPY --from=build --chown=trustagent:nodejs /app/apps ./apps
-COPY --from=build --chown=trustagent:nodejs /app/packages ./packages
-COPY --from=build --chown=trustagent:nodejs /app/package.json ./package.json
-COPY --from=build --chown=trustagent:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=build --chown=chancela:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=chancela:nodejs /app/apps ./apps
+COPY --from=build --chown=chancela:nodejs /app/packages ./packages
+COPY --from=build --chown=chancela:nodejs /app/package.json ./package.json
+COPY --from=build --chown=chancela:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-USER trustagent
+USER chancela
 EXPOSE 3080
 ENV PORT=3080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s \
   CMD wget -qO- http://127.0.0.1:3080/api/health || exit 1
 
-CMD ["pnpm", "--filter", "@trustagent/web", "start"]
+CMD ["pnpm", "--filter", "@chancela/web", "start"]

@@ -1,6 +1,6 @@
 import { PrismaClient, type Prisma } from '@prisma/client';
-import type { AuthorizationCapsule, Hex, PolicyDocument } from '@trustagent/shared';
-import type { UsageWindow } from '@trustagent/policy-engine';
+import type { AuthorizationCapsule, Hex, PolicyDocument } from '@chancela/shared';
+import type { UsageWindow } from '@chancela/policy-engine';
 import type {
   ActionRow,
   AgentRow,

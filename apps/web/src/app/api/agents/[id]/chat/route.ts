@@ -1,5 +1,5 @@
-import { TOOL_REGISTRY } from '@trustagent/shared';
-import { resolveProvider } from '@trustagent/ai';
+import { TOOL_REGISTRY } from '@chancela/shared';
+import { resolveProvider } from '@chancela/ai';
 import { z } from 'zod';
 import { AuthorizeError, authorize } from '@/lib/authorize';
 import { getRepository } from '@/lib/store';

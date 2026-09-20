@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
-const TITLE = 'TrustAgent - Identity, Authorization and Accountability for AI Agents';
+const TITLE = 'Chancela - Identity, Authorization and Accountability for AI Agents';
 const DESCRIPTION =
-  'TrustAgent gives autonomous AI agents identity, permissions, policies and verifiable on-chain accountability. The IAM layer for the autonomous AI era.';
+  'Chancela gives autonomous AI agents identity, permissions, policies and verifiable on-chain accountability. The IAM layer for the autonomous AI era.';
 
 export const metadata: Metadata = {
   // Without this, the open-graph image resolves against localhost and the link
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
     : undefined,
   title: TITLE,
   description: DESCRIPTION,
-  applicationName: 'TrustAgent',
-  openGraph: { title: TITLE, description: DESCRIPTION, siteName: 'TrustAgent', type: 'website' },
+  applicationName: 'Chancela',
+  openGraph: { title: TITLE, description: DESCRIPTION, siteName: 'Chancela', type: 'website' },
   twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
   // The dashboard is behind auth and the proofs live on-chain; there is nothing
   // here worth indexing, and an ephemeral demo URL should not outlive itself in

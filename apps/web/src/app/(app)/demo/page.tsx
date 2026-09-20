@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { PERMISSIONS } from '@trustagent/shared';
+import { PERMISSIONS } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig } from '@/lib/chain';
 import { Badge, Mono } from '@/components/primitives';
@@ -46,7 +46,7 @@ export default async function DemoPage() {
     <div className="mx-auto max-w-5xl space-y-5 px-6 py-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-semibold tracking-tight">TrustAgent, in two minutes</h1>
+          <h1 className="text-[22px] font-semibold tracking-tight">Chancela, in two minutes</h1>
           <p className="mt-1 max-w-2xl text-[13.5px] text-muted">
             An AI agent proposes. A deterministic policy engine decides. Monad keeps the record —
             including of what was refused.

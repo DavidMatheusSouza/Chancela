@@ -1,4 +1,4 @@
-import { PERMISSIONS, PERMISSION_LABELS, TOOL_REGISTRY } from '@trustagent/shared';
+import { PERMISSIONS, PERMISSION_LABELS, TOOL_REGISTRY } from '@chancela/shared';
 import { ok } from '@/lib/http';
 
 export const dynamic = 'force-static';

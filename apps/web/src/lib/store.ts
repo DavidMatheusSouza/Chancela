@@ -14,8 +14,8 @@ import type { Repository } from './repository';
  */
 
 const globalForStore = globalThis as unknown as {
-  __trustagentRepo?: Repository;
-  __trustagentSeeding?: Promise<void>;
+  __chancelaRepo?: Repository;
+  __chancelaSeeding?: Promise<void>;
 };
 
 async function build(): Promise<Repository> {
@@ -29,15 +29,15 @@ async function build(): Promise<Repository> {
 }
 
 export async function getRepository(): Promise<Repository> {
-  if (!globalForStore.__trustagentRepo) {
-    globalForStore.__trustagentRepo = await build();
+  if (!globalForStore.__chancelaRepo) {
+    globalForStore.__chancelaRepo = await build();
   }
-  const repo = globalForStore.__trustagentRepo;
+  const repo = globalForStore.__chancelaRepo;
 
   // Seeding is idempotent -- `seed()` returns early when agents already exist,
   // so a Postgres instance that survived a restart is not re-seeded.
-  globalForStore.__trustagentSeeding ??= seed(repo);
-  await globalForStore.__trustagentSeeding;
+  globalForStore.__chancelaSeeding ??= seed(repo);
+  await globalForStore.__chancelaSeeding;
 
   return repo;
 }

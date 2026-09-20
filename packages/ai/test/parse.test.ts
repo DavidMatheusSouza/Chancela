@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { IntentExtractionError, RulesProvider, parseIntent } from '../src/index';
-import { TOOL_REGISTRY } from '@trustagent/shared';
+import { TOOL_REGISTRY } from '@chancela/shared';
 
 describe('parseIntent', () => {
   it('parses a clean object', () => {

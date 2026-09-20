@@ -30,7 +30,7 @@ authenticated platform at `hackathon.monad.xyz`.
 ## Matrix
 
 `Fit` is judged against one question only, from the project's own decision rule:
-does this make TrustAgent more trustworthy, more verifiable, or more useful for
+does this make Chancela more trustworthy, more verifiable, or more useful for
 agent authorization?
 
 | Partner | Bounty | Prize | Fit | State | Pri |

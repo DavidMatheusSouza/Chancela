@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getRepository } from '@/lib/store';
 import { explorerTxUrl } from '@/lib/chain';
-import { REASON_TEXT } from '@trustagent/shared';
+import { REASON_TEXT } from '@chancela/shared';
 import { Card, Empty, Label, Mono } from '@/components/primitives';
 import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AuditRow, type AuditEntry } from '@/components/audit-row';

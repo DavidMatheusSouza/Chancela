@@ -1,4 +1,4 @@
-import { rawIntentSchema, type RawIntent } from '@trustagent/shared';
+import { rawIntentSchema, type RawIntent } from '@chancela/shared';
 import { IntentExtractionError } from './types';
 
 /**

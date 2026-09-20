@@ -1,4 +1,4 @@
-# TrustAgent indexer (Envio HyperIndex)
+# Chancela indexer (Envio HyperIndex)
 
 Turns `TrustAgentPolicyRegistry` events on Monad into a GraphQL API that powers
 the Trust Activity Explorer.

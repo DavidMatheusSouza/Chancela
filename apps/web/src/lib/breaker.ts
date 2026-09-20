@@ -49,8 +49,8 @@ export interface BreakerState {
  * forgets it. It is tolerable because the window is ninety seconds, so by the
  * time a process is back up there is almost nothing left to forget.
  */
-const resets = (globalThis as unknown as { __trustagentBreakerResets?: Map<string, number> })
-  .__trustagentBreakerResets ??= new Map<string, number>();
+const resets = (globalThis as unknown as { __chancelaBreakerResets?: Map<string, number> })
+  .__chancelaBreakerResets ??= new Map<string, number>();
 
 export function noteReactivation(agentId: string, at: Date = new Date()): void {
   resets.set(agentId, at.getTime());

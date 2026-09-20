@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 const schema = z.object({ accessToken: z.string().min(16) }).strict();
 
 /**
- * Exchange a Privy access token for a TrustAgent session.
+ * Exchange a Privy access token for a Chancela session.
  *
  * Privy answers exactly one question -- "is this person who they say they
  * are, and which wallet is theirs". It is an identity provider here and

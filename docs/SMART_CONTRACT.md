@@ -2,7 +2,7 @@
 
 ## Design stance
 
-TrustAgent does **not** implement agent identity. ERC-8004 already does, and its
+Chancela does **not** implement agent identity. ERC-8004 already does, and its
 Identity and Reputation registries are live on Monad. Re-implementing them would
 mean competing with the standard the track explicitly points at, and producing an
 agent registry that interoperates with nothing.
@@ -14,9 +14,23 @@ What ERC-8004 does not define is authorization. That is the gap:
 | Identity (`0x8004A169…`) | Who is this agent? | ERC-8004 |
 | Reputation (`0x8004BAa1…`) | How has it behaved? | ERC-8004 |
 | Validation | Was its work valid? | ERC-8004 — *coming soon on Monad* |
-| **Policy** | **What may it do, and why was this decision made?** | **TrustAgent** |
+| **Policy** | **What may it do, and why was this decision made?** | **Chancela** |
 
 ## TrustAgentPolicyRegistry
+
+> **On the name.** The project was called TrustAgent when this contract was
+> compiled and deployed, and two things deliberately keep that name:
+>
+> - **The contract itself.** Solidity embeds a hash of the source metadata in the
+>   bytecode. Renaming the contract would mean the source in this repository no
+>   longer reproduces what is at `0x649DD587…6d4b`, and a later explorer
+>   verification would fail. The deployed artefact is the record; the source
+>   matches it.
+> - **Agent ids (`TA-001`…) and audit ids (`TA-AUDIT-…`).** `hashPolicyDocument`
+>   commits to the agent id, and those policy hashes are anchored on-chain.
+>   `recordDecision` reverts with `PolicyHashMismatch` when a decision cites a
+>   hash other than the anchored one, so renaming an agent would silently stop
+>   every proof from landing. They are identifiers, not branding.
 
 ### Ownership is never duplicated
 
@@ -126,8 +140,8 @@ testFuzz_decisionHashRecordedExactlyOnce(bytes32)  256 runs
 ```
 
 ```bash
-pnpm --filter @trustagent/contracts test
-pnpm --filter @trustagent/contracts test:gas
+pnpm --filter @chancela/contracts test
+pnpm --filter @chancela/contracts test:gas
 ```
 
 ## Deployment
@@ -135,7 +149,7 @@ pnpm --filter @trustagent/contracts test:gas
 ```bash
 export DEPLOYER_PRIVATE_KEY=0x...
 export ERC8004_IDENTITY_REGISTRY=0x...     # required on testnet
-pnpm --filter @trustagent/contracts deploy:testnet
+pnpm --filter @chancela/contracts deploy:testnet
 ```
 
 On mainnet the ERC-8004 address defaults to `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`.

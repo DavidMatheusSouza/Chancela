@@ -1,4 +1,4 @@
-import type { RawIntent, ToolDescriptor } from '@trustagent/shared';
+import type { RawIntent, ToolDescriptor } from '@chancela/shared';
 
 export interface IntentRequest {
   utterance: string;
@@ -16,7 +16,7 @@ export interface IntentResult {
 }
 
 /**
- * The only contract an AI vendor has with TrustAgent.
+ * The only contract an AI vendor has with Chancela.
  *
  * Narrow on purpose. A provider turns prose into a candidate action name plus
  * parameters, and that is all it can ever do. Swapping Qwen for Kimi cannot

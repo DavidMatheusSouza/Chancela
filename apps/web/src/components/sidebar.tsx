@@ -75,7 +75,7 @@ export function SidebarContent({
     <div className="flex min-h-0 flex-1 flex-col">
       <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-5 py-5">
         <ShieldCheck className="h-5 w-5 text-chain" />
-        <span className="text-[15px] font-semibold tracking-tight">TrustAgent</span>
+        <span className="text-[15px] font-semibold tracking-tight">Chancela</span>
       </Link>
 
       <nav className="flex-1 space-y-0.5 px-2.5">

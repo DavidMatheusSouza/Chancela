@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { lookupTool } from '@trustagent/shared';
+import { lookupTool } from '@chancela/shared';
 import { verifyCapsule } from './attestation';
 import { getRepository } from './store';
 

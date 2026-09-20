@@ -22,13 +22,13 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
       - name: Typecheck
-        run: pnpm -r --filter '!@trustagent/contracts' typecheck
+        run: pnpm -r --filter '!@chancela/contracts' typecheck
       - name: Unit and integration tests
-        run: pnpm -r --filter '!@trustagent/contracts' test
+        run: pnpm -r --filter '!@chancela/contracts' test
       - name: Security suite
-        run: pnpm --filter @trustagent/policy-engine test:security
+        run: pnpm --filter @chancela/policy-engine test:security
       - name: Build
-        run: pnpm --filter @trustagent/web build
+        run: pnpm --filter @chancela/web build
         env:
           # Anvil deterministic account #1 -- a published test vector, not a secret.
           ATTESTATION_PRIVATE_KEY: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'

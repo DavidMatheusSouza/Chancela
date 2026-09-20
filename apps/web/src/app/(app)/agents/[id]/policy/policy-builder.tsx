@@ -10,7 +10,7 @@ import {
   TOOL_REGISTRY,
   hashPolicyDocument,
   type PolicyDocument,
-} from '@trustagent/shared';
+} from '@chancela/shared';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, Label, Mono } from '@/components/primitives';
 import { cn, RISK_STYLE } from '@/lib/ui';

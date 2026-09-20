@@ -36,10 +36,10 @@ per-action provenance the product is selling.
 | Status | **Implemented** (mainnet addresses; testnet address not published) |
 
 Track 04 lists *"Agent identity and reputation under ERC-8004"* as an example
-direction. TrustAgent deliberately does **not** compete with it: identity stays
-in the standard registry, and TrustAgent supplies the authorization layer the
+direction. Chancela deliberately does **not** compete with it: identity stays
+in the standard registry, and Chancela supplies the authorization layer the
 standard does not define. The Validation Registry is marked "coming soon" on
-Monad; `TrustAgentValidator` is the natural slot for it.
+Monad; `ChancelaValidator` is the natural slot for it.
 
 ---
 
@@ -58,9 +58,9 @@ rather than out of the browser, and a verified Privy user who owns no agent is
 refused exactly as a wallet signer would be. Nothing in the policy engine
 changes when this route is used.
 
-The intended next step is defence in depth: the TrustAgent policy is the
+The intended next step is defence in depth: the Chancela policy is the
 human-readable contract, and Privy's key-level policy mirrors it restrictively.
-If TrustAgent is compromised, the key still refuses the transaction.
+If Chancela is compromised, the key still refuses the transaction.
 
 ---
 
@@ -89,7 +89,7 @@ does not have.
 | Integration | `derivationIndex` on every agent; surfaced on the Agent Passport |
 | Status | **Partial** — key model and UI implemented; passkey ceremony not yet wired |
 
-"One passkey, many keys" describes TrustAgent's key model literally. It also
+"One passkey, many keys" describes Chancela's key model literally. It also
 satisfies the track's other listed example — *"passkey-native accounts using
 P256 and WebAuthn, with no seed phrase"* — at the same time.
 
@@ -106,7 +106,7 @@ P256 and WebAuthn, with no seed phrase"* — at the same time.
 
 Agent Wallet already simulates, scans with Blockaid and enforces outflow limits.
 It cannot answer whether *this agent under this policy* may attempt the action at
-all. `mm trustagent authorize` exits non-zero on DENY so the wallet aborts rather
+all. `mm chancela authorize` exits non-zero on DENY so the wallet aborts rather
 than merely printing a warning.
 
 ---

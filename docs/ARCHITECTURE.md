@@ -2,7 +2,7 @@
 
 ## The trust boundary
 
-Everything in TrustAgent is organised around one line:
+Everything in Chancela is organised around one line:
 
 ```
 ┌─────────────── UNTRUSTED ────────────────┐

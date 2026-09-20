@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TOOL_REGISTRY } from '@trustagent/shared';
+import { TOOL_REGISTRY } from '@chancela/shared';
 import { buildSystemPrompt, wrapUserInput } from '../src/index';
 
 describe('system prompt', () => {

@@ -11,7 +11,7 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
  * `/api/agents/:id/authorize` is deliberately public. It is the endpoint other
  * agent runtimes call, and it grants nothing on its own — it returns a signed
  * decision, which may well be a denial. Gating it behind a browser session
- * would make TrustAgent an application rather than infrastructure.
+ * would make Chancela an application rather than infrastructure.
  */
 // `/opengraph-image` is fetched by link-preview crawlers, which never carry a
 // session. It renders static marketing copy and reads nothing.

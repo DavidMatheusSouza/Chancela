@@ -13,7 +13,7 @@ Errors:
 
 ## `POST /api/agents/:id/authorize`
 
-The endpoint that makes TrustAgent infrastructure rather than an application.
+The endpoint that makes Chancela infrastructure rather than an application.
 Any agent runtime, anywhere, calls this **before** it acts.
 
 It returns a signed capsule rather than a boolean, so the answer cannot be

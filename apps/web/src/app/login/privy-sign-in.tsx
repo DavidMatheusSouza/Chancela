@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
  * agent is refused there exactly as a wallet signer would be.
  *
  * On failure the Privy session is torn down. Leaving someone logged in to the
- * identity provider while TrustAgent refused them is the sort of half-state
+ * identity provider while Chancela refused them is the sort of half-state
  * that makes a second attempt silently do nothing.
  */
 function PrivyButton({ next }: { next: string }) {

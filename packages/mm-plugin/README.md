@@ -1,6 +1,6 @@
-# @trustagent/mm-plugin
+# @chancela/mm-plugin
 
-TrustAgent policy checks for [MetaMask Agent Wallet](https://docs.metamask.io/agent-wallet/).
+Chancela policy checks for [MetaMask Agent Wallet](https://docs.metamask.io/agent-wallet/).
 
 Agent Wallet simulates transactions, scans them with Blockaid and enforces
 outflow limits. It cannot answer the question that comes first: **is this agent
@@ -12,23 +12,23 @@ This plugin adds that step.
 ## Install
 
 ```bash
-mm plugin install @trustagent/mm-plugin
-mm config set trustagent.apiUrl https://your-trustagent-deployment
+mm plugin install @chancela/mm-plugin
+mm config set chancela.apiUrl https://your-chancela-deployment
 ```
 
 ## Commands
 
 ```bash
-mm trustagent passport TA-001
-mm trustagent authorize TA-001 TRANSFER_FUNDS '{"amount":500000,"recipient":"Joao"}'
-mm trustagent audit TA-001 --limit 20
+mm chancela passport TA-001
+mm chancela authorize TA-001 TRANSFER_FUNDS '{"amount":500000,"recipient":"Joao"}'
+mm chancela audit TA-001 --limit 20
 ```
 
 `authorize` exits non-zero on `DENY` and on `REQUIRE_APPROVAL`, so Agent Wallet
 aborts the pending operation rather than merely printing a warning.
 
 ```
-$ mm trustagent authorize TA-001 TRANSFER_FUNDS '{"amount":500000,"recipient":"Joao"}'
+$ mm chancela authorize TA-001 TRANSFER_FUNDS '{"amount":500000,"recipient":"Joao"}'
 ✕ DENY  TRANSFER_FUNDS  [CRITICAL]
   reason      Agent does not have permission to perform this action. (PERMISSION_DENIED)
   policy      v3  0xcd0ffd6d...

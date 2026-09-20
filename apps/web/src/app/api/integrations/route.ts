@@ -1,4 +1,4 @@
-import { availableProviders } from '@trustagent/ai';
+import { availableProviders } from '@chancela/ai';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
 import { isNansenConfigured } from '@/lib/nansen';
 import { ok } from '@/lib/http';
@@ -32,7 +32,7 @@ export async function GET() {
       {
         id: 'erc8004',
         name: 'ERC-8004 Identity Registry',
-        role: 'Agent identity. TrustAgent binds to it rather than re-implementing it.',
+        role: 'Agent identity. Chancela binds to it rather than re-implementing it.',
         status: identityRegistryAddress() ? 'CONNECTED' : 'NOT_CONFIGURED',
         detail: identityRegistryAddress() ?? 'No registry address for this chain',
         docs: 'https://docs.monad.xyz/guides/erc-8004',

@@ -1,4 +1,4 @@
-import { TOOL_REGISTRY } from '@trustagent/shared';
+import { TOOL_REGISTRY } from '@chancela/shared';
 import type { AIProvider, IntentRequest, IntentResult } from '../types';
 
 /**

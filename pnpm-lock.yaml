@@ -29,6 +29,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@chancela/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@chancela/policy-engine':
+        specifier: workspace:*
+        version: link:../../packages/policy-engine
+      '@chancela/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@prisma/client':
         specifier: ^5.20.0
         version: 5.22.0(prisma@5.22.0)
@@ -74,15 +83,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.16
         version: 1.2.16(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@trustagent/ai':
-        specifier: workspace:*
-        version: link:../../packages/ai
-      '@trustagent/policy-engine':
-        specifier: workspace:*
-        version: link:../../packages/policy-engine
-      '@trustagent/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -141,7 +141,7 @@ importers:
 
   packages/ai:
     dependencies:
-      '@trustagent/shared':
+      '@chancela/shared':
         specifier: workspace:*
         version: link:../shared
       zod:
@@ -165,7 +165,7 @@ importers:
 
   packages/mm-plugin:
     dependencies:
-      '@trustagent/shared':
+      '@chancela/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -178,7 +178,7 @@ importers:
 
   packages/policy-engine:
     dependencies:
-      '@trustagent/shared':
+      '@chancela/shared':
         specifier: workspace:*
         version: link:../shared
       zod:

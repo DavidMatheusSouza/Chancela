@@ -1,4 +1,4 @@
-import type { AgentRecord, PolicyDocument } from '@trustagent/shared';
+import type { AgentRecord, PolicyDocument } from '@chancela/shared';
 import type { EvaluateInput } from '../src/evaluate';
 
 export const NOW = 1_760_000_000; // fixed epoch: 2025-10-09T08:53:20Z, hour 8 UTC

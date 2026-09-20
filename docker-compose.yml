@@ -1,4 +1,4 @@
-# TrustAgent local stack.
+# Chancela local stack.
 #
 # The database is namespaced and bound to its own volume so it cannot collide
 # with anything else on a shared host.
@@ -6,29 +6,29 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: trustagent-db
+    container_name: chancela-db
     environment:
-      POSTGRES_USER: trustagent
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trustagent}
-      POSTGRES_DB: trustagent
+      POSTGRES_USER: chancela
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chancela}
+      POSTGRES_DB: chancela
     volumes:
-      - trustagent-pgdata:/var/lib/postgresql/data
+      - chancela-pgdata:/var/lib/postgresql/data
     ports:
       - '127.0.0.1:${DB_PORT:-5442}:5432'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U trustagent -d trustagent']
+      test: ['CMD-SHELL', 'pg_isready -U chancela -d chancela']
       interval: 5s
       timeout: 3s
       retries: 10
 
   web:
     build: .
-    container_name: trustagent-web
+    container_name: chancela-web
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://trustagent:${POSTGRES_PASSWORD:-trustagent}@db:5432/trustagent
+      DATABASE_URL: postgresql://chancela:${POSTGRES_PASSWORD:-chancela}@db:5432/chancela
       ATTESTATION_PRIVATE_KEY: ${ATTESTATION_PRIVATE_KEY}
       NEXT_PUBLIC_CHAIN_ID: ${NEXT_PUBLIC_CHAIN_ID:-10143}
       MONAD_RPC_URL: ${MONAD_RPC_URL:-https://testnet-rpc.monad.xyz}
@@ -44,5 +44,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  trustagent-pgdata:
-    name: trustagent-pgdata
+  chancela-pgdata:
+    name: chancela-pgdata

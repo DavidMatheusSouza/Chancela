@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'TrustAgent - Identity, Authorization and Accountability for AI Agents';
+export const alt = 'Chancela - Identity, Authorization and Accountability for AI Agents';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -29,7 +29,7 @@ export default function OpengraphImage() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#7E7AFF', fontSize: 30 }}>
           <div style={{ width: 14, height: 14, borderRadius: 999, background: '#7E7AFF' }} />
-          TrustAgent
+          Chancela
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', marginTop: 34 }}>

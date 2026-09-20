@@ -5,8 +5,8 @@ import type {
   Hex,
   PolicyDocument,
   RiskLevel,
-} from '@trustagent/shared';
-import type { UsageWindow } from '@trustagent/policy-engine';
+} from '@chancela/shared';
+import type { UsageWindow } from '@chancela/policy-engine';
 
 export interface AgentRow {
   id: string;

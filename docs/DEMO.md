@@ -133,7 +133,7 @@ Switch to TreasuryAgent, send a transfer to a flagged address.
 Terminal:
 
 ```bash
-mm trustagent authorize TA-001 TRANSFER_FUNDS '{"amount":500000,"recipient":"Joao"}'
+mm chancela authorize TA-001 TRANSFER_FUNDS '{"amount":500000,"recipient":"Joao"}'
 ✕ DENY  TRANSFER_FUNDS  [CRITICAL]
   reason      Agent does not have permission to perform this action.
 echo $?   # 1
@@ -145,7 +145,7 @@ echo $?   # 1
 
 ## 2:35 — Close (5s)
 
-> "Identity. Authorization. Accountability. TrustAgent."
+> "Identity. Authorization. Accountability. Chancela."
 
 ---
 

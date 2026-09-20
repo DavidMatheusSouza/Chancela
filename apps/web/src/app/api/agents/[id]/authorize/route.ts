@@ -1,4 +1,4 @@
-import { authorizeRequestSchema } from '@trustagent/shared';
+import { authorizeRequestSchema } from '@chancela/shared';
 import { AuthorizeError, authorize } from '@/lib/authorize';
 import { fail, ok, rateLimit } from '@/lib/http';
 
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/agents/:id/authorize
  *
- * The endpoint that makes TrustAgent infrastructure rather than an app: any
+ * The endpoint that makes Chancela infrastructure rather than an app: any
  * agent runtime, anywhere, can call this before it acts. It returns a signed
  * capsule, not a boolean, so the answer cannot be forged downstream.
  */

@@ -12,7 +12,7 @@
  * same key the chain recognises, not to a parallel account system.
  */
 
-export const SESSION_COOKIE = 'trustagent_session';
+export const SESSION_COOKIE = 'chancela_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 
 export interface SessionPayload {

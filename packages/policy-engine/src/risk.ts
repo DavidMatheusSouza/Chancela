@@ -3,7 +3,7 @@ import {
   baselineRisk,
   type RiskLevel,
   type RiskSignal,
-} from '@trustagent/shared';
+} from '@chancela/shared';
 
 export interface RiskAssessment {
   level: RiskLevel;

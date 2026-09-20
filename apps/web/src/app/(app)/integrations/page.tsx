@@ -1,4 +1,4 @@
-import { availableProviders } from '@trustagent/ai';
+import { availableProviders } from '@chancela/ai';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
 import { isNansenConfigured } from '@/lib/nansen';
 import { Badge, Card, Mono } from '@/components/primitives';
@@ -36,14 +36,14 @@ export default function IntegrationsPage() {
     },
     {
       name: 'ERC-8004 Identity Registry',
-      role: 'Agent identity. TrustAgent binds to the standard instead of re-implementing it.',
+      role: 'Agent identity. Chancela binds to the standard instead of re-implementing it.',
       status: identityRegistryAddress() ? 'CONNECTED' : 'NOT_CONFIGURED',
       detail: identityRegistryAddress() ?? 'No published registry address for this chain',
       docs: 'https://docs.monad.xyz/guides/erc-8004',
     },
     {
       name: 'Privy',
-      role: 'Owner auth and server wallets. Key-level policy mirrors the TrustAgent policy.',
+      role: 'Owner auth and server wallets. Key-level policy mirrors the Chancela policy.',
       status: process.env.NEXT_PUBLIC_PRIVY_APP_ID ? 'CONNECTED' : 'NOT_CONFIGURED',
       detail: process.env.NEXT_PUBLIC_PRIVY_APP_ID ? 'App ID configured' : 'Set NEXT_PUBLIC_PRIVY_APP_ID',
       docs: 'https://docs.privy.io',

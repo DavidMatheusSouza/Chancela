@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ExternalLink, KeyRound, Wallet } from 'lucide-react';
-import { PERMISSIONS, PERMISSION_LABELS, REASON_TEXT } from '@trustagent/shared';
+import { PERMISSIONS, PERMISSION_LABELS, REASON_TEXT } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { computeTrustScore } from '@/lib/trust-score';
 import { activeChain, explorerAddressUrl, explorerTxUrl } from '@/lib/chain';

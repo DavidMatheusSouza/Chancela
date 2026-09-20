@@ -17,7 +17,7 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
       <header className="relative px-6 py-5">
         <Link href="/" className="inline-flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-chain" />
-          <span className="font-semibold tracking-tight">TrustAgent</span>
+          <span className="font-semibold tracking-tight">Chancela</span>
         </Link>
       </header>
 
@@ -26,7 +26,7 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
           <div className="space-y-2">
             <h1 className="text-[26px] font-semibold tracking-tight">Sign in</h1>
             <p className="text-[13.5px] leading-relaxed text-muted">
-              Prove control of the address that owns your agents. TrustAgent grants
+              Prove control of the address that owns your agents. Chancela grants
               administration only for agents whose ERC-8004 identity you hold on-chain.
             </p>
           </div>

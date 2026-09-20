@@ -1,5 +1,5 @@
 {
-  "name": "@trustagent/ai",
+  "name": "@chancela/ai",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@trustagent/shared": "workspace:*",
+    "@chancela/shared": "workspace:*",
     "zod": "^3.23.8"
   },
   "devDependencies": { "typescript": "^5.6.3", "vitest": "^2.1.3" }

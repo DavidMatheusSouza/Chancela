@@ -1,15 +1,15 @@
 {
-  "name": "@trustagent/mm-plugin",
+  "name": "@chancela/mm-plugin",
   "version": "0.1.0",
-  "description": "TrustAgent policy checks for MetaMask Agent Wallet. Ask before you act.",
+  "description": "Chancela policy checks for MetaMask Agent Wallet. Ask before you act.",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "keywords": ["metamask", "agent-wallet", "plugin", "trustagent", "monad", "erc-8004"],
+  "keywords": ["metamask", "agent-wallet", "plugin", "chancela", "monad", "erc-8004"],
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
-  "dependencies": { "@trustagent/shared": "workspace:*" },
+  "dependencies": { "@chancela/shared": "workspace:*" },
   "devDependencies": { "typescript": "^5.6.3", "vitest": "^2.1.3" }
 }

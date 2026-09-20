@@ -17,7 +17,7 @@ export default function NotFound() {
             className="mt-7 inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-ink transition-colors hover:border-line-strong"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to TrustAgent
+            Back to Chancela
           </Link>
         </div>
       </main>

@@ -7,7 +7,7 @@ delete process.env.POLICY_REGISTRY_ADDRESS;
 
 const { authorize } = await import('../src/lib/authorize.js');
 const { getRepository } = await import('../src/lib/store.js');
-const { PERMISSIONS } = await import('@trustagent/shared');
+const { PERMISSIONS } = await import('@chancela/shared');
 
 /** The trace shape the demo renders; `authorize` types it as unknown. */
 type Step = { step: number; name: string; passed: boolean; detail?: string };

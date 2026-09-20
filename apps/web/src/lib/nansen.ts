@@ -1,4 +1,4 @@
-import type { RiskSignal } from '@trustagent/shared';
+import type { RiskSignal } from '@chancela/shared';
 
 /**
  * Counterparty intelligence.

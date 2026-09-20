@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@trustagent/shared', '@trustagent/policy-engine', '@trustagent/ai'],
+  transpilePackages: ['@chancela/shared', '@chancela/policy-engine', '@chancela/ai'],
   poweredByHeader: false,
   /**
    * Privy's React SDK reaches for Farcaster and Solana adapters that this

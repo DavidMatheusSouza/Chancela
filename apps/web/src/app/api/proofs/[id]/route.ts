@@ -1,4 +1,4 @@
-import { hashDecision } from '@trustagent/shared';
+import { hashDecision } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
 import { explorerTxUrl } from '@/lib/chain';
 import { fail, ok } from '@/lib/http';

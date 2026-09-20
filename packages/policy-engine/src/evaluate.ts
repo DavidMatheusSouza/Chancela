@@ -12,7 +12,7 @@ import {
   type ReasonCode,
   type RiskLevel,
   type RiskSignal,
-} from '@trustagent/shared';
+} from '@chancela/shared';
 import { assessRisk, compareRisk, type RiskAssessment } from './risk';
 
 /** Usage counters for the current UTC day. Supplied by the caller; never read here. */

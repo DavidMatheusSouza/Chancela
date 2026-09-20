@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { availableProviders } from '@trustagent/ai';
+import { availableProviders } from '@chancela/ai';
 import { getRepository } from '@/lib/store';
 import { Console } from './console';
 

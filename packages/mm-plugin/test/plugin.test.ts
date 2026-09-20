@@ -14,9 +14,9 @@ function harness(response: unknown, ok = true) {
   return { ctx, lines, exitCode: () => code };
 }
 
-const plugin = createPlugin({ apiUrl: 'https://trustagent.example' });
+const plugin = createPlugin({ apiUrl: 'https://chancela.example' });
 
-describe('mm trustagent authorize', () => {
+describe('mm chancela authorize', () => {
   it('exits 0 on ALLOW', async () => {
     const h = harness({
       decision: 'ALLOW',
@@ -82,7 +82,7 @@ describe('mm trustagent authorize', () => {
   });
 });
 
-describe('mm trustagent passport', () => {
+describe('mm chancela passport', () => {
   it('prints the passport', async () => {
     const h = harness({
       agent: { id: 'TA-001', name: 'SalesAgent', status: 'ACTIVE', erc8004TokenId: '1', walletAddress: '0x91' },

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { PERMISSIONS, TOOL_REGISTRY } from '@trustagent/shared';
+import { PERMISSIONS, TOOL_REGISTRY } from '@chancela/shared';
 import { evaluate } from '../../src/index';
 import { agent, input, salesPolicy } from '../fixtures';
 

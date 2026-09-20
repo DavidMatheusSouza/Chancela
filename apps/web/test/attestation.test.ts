@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { hashIntent } from '@trustagent/shared';
-import type { AuthorizationCapsule } from '@trustagent/shared';
+import { hashIntent } from '@chancela/shared';
+import type { AuthorizationCapsule } from '@chancela/shared';
 import { attestationAddress, signCapsule, verifyCapsule } from '../src/lib/attestation.js';
 
 // Anvil/Hardhat deterministic accounts #1 and #2. Published test vectors, not
