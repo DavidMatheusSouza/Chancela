@@ -45,7 +45,7 @@ Before submitting:
 - [ ] Attestation key holds at least 10 MON (`/api/network/status` → `attestorFunds.anchorsLeft`). Two weeks of judging must not end in `FAILED` anchors.
 - [ ] `.env` backed up somewhere that is not this server.
 - [ ] Qwen, Kimi and Nansen keys set, or those bounties left unclaimed — `/integrations` reports the truth either way.
-- [ ] One real passkey-derived key bound on `/keys` at `chancela.xyz`, then `pnpm tsx scripts/sync-agent-wallets.ts --send`.
+- [x] Real passkey-derived keys bound on `/keys` at `chancela.xyz` for all three agents and written to the registry (20 Sep 2026).
 
 ## The open criterion: traction
 

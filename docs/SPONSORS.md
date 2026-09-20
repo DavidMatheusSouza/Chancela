@@ -87,7 +87,7 @@ does not have.
 | Technology | `@category-labs/mera` — WebAuthn PRF → BIP-32, in the browser |
 | Purpose | One owner passkey derives the owner key and one key per agent. No seed phrase. |
 | Integration | `apps/web/src/lib/passkey-keys.ts`, `/login`, `/keys`, `POST /api/auth/passkey` |
-| Status | **Implemented** — verified end to end with a virtual CTAP2 authenticator (`scripts/e2e-passkey.mjs`) |
+| Status | **Implemented** — verified end to end with a virtual CTAP2 authenticator (`scripts/e2e-passkey.mjs`) and on real hardware: Chrome on Windows with a Google Password Manager passkey, 20 Sep 2026 |
 
 "One passkey, many keys" is this project's key model stated literally, so the
 integration is the model made real rather than a feature bolted on:
@@ -108,6 +108,14 @@ integration is the model made real rather than a feature bolted on:
 The status on `/integrations` is read from the store — it says connected only
 when a key has actually been bound. It was previously an environment flag, which
 is the decorative green dot this document promises not to have.
+
+**Live.** The three demo agents hold real passkey-derived keys, bound with a
+proof of possession and written to the registry:
+[TA-001](https://testnet.monadexplorer.com/tx/0xb4544683b29b68a299cf05d6d383c2518f78540a0ef0c9fcb07be913f0496506),
+[TA-002](https://testnet.monadexplorer.com/tx/0x129dd0d7c98f022ae52f1d3483a3cc9c6f0709acf125e34ec71725b0cb6576f1),
+[TA-003](https://testnet.monadexplorer.com/tx/0x2ec2437c96df7e0c5f7fe0b7f29c3353b2716a0bcbeec19f63c0dd50200ae930).
+Each passport compares its bound address with `agentWalletOf()` and shows
+*in registry*.
 
 **On-chain.** A bound key reaches the registry through
 `scripts/sync-agent-wallets.ts`, which calls `setAgentWallet()` with the token
