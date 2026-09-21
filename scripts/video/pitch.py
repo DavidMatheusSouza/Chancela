@@ -10,12 +10,12 @@ marks = json.load(open(f"{REC}/marks.json"))
 src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
 
 SEG = [
- ("still", "s1", "Hi. I built Chancela alone, in Brazil, during this hackathon. I don't speak English, so a synthetic voice is reading this for me. I'm not a security veteran, which is why everything here is built to be checked, not trusted: by tests, by signatures, and on-chain."),
- ("still", "s2", "Companies are handing AI agents real tools: wallets, customer data, email. But an agent's judgement is a language model, and it can be talked into anything. Today's protection is a system prompt that says: please don't. And when something goes wrong, the only record is the company's own log."),
- ("clip", ("allow", "injection"), "Chancela sits between the agent and its tools. A deterministic policy engine answers with a signed permission, bound to the exact action. Every decision, including every refusal, is anchored on Monad, where anyone can verify it without asking us."),
+ ("still", "s1", "Hi. I built Chancela alone, in Brazil, during this hackathon. I don't speak English, so a synthetic voice is reading my words. I built it because AI agents are becoming more autonomous every month, and there is still no reliable way to say who they are, what they are allowed to do, and to hold them accountable for their actions."),
+ ("still", "s2", "Companies are already handing agents real tools: wallets, customer data, email. But an agent's judgement is a language model, and it can be talked into anything. Today's protection is a system prompt that says: please don't. And when something goes wrong, the only record is the company's own log."),
+ ("clip", ("allow", "injection"), "Chancela is an identity and authorization layer. It interprets the agent's intent, checks its permissions and policies, allows or blocks the action, and records a verifiable proof on Monad. The decision never comes from the model, and refusals are recorded too."),
  ("still", "s4", "It only works on Monad: one transaction per decision needs sub-second finality, and fees close to zero."),
  ("still", "s5", "The first users are teams building trading, treasury and payment agents. Each will write an if statement. What they won't write is the rest: replay protection, parameter binding, key separation, a circuit breaker. And nobody can write, alone, a check that outsiders can verify. That is the product."),
- ("still", "s6", "It is live on testnet, and integrates with one H T T P call. Next: publish the S D K, work with three agent teams, and move to mainnet. It is open source, and the owner, not the platform, chooses whose signature counts. Thank you."),
+ ("still", "s6", "It is live on testnet, with packages on npm, and integrates with one H T T P call. When a human must decide, they approve with a passkey, and Monad verifies that signature itself. Next: three agent teams, and mainnet. It is open source, and the owner, not the platform, chooses whose signature counts. Thank you."),
 ]
 SHOW = {"H T T P": "HTTP", "S D K": "SDK"}
 
