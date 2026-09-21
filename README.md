@@ -109,7 +109,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — 205 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — over 300 tests, including property-based and fuzzed |
 
 ## Why the model cannot be talked into anything
 
@@ -344,7 +344,7 @@ docker compose up
 chancela/
 ├── apps/web/                  Next.js — dashboard + REST API
 ├── packages/
-│   ├── policy-engine/         PURE. No I/O, no clock, no network. 48 tests.
+│   ├── policy-engine/         PURE. No I/O, no clock, no network. 55 tests.
 │   ├── shared/                canonical JSON, hashing, schemas, tool registry
 │   ├── ai/                    AIProvider: Qwen · Kimi · OpenAI · deterministic
 │   ├── contracts/             Foundry — policy registry + passkey approvals (P-256 precompile). 41 tests.
@@ -359,7 +359,7 @@ chancela/
 ## Verify
 
 ```bash
-pnpm verify:all      # typecheck + 205 tests + contracts
+pnpm verify:all      # typecheck + every test suite + contracts
 pnpm test:security   # injection, replay, forgery, privilege escalation
 ```
 

@@ -53,7 +53,7 @@ before anything looks at them.
 | `mm-plugin` | MetaMask Agent Wallet | Calls the same public endpoint as the UI |
 | `apps/web` | Dashboard + REST API | Thin; orchestration only |
 
-The policy engine being pure is not stylistic. It is what makes 48 tests —
+The policy engine being pure is not stylistic. It is what makes 55 tests —
 including property-based fuzzing over arbitrary input — cheap enough to run on
 every push, and what lets an auditor read the entire decision path in one file.
 

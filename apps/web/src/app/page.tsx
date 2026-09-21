@@ -1,5 +1,16 @@
 import Link from 'next/link';
-import { ArrowRight, Boxes, FileCheck2, LogIn, Play, ScrollText, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  BadgeCheck,
+  Boxes,
+  FileCheck2,
+  Fingerprint,
+  KeyRound,
+  LogIn,
+  Play,
+  ScrollText,
+  ShieldCheck,
+} from 'lucide-react';
 import { InjectionTerminal } from '@/components/injection-terminal';
 import { Reveal } from '@/components/reveal';
 import { Counter } from '@/components/counter';
@@ -156,8 +167,23 @@ export default async function Landing() {
               title: 'Denials are proof too',
               body: 'Every decision is anchored on Monad, including the blocked ones. A registry that only proves the allows proves nothing.',
             },
+            {
+              icon: Fingerprint,
+              title: 'A human decides, and the chain checks',
+              body: 'Some actions need their owner. They approve with a passkey over the exact decision, and Monad verifies that signature itself, with its native P-256 precompile.',
+            },
+            {
+              icon: BadgeCheck,
+              title: 'Verify, do not trust',
+              body: 'The SDK and the MCP server check every permission against the attestor the owner registered on-chain. This service can refuse to answer. It cannot forge a yes.',
+            },
+            {
+              icon: KeyRound,
+              title: 'One passkey, many keys',
+              body: 'An owner holds one passkey. It derives a separate key for every agent — no seed phrase, nothing stored — and each key is registered on-chain.',
+            },
           ].map(({ icon: Icon, title, body }, i) => (
-            <Reveal key={title} delay={i * 80}>
+            <Reveal key={title} delay={(i % 3) * 80}>
               <div className="card lift h-full p-5">
                 <Icon className="h-4 w-4 text-chain" />
                 <h3 className="mt-3 text-sm font-medium">{title}</h3>
@@ -166,6 +192,36 @@ export default async function Landing() {
             </Reveal>
           ))}
         </section>
+
+        <Reveal className="mt-20">
+          <section>
+            <h2 className="text-[17px] font-semibold tracking-tight">Put it in front of your agent</h2>
+            <p className="mt-1 max-w-2xl text-[13px] text-muted">
+              No account and no API key. Pick the one that matches how your agent is built.
+            </p>
+            <div className="mt-5 grid gap-4 lg:grid-cols-3">
+              {[
+                {
+                  label: 'Any language — one HTTP call',
+                  code: `curl -X POST \\\n  https://chancela.xyz/api/agents/TA-001/authorize \\\n  -H 'content-type: application/json' \\\n  -d '{"action":"CREATE_CUSTOMER",\n       "parameters":{"name":"Maria"}}'`,
+                },
+                {
+                  label: 'TypeScript — runs your code only if it verifies',
+                  code: `npm install chancela-sdk viem\n\nawait chancela.guard(agentId, action,\n  params, () => wallet.send(...))`,
+                },
+                {
+                  label: 'Claude, Cursor, any MCP client — no code',
+                  code: `{ "mcpServers": { "chancela": {\n    "command": "npx",\n    "args": ["-y", "chancela-mcp"] } } }`,
+                },
+              ].map(({ label, code }) => (
+                <div key={label} className="card h-full p-4">
+                  <div className="text-[12px] text-muted">{label}</div>
+                  <pre className="mono mt-3 whitespace-pre-wrap text-[11.5px] leading-relaxed text-ink [overflow-wrap:anywhere]">{code}</pre>
+                </div>
+              ))}
+            </div>
+          </section>
+        </Reveal>
 
         <Reveal className="mt-20">
           <div className="card lit flex flex-wrap items-center justify-between gap-4 p-6">
@@ -184,9 +240,23 @@ export default async function Landing() {
           </div>
         </Reveal>
 
-        <footer className="mt-20 flex items-center gap-2 border-t border-line pt-6 text-xs text-faint">
-          <Boxes className="h-3.5 w-3.5" />
-          Monad Metropolis 2026 - Track 04: Trust, Identity &amp; AI Infrastructure
+        <footer className="mt-20 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-faint">
+          <span className="flex items-center gap-2">
+            <Boxes className="h-3.5 w-3.5" />
+            Monad Metropolis 2026 - Track 04: Trust, Identity &amp; AI Infrastructure
+          </span>
+          <span className="flex items-center gap-4">
+            <a href="https://github.com/DavidMatheusSouza/Chancela" target="_blank" rel="noreferrer" className="hover:text-ink">
+              GitHub
+            </a>
+            <a href="https://www.npmjs.com/package/chancela-sdk" target="_blank" rel="noreferrer" className="hover:text-ink">
+              npm
+            </a>
+            <a href="https://github.com/DavidMatheusSouza/Chancela/blob/main/docs/THREAT_MODEL.md" target="_blank" rel="noreferrer" className="hover:text-ink">
+              Threat model
+            </a>
+            <span>MIT</span>
+          </span>
         </footer>
       </div>
     </div>
