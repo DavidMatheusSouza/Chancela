@@ -214,7 +214,7 @@ permanent free tier, and the point being made was never about a specific vendor.
 
 | | |
 |---|---|
-| Technology | Profiler address-labels API |
+| Technology | Profiler address-labels API (`POST /api/v1/profiler/address/labels`, chain `monad`) |
 | Purpose | Counterparty risk signals feeding the risk engine |
 | Integration | `apps/web/src/lib/nansen.ts` |
 | Status | **Implemented** — with a local denylist fallback when no key is present |

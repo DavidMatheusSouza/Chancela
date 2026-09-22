@@ -10,6 +10,7 @@ import type { RiskSignal } from '@chancela/shared';
  */
 
 const CACHE_TTL_MS = 60_000;
+export const NANSEN_LABELS_URL = 'https://api.nansen.ai/api/v1/profiler/address/labels';
 const cache = new Map<string, { at: number; signals: RiskSignal[] }>();
 
 /** Labels that indicate the counterparty is dangerous, with a severity weight. */
@@ -52,13 +53,14 @@ export async function lookupCounterparty(address: string | undefined): Promise<R
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 4_000);
-    const response = await fetch('https://api.nansen.ai/api/beta/profiler/address/labels', {
+    // https://docs.nansen.ai/api/profiler/address-labels -- Monad is a supported chain.
+    const response = await fetch(NANSEN_LABELS_URL, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', apiKey },
+      headers: { 'content-type': 'application/json', apikey: apiKey },
       signal: controller.signal,
       // Labels change; Next.js would otherwise cache this POST for a year.
       cache: 'no-store',
-      body: JSON.stringify({ parameters: { chain: 'monad', walletAddresses: [address] } }),
+      body: JSON.stringify({ address, chain: 'monad', pagination: { page: 1, per_page: 100 } }),
     });
     clearTimeout(timeout);
 
