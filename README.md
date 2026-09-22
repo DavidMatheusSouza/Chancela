@@ -109,7 +109,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — over 300 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — 295 tests, including property-based and fuzzed |
 | The live addresses are the documented ones | `pnpm verify:deployment` — reads the chain, and fails if `.env`, the deployment record and these docs disagree |
 
 ## Why the model cannot be talked into anything
@@ -366,18 +366,24 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 
 | Suite | Tests |
 |---|---|
-| Policy engine (incl. injection + property-based) | 48 |
+| Policy engine — evaluation, injection, property-based invariants | 55 |
+| Contracts — Foundry, with fuzzing (registry 26, approvals 15) | 41 |
 | Shared — canonicalisation and hashing | 31 |
-| Contracts — Foundry, with fuzzing | 26 |
 | AI providers and intent parsing | 23 |
 | Attestation + end-to-end flow | 20 |
-| Wallet sign-in, sessions and SIWE | 13 |
-| Demo mode invariants | 6 |
-| Circuit breaker | 7 |
-| Agent ownership | 5 |
-| Passkey keys, onboarding and wallet binding | 9 |
+| Demo mode and the shared demo account | 17 |
 | MetaMask `mm` plugin — core and install contract | 17 |
-| **Total** | **205** |
+| SDK — local verification and `guard()` | 14 |
+| Wallet sign-in, sessions and SIWE | 13 |
+| Passkey approval — the server-side WebAuthn checks | 12 |
+| Approvals — the request lifecycle | 11 |
+| Passkey keys, onboarding and wallet binding | 9 |
+| MCP server | 7 |
+| Circuit breaker | 7 |
+| HTTP rate limiting and caller identity | 7 |
+| Anchor budget | 6 |
+| Agent ownership | 5 |
+| **Total** | **295** |
 
 ## Documentation
 
