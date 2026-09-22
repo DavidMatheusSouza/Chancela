@@ -23,8 +23,8 @@ three agents registered, policies anchored, every decision recorded.
 
 ### See it in two minutes
 
-**[Open the guided demo →](https://crops-morgan-hose-lloyd.trycloudflare.com/demo)** — sign in with
-**Continue as demo owner**, no wallet needed, then press **Run full demo**.
+**[Open the guided demo →](https://chancela.xyz/demo)** — the link starts a demo
+session by itself, no wallet and no sign-up; then press **Run full demo**.
 
 Eight steps, all of them live: the agent's identity and permissions, an action its
 policy allows, the proof landing on Monad, an action the policy refuses, a prompt
@@ -110,6 +110,7 @@ Every claim on this page can be checked without trusting this repository:
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | The security properties hold | `pnpm verify:all` — over 300 tests, including property-based and fuzzed |
+| The live addresses are the documented ones | `pnpm verify:deployment` — reads the chain, and fails if `.env`, the deployment record and these docs disagree |
 
 ## Why the model cannot be talked into anything
 
