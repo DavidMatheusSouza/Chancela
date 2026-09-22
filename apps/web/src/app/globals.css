@@ -28,7 +28,15 @@
     /* ── text, strongest to weakest ── */
     --ink: 238 241 246;
     --muted: 148 156 169;
-    --faint: 100 108 121;
+    /*
+     * `faint` carries small helper text at 12-12.5px, which WCAG counts as
+     * normal text and holds to 4.5:1. At 100 108 121 it reached 3.74:1 on the
+     * page background and 3.39:1 on a raised card -- legible to most people,
+     * and not to everyone. Lifted to clear 4.5:1 on the lightest surface it
+     * ever sits on, keeping the hue so it is still plainly the weakest tier
+     * below `muted`.
+     */
+    --faint: 119 129 144;
 
     /* ── semantic: the only four colours with meaning ── */
     --allow: 56 203 129;
