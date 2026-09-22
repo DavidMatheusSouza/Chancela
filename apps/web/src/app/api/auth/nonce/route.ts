@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import { issueChallenge } from '@/lib/siwe';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
 const schema = z.object({ address: z.string().regex(/^0x[0-9a-fA-F]{40}$/) }).strict();
 
 export async function POST(request: Request) {
-  if (!rateLimit('auth:nonce', 30)) {
+  if (!rateLimitCaller(request, 'auth:nonce', 30, 300)) {
     return fail(429, 'RATE_LIMITED', 'Too many sign-in attempts');
   }
   const parsed = schema.safeParse(await request.json().catch(() => null));

@@ -1,10 +1,9 @@
 import { TOOL_REGISTRY } from '@chancela/shared';
 import { resolveProvider } from '@chancela/ai';
 import { z } from 'zod';
-import { callerKey } from '@/lib/anchor-budget';
 import { AuthorizeError, authorize } from '@/lib/authorize';
 import { getRepository } from '@/lib/store';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { callerKey, fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +25,7 @@ const chatSchema = z
  * cannot change an outcome.
  */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
-  if (!rateLimit(`chat:${params.id}`, 30)) {
+  if (!rateLimitCaller(request, `chat:${params.id}`, 30, 150)) {
     return fail(429, 'RATE_LIMITED', 'Too many messages for this agent');
   }
 

@@ -4,7 +4,7 @@ import { getAddress } from 'viem';
 import { PrivyClient } from '@privy-io/server-auth';
 import { SESSION_COOKIE, createSession, sessionCookieOptions } from '@/lib/session';
 import { getRepository } from '@/lib/store';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +29,7 @@ const schema = z.object({ accessToken: z.string().min(16) }).strict();
  * `method` field, which exists so the audit trail can say how someone got in.
  */
 export async function POST(request: Request) {
-  if (!rateLimit('auth:privy', 30)) {
+  if (!rateLimitCaller(request, 'auth:privy', 30, 300)) {
     return fail(429, 'RATE_LIMITED', 'Too many sign-in attempts');
   }
 

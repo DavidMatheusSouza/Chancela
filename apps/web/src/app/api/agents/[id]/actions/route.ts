@@ -1,6 +1,6 @@
 import { executeRequestSchema } from '@chancela/shared';
 import { execute } from '@/lib/executor';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
  * Takes a capsule, never an intent. Refuses anything it cannot verify.
  */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
-  if (!rateLimit(`execute:${params.id}`, 60)) {
+  if (!rateLimitCaller(request, `execute:${params.id}`, 60, 300)) {
     return fail(429, 'RATE_LIMITED', 'Too many execution requests for this agent');
   }
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { callerKey, createAnchorBudget } from '../src/lib/anchor-budget';
+import { createAnchorBudget } from '../src/lib/anchor-budget';
+import { callerKey } from '../src/lib/http';
 
 const limits = { perCaller: 3, perCallerWindowMs: 600_000, perHour: 5, perDay: 8 };
 const budget = () => createAnchorBudget(() => limits);

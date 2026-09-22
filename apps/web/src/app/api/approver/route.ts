@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import { ApprovalError, registerApprover } from '@/lib/approvals';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 import { SESSION_COOKIE, readSession } from '@/lib/session';
 import { getRepository } from '@/lib/store';
 
@@ -27,7 +27,7 @@ export async function GET() {
 
 /** Enrol the passkey this owner approves step-up decisions with. */
 export async function POST(request: Request) {
-  if (!rateLimit('approver:enrol', 20)) return fail(429, 'RATE_LIMITED', 'Too many attempts');
+  if (!rateLimitCaller(request, 'approver:enrol', 20, 200)) return fail(429, 'RATE_LIMITED', 'Too many attempts');
   const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint');
 

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { describeApproval } from '@/lib/approval-view';
 import { ApprovalError, approve, settleExpiry } from '@/lib/approvals';
 import { AuthorizeError } from '@/lib/authorize';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 import { SESSION_COOKIE, readSession } from '@/lib/session';
 import { getRepository } from '@/lib/store';
 
@@ -35,7 +35,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
 /** POST /api/approvals/:id -- the owner's passkey assertion over the decision hash. */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
-  if (!rateLimit(`approve:${params.id}`, 10)) return fail(429, 'RATE_LIMITED', 'Too many attempts');
+  if (!rateLimitCaller(request, `approve:${params.id}`, 10, 30)) return fail(429, 'RATE_LIMITED', 'Too many attempts');
   // The path is public for GET, so the session is checked here, not in middleware.
   const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in as the agent owner to approve');

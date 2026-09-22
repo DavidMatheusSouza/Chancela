@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { demoSignIn, safeNext } from '@/lib/demo-signin';
 import { SESSION_COOKIE, readSession, sessionCookieOptions } from '@/lib/session';
-import { rateLimit } from '@/lib/http';
+import { rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   const existing = await readSession(cookies().get(SESSION_COOKIE)?.value);
   if (existing) return NextResponse.redirect(new URL(next, base));
 
-  if (!rateLimit('auth:demo', 60)) return NextResponse.redirect(loginUrl);
+  if (!rateLimitCaller(request, 'auth:demo', 60, 600)) return NextResponse.redirect(loginUrl);
 
   const result = await demoSignIn();
   // Not available, or not seeded: the ordinary sign-in page explains itself.

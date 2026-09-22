@@ -1,7 +1,6 @@
 import { authorizeRequestSchema } from '@chancela/shared';
 import { AuthorizeError, authorize } from '@/lib/authorize';
-import { callerKey } from '@/lib/anchor-budget';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { callerKey, fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +12,7 @@ export const dynamic = 'force-dynamic';
  * capsule, not a boolean, so the answer cannot be forged downstream.
  */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
-  if (!rateLimit(`authorize:${params.id}`, 120)) {
+  if (!rateLimitCaller(request, `authorize:${params.id}`, 120, 600)) {
     return fail(429, 'RATE_LIMITED', 'Too many authorization requests for this agent');
   }
 

@@ -5,7 +5,7 @@ import { verifyChallenge } from '@/lib/siwe';
 import { SESSION_COOKIE, createSession, sessionCookieOptions } from '@/lib/session';
 import { getRepository } from '@/lib/store';
 import { createAgentFor } from '@/lib/create-agent';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +33,7 @@ const schema = z
  * path at all. It is rate limited, and what it creates can do nothing.
  */
 export async function POST(request: Request) {
-  if (!rateLimit('auth:passkey', 12)) {
+  if (!rateLimitCaller(request, 'auth:passkey', 12, 120)) {
     return fail(429, 'RATE_LIMITED', 'Too many sign-in attempts');
   }
 

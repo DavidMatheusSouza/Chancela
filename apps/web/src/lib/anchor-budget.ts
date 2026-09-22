@@ -94,18 +94,3 @@ export function createAnchorBudget(limits: () => AnchorBudgetLimits = anchorBudg
 }
 
 export const anchorBudget = createAnchorBudget();
-
-/**
- * Who is asking, as far as the budget cares.
- *
- * Cloudflare sets `cf-connecting-ip` and the origin listens on loopback only,
- * so the header cannot be supplied by the client. Without a proxy in front
- * there is no trustworthy address, and everyone shares one allowance.
- */
-export function callerKey(request: Request): string {
-  return (
-    request.headers.get('cf-connecting-ip') ??
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'direct'
-  );
-}

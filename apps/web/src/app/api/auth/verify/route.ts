@@ -4,7 +4,7 @@ import { getAddress } from 'viem';
 import { verifyChallenge } from '@/lib/siwe';
 import { SESSION_COOKIE, createSession, sessionCookieOptions } from '@/lib/session';
 import { getRepository } from '@/lib/store';
-import { fail, ok, rateLimit } from '@/lib/http';
+import { fail, ok, rateLimitCaller } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,7 @@ const schema = z
  * what makes "signed in" mean something here.
  */
 export async function POST(request: Request) {
-  if (!rateLimit('auth:verify', 30)) {
+  if (!rateLimitCaller(request, 'auth:verify', 30, 300)) {
     return fail(429, 'RATE_LIMITED', 'Too many sign-in attempts');
   }
 
