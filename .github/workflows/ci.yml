@@ -25,6 +25,10 @@ jobs:
       # The Prisma client is generated code, not a dependency: without this the
       # web app's types do not exist yet. It needs the schema, not a database.
       - run: pnpm db:generate
+      # chancela-check imports chancela-sdk as a package, and a package's types
+      # are its dist/, which is gitignored. Build it the way npm would see it.
+      - name: Build the SDK
+        run: pnpm --filter chancela-sdk build
       - name: Typecheck
         run: pnpm -r --filter '!@chancela/contracts' typecheck
       - name: Unit and integration tests
