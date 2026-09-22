@@ -36,6 +36,18 @@ export function isNansenConfigured(): boolean {
   return Boolean(process.env.NANSEN_API_KEY);
 }
 
+/** What the last real call to Nansen did, so /integrations reports it rather than the key's presence. */
+let lastCall: { ok: boolean; at: number; error?: string } | null = null;
+
+export function nansenStatus(): { status: 'CONNECTED' | 'FALLBACK'; detail: string } {
+  if (!isNansenConfigured()) return { status: 'FALLBACK', detail: 'No API key: local denylist in use' };
+  if (!lastCall) return { status: 'CONNECTED', detail: 'API key present; no lookup made since start' };
+  const when = new Date(lastCall.at).toISOString();
+  return lastCall.ok
+    ? { status: 'CONNECTED', detail: `Last lookup answered at ${when}` }
+    : { status: 'FALLBACK', detail: `Last lookup failed at ${when} (${lastCall.error}): local denylist in use` };
+}
+
 export async function lookupCounterparty(address: string | undefined): Promise<RiskSignal[]> {
   if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) return [];
 
@@ -64,7 +76,12 @@ export async function lookupCounterparty(address: string | undefined): Promise<R
     });
     clearTimeout(timeout);
 
-    if (!response.ok) return localSignals(key);
+    if (!response.ok) {
+      const body = (await response.json().catch(() => ({}))) as { code?: string };
+      lastCall = { ok: false, at: Date.now(), error: body.code ?? `HTTP ${response.status}` };
+      return localSignals(key);
+    }
+    lastCall = { ok: true, at: Date.now() };
 
     const payload = (await response.json()) as { data?: Array<{ label?: string }> };
     const labels = (payload.data ?? [])
@@ -77,6 +94,7 @@ export async function lookupCounterparty(address: string | undefined): Promise<R
     cache.set(key, { at: Date.now(), signals });
     return signals;
   } catch {
+    lastCall = { ok: false, at: Date.now(), error: 'unreachable' };
     // Intelligence being unavailable must never relax a decision, so we fall
     // back to the local denylist rather than to "no signals, all clear".
     return localSignals(key);

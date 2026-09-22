@@ -1,7 +1,7 @@
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 
 process.env.NANSEN_API_KEY = 'test-key';
-const { lookupCounterparty, NANSEN_LABELS_URL } = await import('../src/lib/nansen.js');
+const { lookupCounterparty, nansenStatus, NANSEN_LABELS_URL } = await import('../src/lib/nansen.js');
 
 afterEach(() => vi.unstubAllGlobals());
 afterAll(() => {
@@ -52,5 +52,17 @@ describe('Nansen counterparty labels', () => {
     const flagged = `0x${'1'.repeat(37)}bad`;
     const signals = await lookupCounterparty(flagged);
     expect(signals[0]).toMatchObject({ source: 'INTERNAL', severity: 90 });
+  });
+});
+
+describe('what /integrations says about Nansen', () => {
+  it('reports the last real call, not the key being present', async () => {
+    stubNansen([], 403);
+    await lookupCounterparty(addr(10));
+    expect(nansenStatus().status).toBe('FALLBACK');
+
+    stubNansen(['DeFi User']);
+    await lookupCounterparty(addr(11));
+    expect(nansenStatus()).toMatchObject({ status: 'CONNECTED' });
   });
 });

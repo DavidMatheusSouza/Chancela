@@ -2,7 +2,7 @@ import { availableProviders } from '@chancela/ai';
 import { meraStatus } from '@/lib/mera-status';
 import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
-import { isNansenConfigured } from '@/lib/nansen';
+import { nansenStatus } from '@/lib/nansen';
 import { ok } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
@@ -67,8 +67,7 @@ export async function GET() {
         id: 'nansen',
         name: 'Nansen',
         role: 'Counterparty labels feed the risk engine. Never grants permission.',
-        status: isNansenConfigured() ? 'CONNECTED' : 'FALLBACK',
-        detail: isNansenConfigured() ? 'API key present' : 'Using local denylist fallback',
+        ...nansenStatus(),
         docs: 'https://docs.nansen.ai',
       },
       ...providers.map((p) => ({
