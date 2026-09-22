@@ -305,6 +305,56 @@ problem. Chancela is built so that it cannot become that:
   parameters, no customer data. The public audit view carries the action name
   and the verdict, nothing else.
 
+### What this deployment can do to you, and what it cannot
+
+There is a service in the middle. Pretending otherwise would be the weak
+version of this argument, so here is the honest boundary.
+
+**It can:**
+
+- **Refuse to answer.** Unreachable is not permission: the SDK fails closed, so
+  a dead or hostile deployment stops the agent rather than freeing it. Denial of
+  service is the attack this design accepts, deliberately — the alternative is a
+  gate that opens when it breaks.
+- **Sign a capsule its own policy does not justify** — if it holds the attestor
+  key the owner registered. That is what choosing an attestor means. It cannot
+  do it invisibly, though: the policy engine is pure and published, the policy
+  document is public and its hash is on-chain, so anyone can re-run the decision
+  and compare. Be precise about the limit of that: re-execution reproduces the
+  permission checks, the parameter binding and the policy version exactly, but
+  not the deployment's own counters — spend so far today, the breaker's recent
+  history — or external risk lookups. An outsider can prove a capsule was
+  granted for an action the policy does not list. They cannot prove, from
+  outside, that a daily limit was honestly counted.
+- **Decline to anchor.** It can leave a decision off the chain. It cannot change
+  or remove one that is already there.
+
+**It cannot:**
+
+- **Forge a permission that verifies.** `verify()` checks the signature against
+  `attestorOf(tokenId)` read from the registry — not against the address the
+  response claims for itself. `npx chancela-check` does exactly this, in public.
+- **Change whose signature counts.** `setAttestor()` is `onlyAgentOwner`: the
+  holder of the agent's ERC-8004 token. One transaction moves an agent to a
+  different attestor, or to the owner's own key, and the identity, the policy
+  history and the audit trail all stay where they are.
+- **Rewrite history.** `recordDecision` is append-only: a decision hash records
+  once, a replay reverts, and a decision must cite the policy hash that is live
+  at the time. The registry has **no admin, no owner and no upgrade path** — the
+  only modifier in the contract is `onlyAgentOwner`, and the identity registry
+  it reads is `immutable`. Nobody, including the deployer, can edit what is
+  there.
+- **Act for you.** A capsule is a permission, not an execution. Your runtime
+  holds the keys and does the work; Chancela never sees them.
+
+**Why not put the evaluation itself on-chain?** Because a policy evaluated by
+consensus is a policy published in full, with the parameters of every request
+next to it — customer names, amounts, counterparties. It would also cost gas per
+decision and answer in block time, when the gate sits in front of ordinary tool
+calls that need an answer in milliseconds. So the *rules* and every *outcome*
+are on-chain, and the evaluation is a pure function anyone can re-run. What is
+immutable is the record; what is fast is the decision.
+
 ---
 
 ## Where this goes next
