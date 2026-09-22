@@ -1,0 +1,42 @@
+{
+  "name": "chancela-check",
+  "version": "0.1.0",
+  "description": "Check a Chancela deployment against Monad in one command: signature against the on-chain attestor, capsule against the parameters in hand, decision hash against the registry.",
+  "type": "module",
+  "license": "MIT",
+  "author": "David Matheus Souza",
+  "repository": "https://github.com/DavidMatheusSouza/Chancela",
+  "keywords": [
+    "chancela",
+    "ai-agents",
+    "authorization",
+    "monad",
+    "erc-8004",
+    "verification"
+  ],
+  "bin": {
+    "chancela-check": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "viem": "^2.21.32"
+  },
+  "devDependencies": {
+    "chancela-sdk": "workspace:*",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}

@@ -35,6 +35,22 @@ the intent goes through a real model, the decision through the real policy engin
 and the proof anchors on testnet in about two seconds. When something is not
 anchored yet, the screen says so instead of showing a hash that does not exist.
 
+### Or check it in sixty seconds, without believing any of this
+
+```bash
+npx chancela-check
+```
+
+It asks the live deployment for a real decision and then refuses to take its
+word for it: the signature is checked against the attestor the agent's owner
+registered **on Monad**, the capsule is checked against the parameters actually
+in hand, the same capsule is re-checked with a parameter swapped underneath it
+(it must be rejected), and both the approval *and the refusal* are looked up in
+the registry contract by hash. Each line says who answered — the chain, your
+machine, or the service. The registry address is compiled into the tool, not
+read from the deployment being checked. [What it does, in
+detail](packages/check/README.md).
+
 ---
 
 ## The problem
@@ -109,7 +125,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — 295 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — 300 tests, including property-based and fuzzed |
 | The live addresses are the documented ones | `pnpm verify:deployment` — reads the chain, and fails if `.env`, the deployment record and these docs disagree |
 | The deployed contracts are *this* source | All three are verified on Sourcify, exact match — metadata hash included, so the comments and compiler settings match too: `curl https://sourcify.dev/server/v2/contract/10143/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e` |
 
@@ -353,6 +369,7 @@ chancela/
 │   ├── indexer/               Envio HyperIndex → GraphQL
 │   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
 │   ├── mcp/                   MCP server: the gate as a tool for any agent. 7 tests.
+│   ├── check/                 `npx chancela-check` — verify a deployment against Monad. 5 tests.
 │   └── mm-plugin/             `mm` CLI plugin for MetaMask Agent Wallet
 ├── prisma/schema.prisma
 └── docs/
@@ -380,11 +397,12 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Approvals — the request lifecycle | 11 |
 | Passkey keys, onboarding and wallet binding | 9 |
 | MCP server | 7 |
+| Deployment checker — the verifier's own failure modes | 5 |
 | Circuit breaker | 7 |
 | HTTP rate limiting and caller identity | 7 |
 | Anchor budget | 6 |
 | Agent ownership | 5 |
-| **Total** | **295** |
+| **Total** | **300** |
 
 ## Documentation
 
