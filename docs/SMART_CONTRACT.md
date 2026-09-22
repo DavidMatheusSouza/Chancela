@@ -142,6 +142,29 @@ testFuzz_policyVersionMonotonic(uint32,uint32)     256 runs
 testFuzz_decisionHashRecordedExactlyOnce(bytes32)  256 runs
 ```
 
+Those check one rule at a time from a clean state. Six **stateful invariants**
+([`test/invariant/PolicyRegistry.invariant.t.sol`](../packages/contracts/test/invariant/PolicyRegistry.invariant.t.sol))
+check them all together, from whatever state a random sequence leaves behind:
+256 runs of 100 calls, in which ERC-8004 tokens change hands, attestors and
+agent wallets are set onto each other, policies are re-anchored, agents are
+suspended mid-stream and batches repeat their own hashes. Every call is first
+predicted by a plain reference model of the rules, then made for real.
+
+```
+invariant_contractBehavesLikeTheModel       every call succeeds or reverts exactly as the rules say
+invariant_noWriteWithoutTheRightKey         only the owner configures, only the attestor records
+invariant_everyDecisionCitesTheLivePolicy   no decision names a policy that was not live
+invariant_stateMatchesTheModel              owner, attestor, wallet, suspension, policy, count
+invariant_attestorIsNeverTheAgentWallet     in whichever order the two were set
+invariant_recordsAreAppendOnly              nothing recorded is lost or counted twice
+```
+
+The suite is only worth something if it fails when the contract is wrong, so it
+was checked against eight hand-made mutants — each removing one guard: the
+suspension check, the replay guard, the live-policy check, the attestor check,
+strict version ordering, the double-suspend check, and both directions of the
+attestor-is-not-the-wallet rule. Every one is caught.
+
 ```bash
 pnpm --filter @chancela/contracts test
 pnpm --filter @chancela/contracts test:gas

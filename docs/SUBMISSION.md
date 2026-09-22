@@ -8,6 +8,7 @@ Track 04 page of the hackathon platform, read on 20 September 2026.
 
 | | |
 |---|---|
+| Start here | [JUDGES.md](JUDGES.md) — the 60-second, 3-minute and 10-minute paths |
 | Live product | <https://chancela.xyz> — Monad testnet (chain 10143) |
 | Fastest path | <https://chancela.xyz/demo> → **Run full demo**. No login: the link starts a demo session by itself. Eight steps, about a minute and a half, all live. |
 | Test login | For the rest of the product, press **Continue as demo owner** on the sign-in page. No wallet, no password, no install. |
@@ -25,11 +26,11 @@ passkey on the sign-in page: it comes with an agent of your own.
 
 | Criterion | Weight | Where it is answered |
 |---|---|---|
-| Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All three contracts are verified on Sourcify as an exact match, so the source here is provably the source on chain. 300 tests including contract fuzzing; [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
+| Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All three contracts are verified on Sourcify as an exact match, so the source here is provably the source on chain. 306 tests including contract fuzzing; [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
 | Design & Craft — developer experience | 20% | One endpoint, one `curl`, no account ([README](../README.md#integrate-in-five-minutes)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. [`chancela-mcp`](../packages/mcp): the same gate as an MCP tool for Claude, Cursor or any MCP client, one block of config. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
 | Originality & Track Insight — privacy-preserving, not capturable | 15% | [README: Not capturable by a single platform](../README.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
-| Founder & Market Readiness — who adopts it, why not roll their own | 25% | [README: Who this is for](../README.md#who-this-is-for), and the pitch video. |
-| Traction & Path Forward | 20% | [README: Where this goes next](../README.md#where-this-goes-next). **Open — see below.** |
+| Founder & Market Readiness — who adopts it, why not roll their own | 25% | [ADOPTION.md](ADOPTION.md): who adopts first, integration effort per path, how it sustains itself. [README: Who this is for](../README.md#who-this-is-for), and the pitch video. |
+| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly, the design-partner offer, roadmap. **Open — see below.** |
 
 ## Deliverables
 

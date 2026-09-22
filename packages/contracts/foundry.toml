@@ -25,3 +25,8 @@ monad_testnet = "${MONAD_TESTNET_RPC_URL}"
 
 [etherscan]
 monad = { key = "${MONADSCAN_API_KEY}", url = "https://api.monadscan.com/api" }
+
+[invariant]
+runs = 256
+depth = 100
+fail_on_revert = true

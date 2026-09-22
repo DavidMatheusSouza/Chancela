@@ -125,7 +125,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — 300 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — 306 tests, including property-based and fuzzed |
 | The live addresses are the documented ones | `pnpm verify:deployment` — reads the chain, and fails if `.env`, the deployment record and these docs disagree |
 | The deployed contracts are *this* source | All three are verified on Sourcify, exact match — metadata hash included, so the comments and compiler settings match too: `curl https://sourcify.dev/server/v2/contract/10143/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e` |
 
@@ -395,6 +395,9 @@ order:
 5. **Policy templates** for the common cases — treasury, support, sales — so a
    sane default is one click.
 
+The design-partner offer, integration effort per path and how the project
+sustains itself are in [ADOPTION.md](docs/ADOPTION.md).
+
 ---
 
 ## Quick start
@@ -435,7 +438,7 @@ chancela/
 │   ├── policy-engine/         PURE. No I/O, no clock, no network. 55 tests.
 │   ├── shared/                canonical JSON, hashing, schemas, tool registry
 │   ├── ai/                    AIProvider: Qwen · Kimi · OpenAI · deterministic
-│   ├── contracts/             Foundry — policy registry + passkey approvals (P-256 precompile). 41 tests.
+│   ├── contracts/             Foundry — policy registry + passkey approvals (P-256 precompile). 41 tests + 6 invariants.
 │   ├── indexer/               Envio HyperIndex → GraphQL
 │   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
 │   ├── mcp/                   MCP server: the gate as a tool for any agent. 7 tests.
@@ -456,6 +459,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 |---|---|
 | Policy engine — evaluation, injection, property-based invariants | 55 |
 | Contracts — Foundry, with fuzzing (registry 26, approvals 15) | 41 |
+| Contracts — stateful invariants against a reference model, 25,600 calls a run | 6 |
 | Shared — canonicalisation and hashing | 31 |
 | AI providers and intent parsing | 23 |
 | Attestation + end-to-end flow | 20 |
@@ -472,12 +476,14 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | HTTP rate limiting and caller identity | 7 |
 | Anchor budget | 6 |
 | Agent ownership | 5 |
-| **Total** | **300** |
+| **Total** | **306** |
 
 ## Documentation
 
 | | |
 |---|---|
+| [JUDGES.md](docs/JUDGES.md) | The 60-second, 3-minute and 10-minute ways to check all of this |
+| [ADOPTION.md](docs/ADOPTION.md) | Who adopts it, integration effort per path, design partners, how it sustains itself |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and data model |
 | [THREAT_MODEL.md](docs/THREAT_MODEL.md) | Attacks considered and how each is stopped |
 | [SECURITY.md](docs/SECURITY.md) | Controls, key handling, disclosure |
