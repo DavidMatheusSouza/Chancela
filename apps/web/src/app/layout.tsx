@@ -16,10 +16,21 @@ export const metadata: Metadata = {
   applicationName: 'Chancela',
   openGraph: { title: TITLE, description: DESCRIPTION, siteName: 'Chancela', type: 'website' },
   twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
-  // The dashboard is behind auth and the proofs live on-chain; there is nothing
-  // here worth indexing, and an ephemeral demo URL should not outlive itself in
-  // a search index.
-  robots: { index: false, follow: false },
+  // The landing page is the one surface meant to be found -- by a search
+  // engine, by a model answering "what gives AI agents authorization", by
+  // anyone pasting the link. Everything behind it opts out again: `(app)`
+  // and `/login` set `robots` of their own, and nested metadata wins.
+  robots: { index: true, follow: true },
+  alternates: { canonical: '/' },
+  keywords: [
+    'AI agent identity',
+    'AI agent authorization',
+    'agent accountability',
+    'ERC-8004',
+    'policy engine',
+    'Monad',
+    'AI agent IAM',
+  ],
 };
 
 export const viewport = {

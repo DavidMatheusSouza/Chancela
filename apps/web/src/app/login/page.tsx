@@ -1,10 +1,15 @@
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { SignIn } from './sign-in';
-import { PrivySignIn } from './privy-sign-in';
+import { PrivySignInLazy } from './privy-lazy';
 import { PasskeySignIn } from './passkey-sign-in';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata = {
+  title: 'Sign in - Chancela',
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
   const demoOwner = process.env.DEMO_OWNER_ADDRESS ?? '';
@@ -48,7 +53,7 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
                 <span className="text-[11px] uppercase tracking-wider text-faint">or</span>
                 <span className="h-px flex-1 bg-line" />
               </div>
-              <PrivySignIn appId={privyAppId} next={searchParams.next ?? '/dashboard'} />
+              <PrivySignInLazy appId={privyAppId} next={searchParams.next ?? '/dashboard'} />
             </>
           ) : null}
 

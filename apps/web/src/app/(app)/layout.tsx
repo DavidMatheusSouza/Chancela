@@ -8,6 +8,13 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
+/*
+ * Nothing in here is for a search engine: it is behind a session, the figures
+ * are one deployment's, and a demo URL should not outlive itself in an index.
+ * The public landing page opts in; everything under this layout opts out.
+ */
+export const metadata = { robots: { index: false, follow: false } };
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const chain = activeChain();
   const repo = await getRepository();

@@ -15,7 +15,10 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
  */
 // `/opengraph-image` is fetched by link-preview crawlers, which never carry a
 // session. It renders static marketing copy and reads nothing.
-const PUBLIC_PATHS = ['/', '/login', '/opengraph-image'];
+// `/robots.txt` and `/sitemap.xml` are fetched by crawlers, which never carry
+// a session. Gating them behind the login redirect would tell every crawler
+// that the site is a login page.
+const PUBLIC_PATHS = ['/', '/login', '/opengraph-image', '/robots.txt', '/sitemap.xml'];
 // `/api/network/status` joins the health checks: it reports only the chain id,
 // the public RPC and the registry addresses, all of which are already published
 // in the docs and readable on-chain by anyone.
