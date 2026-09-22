@@ -16,19 +16,62 @@ page says so.
 - **Live deployment:** [chancela.xyz](https://chancela.xyz), Monad testnet, open
   to anyone without an account.
 
-## Who adopts it first
+## Who adopts it first, on Monad
 
-The first user is a team that has already given an agent a tool that costs
-something when it goes wrong, and has already been asked "what stops it?".
+Named, in the order we are going after them. None of them has been contacted
+yet; this is the plan, written down so it can be checked against what happens.
 
-| Who | What goes wrong without it | What they use |
-|---|---|---|
-| **Trading, treasury and payment agents on Monad** | The model is talked into a transfer; nobody can show afterwards which limit applied | `chancela-sdk` `guard()` around the send, or `mm chancela authorize` in front of MetaMask Agent Wallet |
-| **Support and sales agents with write access** | An injected ticket makes the agent refund, delete or email as the company | `chancela-mcp` — one block of MCP config, no code |
-| **Platforms that host third-party agents** | "What is this outside agent allowed to do here?" has no answer stronger than an API key | ERC-8004 identity + an anchored policy per agent; the platform verifies capsules, it does not trust them |
+### 1. Monad's Agent Hub — the platform that hands out agents
 
-What they share: a counterparty — a customer, an auditor, a user whose funds
-the agent touches — who will want evidence that is not the company's own log.
+Monad [launched Agent Hub](https://www.gate.com/en-us/news/detail/monad-launches-agent-hub-for-ai-agent-deployment-on-its-ecosystem-17803229)
+on 9 July 2026: deploy an AI agent in one click and let it act across the
+ecosystem through "DApp Skills".
+
+A one-click agent is a standing authorisation given to someone who did not read
+what it authorises. The first time one of them is talked into a bad trade or a
+transfer, the platform that deployed it is the one asked what stopped it.
+
+- **What they integrate:** one `authorize` call before a Skill executes — the
+  MCP server does it with no code, `guard()` in five lines. Each deployed agent
+  gets an ERC-8004 identity and a default policy: which Skills it may call, the
+  most it may move per action and per day, and the risk above which its owner
+  approves with a passkey.
+- **What they get that they cannot build:** a record their users can check
+  without trusting the platform. "Agent Hub says the agent was within its
+  limits" is the platform's word; a policy hash and a decision anchored on
+  Monad, re-checkable with `npx chancela-check`, is not.
+
+### 2. Trading agents on Monad's on-chain orderbooks
+
+[Kuru](https://docs.kuru.io/) and Clober run fully on-chain order books on
+Monad, which is where an autonomous trading agent spends its money. The owner of
+such an agent is the person who loses when the model misreads a message.
+
+- **What they integrate:** `guard()` around the call that places the order.
+  The policy caps each order and the day's total (`maxTransactionValue`,
+  `dailyValueCap`), limits how many value-moving actions run per day, blocks
+  known-bad counterparties, and sends anything above the step-up threshold to
+  the owner's passkey — verified on-chain by `ChancelaApprovals`.
+- **Why this and not a kill switch:** a kill switch stops an agent after
+  someone notices. The gate refuses the one order that should not happen, and
+  the agent keeps trading within its limits.
+
+### 3. Agents on MetaMask Agent Wallet
+
+Already shipped: `mm plugins install mm-plugin-chancela`, then
+`mm chancela authorize … && mm transfer …`. A non-zero exit on refusal, so the
+wallet never sends. The cheapest integration on this list — no code at all.
+
+### 4. Any team whose agent writes to something that matters
+
+Support and sales agents with refund, delete or email-as-the-company tools, on
+any chain or none. An injected ticket is the attack; `chancela-mcp` is one block
+of configuration in Claude, Cursor or any MCP client, and
+[`packages/mcp/examples/support-agent.ts`](../packages/mcp/examples/support-agent.ts)
+shows the model being talked into a transfer and the transfer not happening.
+
+What all four share: a counterparty — a user, an auditor, a customer — who will
+want evidence that is not the operator's own log.
 
 ## How long it takes
 
@@ -64,7 +107,10 @@ checked by a counterparty without asking anyone.
 
 ## Getting the first three
 
-The offer to agent teams, in the Metropolis Discord and beyond:
+In order: agent teams in the Metropolis hackathon itself (they are building
+now, and one integration during judging is worth more than any plan), then
+builders deploying through Agent Hub, then trading-agent teams on Kuru and
+Clober. The offer is the same to all of them:
 
 > I built a policy gate with an on-chain audit trail for AI agents. If your
 > agent moves funds or writes to anything that matters, I will put Chancela in
