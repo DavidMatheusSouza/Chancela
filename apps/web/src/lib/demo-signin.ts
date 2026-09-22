@@ -20,7 +20,8 @@ import { getRepository } from './store';
 const DEMO_OWNER_KEY =
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' as Hex;
 
-const DEMO_OWNER_ADDRESS = getAddress(privateKeyToAccount(DEMO_OWNER_KEY).address);
+/** The address that key derives. Exported so nothing else has to restate the key. */
+export const DEMO_OWNER_ADDRESS = getAddress(privateKeyToAccount(DEMO_OWNER_KEY).address);
 
 /**
  * Is this the shared demo identity?
