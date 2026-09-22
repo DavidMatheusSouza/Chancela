@@ -110,6 +110,29 @@ async function main(): Promise<void> {
     else note(`  ok    ${name.padEnd(16)} ${address}  ${(code.length - 2) / 2} bytes`);
   }
 
+  // 1b. The source in this repository is the source that is deployed.
+  //
+  // Asserted by a third party, not by us: Sourcify recompiles the sources from
+  // the verification and compares the result with the bytecode on chain. An
+  // `exact_match` includes the metadata hash, so it covers the comments and the
+  // compiler settings too -- there is no version of this repository that
+  // produces that bytecode other than this one.
+  for (const [name, address] of Object.entries({ policyRegistry, identityRegistry, approvals })) {
+    if (!address) continue;
+    try {
+      const response = await fetch(`https://sourcify.dev/server/v2/contract/${CHAIN_ID}/${address}`, {
+        signal: AbortSignal.timeout(15_000),
+      });
+      const body = (await response.json()) as { match?: string | null };
+      if (body.match === 'exact_match') note(`  ok    ${name.padEnd(16)} source verified on Sourcify (exact match)`);
+      else if (body.match) note(`  ok    ${name.padEnd(16)} source verified on Sourcify (${body.match})`);
+      else fail(`${name} ${address} is not verified on Sourcify`);
+    } catch (err) {
+      // Sourcify being unreachable is not this deployment being wrong.
+      note(`  --    ${name.padEnd(16)} Sourcify unreachable (${(err as Error).message})`);
+    }
+  }
+
   // 2. The policy registry answers, and holds a policy for each demo agent.
   if (policyRegistry) {
     for (const tokenId of [1n, 2n, 3n]) {

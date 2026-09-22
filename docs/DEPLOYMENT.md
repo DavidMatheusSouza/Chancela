@@ -151,6 +151,28 @@ curl -s localhost:3080/api/health
 | `ERC8004IdentityRegistry` | [`0x41db378FE661f9c6D31B031f42107C85eCad88b7`](https://testnet.monadexplorer.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) |
 | `ChancelaApprovals` | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) — relying party `chancela.xyz` |
 
+All three are **verified on Sourcify, exact match**, which means an independent
+service recompiled the sources in this repository and got the bytecode that is
+on chain — metadata hash included, so the compiler settings and even the
+comments are the ones here. Check any of them without trusting this page:
+
+```bash
+curl -s https://sourcify.dev/server/v2/contract/10143/0x4ed26528cC5518df075A4Ba463D56B478fAba42b
+# {"match":"exact_match","creationMatch":"exact_match", …}
+
+# and to read the source the chain agrees with:
+curl -s 'https://sourcify.dev/server/v2/contract/10143/0x4ed26528cC5518df075A4Ba463D56B478fAba42b?fields=sources'
+```
+
+`pnpm verify:deployment` checks this for all three, alongside the addresses.
+Re-verify after a redeploy with:
+
+```bash
+cd packages/contracts
+forge verify-contract <address> src/<Contract>.sol:<Contract> \
+  --chain-id 10143 --verifier sourcify --verifier-url https://sourcify.dev/server
+```
+
 These are the second deployment. On 20 September 2026 the server's `.env` was
 lost, and with it the deployer and attestation keys -- the only copies. Nobody
 could call `setAttestor()` on the first registry again, so both contracts were

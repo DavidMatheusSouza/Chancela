@@ -111,6 +111,7 @@ Every claim on this page can be checked without trusting this repository:
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | The security properties hold | `pnpm verify:all` — 295 tests, including property-based and fuzzed |
 | The live addresses are the documented ones | `pnpm verify:deployment` — reads the chain, and fails if `.env`, the deployment record and these docs disagree |
+| The deployed contracts are *this* source | All three are verified on Sourcify, exact match — metadata hash included, so the comments and compiler settings match too: `curl https://sourcify.dev/server/v2/contract/10143/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e` |
 
 ## Why the model cannot be talked into anything
 
