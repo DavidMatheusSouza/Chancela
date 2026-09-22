@@ -20,7 +20,8 @@
     "contracts:build": "pnpm --filter=@chancela/contracts build",
     "contracts:test": "pnpm --filter=@chancela/contracts test",
     "verify:all": "pnpm typecheck && pnpm test && pnpm contracts:test",
-    "verify:deployment": "tsx scripts/verify-deployment.ts"
+    "verify:deployment": "tsx scripts/verify-deployment.ts",
+    "example:agent": "pnpm --filter chancela-mcp build && tsx packages/mcp/examples/support-agent.ts"
   },
   "devDependencies": {
     "@prisma/client": "^5.20.0",
