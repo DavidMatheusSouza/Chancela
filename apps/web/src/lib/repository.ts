@@ -21,6 +21,8 @@ export interface AgentRow {
   attestorAddress?: string;
   activePolicyId?: string;
   createdAt: string;
+  /** When the agent last became SUSPENDED. Set by the repository, never by callers. */
+  suspendedAt?: string;
 }
 
 export interface PolicyRow {

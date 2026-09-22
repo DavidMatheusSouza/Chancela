@@ -210,10 +210,21 @@ the price of a false negative is unlimited attempts. A deployment that finds
 that trade wrong should authenticate callers of `/authorize` rather than weaken
 the breaker.
 
+**One exception: the shared demo account.** Its owner key is published, so
+"only the owner can reactivate" means "any visitor can". Rather than leave the
+demo agents off until someone happens to sign in — which would turn one visitor
+running the breaker into a broken deployment for the next judge — a demo agent
+comes back by itself once two minutes have passed since both its suspension and
+the last hostile attempt. An attacker who keeps trying keeps it off; a
+suspension still beats an approval that arrives behind it. Agents of every other
+owner are untouched (`liftDemoSuspension` in `breaker.ts`).
+
 **Verified by:** `apps/web/test/breaker.test.ts` — stays closed below threshold,
 trips on the crossing refusal, refuses granted actions at gate 1 afterwards,
 ignores its own suspensions, ignores low-risk refusals, and restarts from zero
-after a reactivation.
+after a reactivation; a demo agent stays off inside the cooldown, including
+after a suspension by hand, reopens after it, and no other owner's agent is
+ever reopened.
 
 ### 18. Unauthenticated onboarding
 

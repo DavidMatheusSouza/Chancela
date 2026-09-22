@@ -15,7 +15,7 @@ import { openApproval } from './approval-requests';
 import { anchorDecision } from './chain';
 import { lookupCounterparty } from './nansen';
 import { getRepository } from './store';
-import { evaluateBreaker, type BreakerState } from './breaker';
+import { evaluateBreaker, liftDemoSuspension, type BreakerState } from './breaker';
 import type { DecisionRow } from './repository';
 
 export interface AuthorizeInput {
@@ -87,8 +87,9 @@ export function actionSelector(action: string): Hex {
 export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput> {
   const repo = await getRepository();
 
-  const agentRow = await repo.getAgent(input.agentId);
-  if (!agentRow) throw new AuthorizeError(`Unknown agent ${input.agentId}`, 404);
+  const found = await repo.getAgent(input.agentId);
+  if (!found) throw new AuthorizeError(`Unknown agent ${input.agentId}`, 404);
+  const agentRow = await liftDemoSuspension(repo, found);
 
   const policyRow = await repo.getActivePolicy(input.agentId);
   const policy: PolicyDocument | null = policyRow ? (policyRow.document as PolicyDocument) : null;

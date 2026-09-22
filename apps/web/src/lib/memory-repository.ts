@@ -46,6 +46,7 @@ export class MemoryRepository implements Repository {
     const current = this.agents.get(id);
     if (!current) return null;
     const next = { ...current, ...patch, id: current.id };
+    if (patch.status === 'SUSPENDED' && current.status !== 'SUSPENDED') next.suspendedAt = new Date().toISOString();
     this.agents.set(id, next);
     return next;
   }

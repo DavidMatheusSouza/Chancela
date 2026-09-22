@@ -7,7 +7,9 @@ delete process.env.POLICY_REGISTRY_ADDRESS;
 
 const { authorize } = await import('../src/lib/authorize.js');
 const { getRepository } = await import('../src/lib/store.js');
-const { BREAKER_THRESHOLD, noteReactivation } = await import('../src/lib/breaker.js');
+const { BREAKER_THRESHOLD, DEMO_COOLDOWN_SECONDS, liftDemoSuspension, noteReactivation } = await import(
+  '../src/lib/breaker.js'
+);
 
 // TA-002 so these do not interfere with suites that lean on TA-001.
 const AGENT = 'TA-002';
@@ -86,5 +88,58 @@ describe('circuit breaker', () => {
     const d = await hostile();
     expect(d.breaker.count).toBe(1);
     expect(d.breaker.tripped).toBe(false);
+  });
+});
+
+describe('shared demo agents reopen by themselves once it is quiet', () => {
+  const later = (seconds: number) => new Date(Date.now() + seconds * 1000);
+
+  it('stays suspended while the hostile attempts are recent', async () => {
+    // One refusal is already in the window from the suite above; two more trip it.
+    for (let i = 0; i < BREAKER_THRESHOLD - 1; i++) await hostile();
+    const repo = await getRepository();
+    const agent = (await repo.getAgent(AGENT))!;
+    expect(agent.status).toBe('SUSPENDED');
+
+    const lifted = await liftDemoSuspension(repo, agent, later(DEMO_COOLDOWN_SECONDS / 2));
+    expect(lifted.status).toBe('SUSPENDED');
+  });
+
+  it('reopens after the cooldown, and the old refusals stop counting', async () => {
+    const repo = await getRepository();
+    const at = later(DEMO_COOLDOWN_SECONDS + 5);
+    const lifted = await liftDemoSuspension(repo, (await repo.getAgent(AGENT))!, at);
+    expect(lifted.status).toBe('ACTIVE');
+    expect((await repo.getAgent(AGENT))!.status).toBe('ACTIVE');
+  });
+
+  it('never touches an agent that belongs to anyone else', async () => {
+    const repo = await getRepository();
+    const other = await repo.createAgent({
+      id: 'TA-OTHER-OWNER',
+      name: 'Other',
+      ownerAddress: '0x000000000000000000000000000000000000dEaD',
+      status: 'SUSPENDED',
+      derivationIndex: 0,
+    });
+    const lifted = await liftDemoSuspension(repo, other, later(24 * 3600));
+    expect(lifted.status).toBe('SUSPENDED');
+  });
+
+  it('gives a suspension made by hand the same cooldown', async () => {
+    const repo = await getRepository();
+    await repo.updateAgent('TA-003', { status: 'SUSPENDED' });
+    const d = await authorize({ agentId: 'TA-003', action: 'NOT_A_REAL_ACTION', parameters: {} });
+    expect(d.reasonCode).toBe('AGENT_SUSPENDED');
+    expect((await repo.getAgent('TA-003'))!.status).toBe('SUSPENDED');
+  });
+
+  it('is applied on the authorization path itself, once the cooldown has passed', async () => {
+    const repo = await getRepository();
+    const longAgo = new Date(Date.now() - (DEMO_COOLDOWN_SECONDS + 60) * 1000).toISOString();
+    await repo.updateAgent('TA-003', { suspendedAt: longAgo });
+    const d = await authorize({ agentId: 'TA-003', action: 'NOT_A_REAL_ACTION', parameters: {} });
+    expect(d.reasonCode).not.toBe('AGENT_SUSPENDED');
+    expect((await repo.getAgent('TA-003'))!.status).toBe('ACTIVE');
   });
 });

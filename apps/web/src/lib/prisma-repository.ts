@@ -51,6 +51,7 @@ export class PrismaRepository implements Repository {
     activePolicyId: string | null;
     attestorAddress: string | null;
     createdAt: Date;
+    suspendedAt: Date | null;
     user: { ownerAddress: string };
     wallets: Array<{ address: string; provider: string }>;
   }): AgentRow {
@@ -68,6 +69,7 @@ export class PrismaRepository implements Repository {
       attestorAddress: a.attestorAddress ?? undefined,
       activePolicyId: a.activePolicyId ?? undefined,
       createdAt: iso(a.createdAt),
+      suspendedAt: a.suspendedAt ? iso(a.suspendedAt) : undefined,
     };
   }
 
@@ -141,6 +143,8 @@ export class PrismaRepository implements Repository {
         derivationIndex: patch.derivationIndex,
         activePolicyId: patch.activePolicyId,
         attestorAddress: patch.attestorAddress,
+        // Stamped on the way into SUSPENDED only, so a repeated suspend does not reset it.
+        ...(patch.status === 'SUSPENDED' && exists.status !== 'SUSPENDED' ? { suspendedAt: new Date() } : {}),
       },
     });
 

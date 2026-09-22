@@ -7,7 +7,7 @@ check without taking our word for it.
 |---|---|---|
 | 60 seconds | `npx chancela-check` | A live decision verified against Monad by your own machine |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
-| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 306 tests, and a real agent being stopped over MCP |
+| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 311 tests, and a real agent being stopped over MCP |
 
 No wallet, no account and no API key is needed for any of them.
 
@@ -59,7 +59,7 @@ that second, not a placeholder.
 ```bash
 git clone https://github.com/DavidMatheusSouza/Chancela && cd Chancela
 pnpm install
-pnpm verify:all          # typecheck + 306 tests, Foundry fuzzing included (needs Foundry)
+pnpm verify:all          # typecheck + 311 tests, Foundry fuzzing included (needs Foundry)
 pnpm verify:deployment   # live addresses == docs == deployment record, and all verified
 pnpm example:agent       # a support agent, a real model, a prompt injection it falls for
 ```
@@ -93,9 +93,10 @@ Said here so you do not have to find it:
 - **Testnet only.** Mainnet needs a funded attestor; the code switches on chain id.
 - **One attestor.** The design allows any number; only this deployment runs one.
 - **The breaker is public.** Anyone who can call an agent can suspend it — a
-  deliberate fail-closed trade-off ([THREAT_MODEL.md](THREAT_MODEL.md)). If you
-  find TA-001 suspended, another visitor tripped it: `/demo` reactivates it on
-  start.
+  deliberate fail-closed trade-off ([THREAT_MODEL.md](THREAT_MODEL.md)). If
+  `chancela-check` reports TA-001 as `AGENT_SUSPENDED`, another visitor has just
+  tripped it: the shared demo agents come back by themselves two minutes after
+  the last hostile attempt, or at once when you open `/demo`.
 - **Daily limits are counted by the deployment.** An outsider can re-run any
   decision's permission checks, but not prove the day's running total from
   outside. The README says so in *What this deployment can do to you*.

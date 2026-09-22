@@ -1,4 +1,5 @@
-import type { DecisionRow, Repository } from './repository';
+import type { AgentRow, DecisionRow, Repository } from './repository';
+import { isSharedDemoOwner } from './demo-signin';
 
 /**
  * Circuit breaker.
@@ -99,4 +100,43 @@ export async function evaluateBreaker(
   }
 
   return state;
+}
+
+/**
+ * How long a shared demo agent stays suspended after the last hostile attempt.
+ */
+export const DEMO_COOLDOWN_SECONDS = 120;
+
+/**
+ * Lift a suspension on an agent of the shared demo account, once things are quiet.
+ *
+ * "Only the owner can bring it back" is the rule, and it still holds: the demo
+ * owner's key is published, so every visitor already *is* that owner and can
+ * press Reactivate. What this removes is the need for someone to be there.
+ * Without it, one visitor running the breaker -- or three hostile curls from
+ * anyone -- leaves the demo agents refusing everything until somebody signs in,
+ * and the next person to run `npx chancela-check` sees a broken deployment.
+ *
+ * Nothing changes for any other owner. The cooldown runs from the later of the
+ * suspension and the last hostile attempt, so an attacker who keeps trying keeps
+ * the agent off, and a suspension still beats an approval that arrives behind it.
+ */
+export async function liftDemoSuspension(
+  repo: Repository,
+  agent: AgentRow,
+  now: Date = new Date(),
+): Promise<AgentRow> {
+  if (agent.status !== 'SUSPENDED' || !isSharedDemoOwner(agent.ownerAddress)) return agent;
+
+  const from = new Date(now.getTime() - DEMO_COOLDOWN_SECONDS * 1000).toISOString();
+  // A suspension someone made on purpose gets the same cooldown, so an approval
+  // or a request right behind it is still refused. No timestamp means it predates
+  // this column being written, which is long enough ago.
+  if (agent.suspendedAt && agent.suspendedAt > from) return agent;
+  const recent = await repo.listDecisions({ agentId: agent.id, from, limit: 200 });
+  if (recent.some(isHostileSignal)) return agent;
+
+  const updated = await repo.updateAgent(agent.id, { status: 'ACTIVE' });
+  noteReactivation(agent.id, now);
+  return updated ?? agent;
 }

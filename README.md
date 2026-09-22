@@ -125,7 +125,7 @@ Every claim on this page can be checked without trusting this repository:
 | Decisions are anchored, refusals included | Every row in `/audit` links to its transaction; a proof lands in about two seconds |
 | The service serves the hash it anchored | `GET /api/proofs/:id` returns the decision hash recomputed from the capsule, next to the stored one |
 | The policy hash is what the chain holds | `cast call … 'activePolicy(uint256)' 1` — the command is in [DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| The security properties hold | `pnpm verify:all` — 306 tests, including property-based and fuzzed |
+| The security properties hold | `pnpm verify:all` — 311 tests, including property-based and fuzzed |
 | The live addresses are the documented ones | `pnpm verify:deployment` — reads the chain, and fails if `.env`, the deployment record and these docs disagree |
 | The deployed contracts are *this* source | All three are verified on Sourcify, exact match — metadata hash included, so the comments and compiler settings match too: `curl https://sourcify.dev/server/v2/contract/10143/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e` |
 
@@ -472,11 +472,11 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Passkey keys, onboarding and wallet binding | 9 |
 | MCP server | 7 |
 | Deployment checker — the verifier's own failure modes | 5 |
-| Circuit breaker | 7 |
+| Circuit breaker, and the shared demo agents reopening | 12 |
 | HTTP rate limiting and caller identity | 7 |
 | Anchor budget | 6 |
 | Agent ownership | 5 |
-| **Total** | **306** |
+| **Total** | **311** |
 
 ## Documentation
 
