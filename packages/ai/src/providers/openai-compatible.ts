@@ -58,6 +58,10 @@ export class OpenAICompatibleProvider implements AIProvider {
           authorization: `Bearer ${this.config.apiKey}`,
         },
         signal: controller.signal,
+        // Next.js caches server-side fetches, POSTs included. A cached answer
+        // here would be last week's model reading today's request. Node's own
+        // RequestInit type does not declare `cache`, though fetch honours it.
+        ...({ cache: 'no-store' } as Record<string, unknown>),
         body: JSON.stringify({
           model: this.config.model,
           temperature: 0,

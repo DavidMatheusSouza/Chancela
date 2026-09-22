@@ -56,6 +56,8 @@ export async function lookupCounterparty(address: string | undefined): Promise<R
       method: 'POST',
       headers: { 'content-type': 'application/json', apiKey },
       signal: controller.signal,
+      // Labels change; Next.js would otherwise cache this POST for a year.
+      cache: 'no-store',
       body: JSON.stringify({ parameters: { chain: 'monad', walletAddresses: [address] } }),
     });
     clearTimeout(timeout);

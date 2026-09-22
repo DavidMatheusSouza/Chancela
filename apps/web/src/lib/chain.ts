@@ -1,5 +1,19 @@
-import { createPublicClient, createWalletClient, defineChain, formatEther, getAddress, http, type Hex } from 'viem';
+import { createPublicClient, createWalletClient, defineChain, formatEther, getAddress, http, type Hex, type HttpTransportConfig } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+
+/**
+ * Every RPC transport goes through here.
+ *
+ * Next.js caches `fetch` on the server, POSTs included, for a year by default,
+ * and viem speaks JSON-RPC over POST. Left alone, a balance, a block number,
+ * a nonce or a receipt could be answered from whatever the chain said on some
+ * earlier request -- and it was: /api/network/status reported blocks hundreds
+ * of thousands behind. A proof layer that reads the chain from a cache is not
+ * reading the chain.
+ */
+export function rpc(url: string, options: Omit<HttpTransportConfig, 'fetchOptions'> = {}) {
+  return http(url, { ...options, fetchOptions: { cache: 'no-store' } });
+}
 
 /** Monad mainnet. Chain ID 143, ~300ms blocks, ~600ms finality. */
 export const monad = defineChain({
@@ -125,7 +139,7 @@ export function publicClient() {
   const config = chainConfig();
   return createPublicClient({
     chain: activeChain(),
-    transport: http(config?.rpcUrl ?? activeChain().rpcUrls.default.http[0]),
+    transport: rpc(config?.rpcUrl ?? activeChain().rpcUrls.default.http[0]),
   });
 }
 
@@ -146,7 +160,7 @@ export async function onchainAgentWallet(agentTokenId: string): Promise<string |
     const chain = activeChain();
     const client = createPublicClient({
       chain,
-      transport: http(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
+      transport: rpc(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
     });
     const wallet = await client.readContract({
       address: registry as Hex,
@@ -188,7 +202,7 @@ export async function attestorFunds(lowWatermark: number): Promise<AttestorFunds
   try {
     const client = createPublicClient({
       chain: activeChain(),
-      transport: http(config.rpcUrl, { timeout: 2_500 }),
+      transport: rpc(config.rpcUrl, { timeout: 2_500 }),
     });
     const address = privateKeyToAccount(config.attestorKey).address;
     const [balance, gasPrice] = await Promise.all([client.getBalance({ address }), client.getGasPrice()]);
@@ -263,8 +277,8 @@ export async function anchorDecision(input: {
   return enqueue(async () => {
     const account = privateKeyToAccount(config.attestorKey);
     const chain = activeChain();
-    const wallet = createWalletClient({ account, chain, transport: http(config.rpcUrl) });
-    const client = createPublicClient({ chain, transport: http(config.rpcUrl) });
+    const wallet = createWalletClient({ account, chain, transport: rpc(config.rpcUrl) });
+    const client = createPublicClient({ chain, transport: rpc(config.rpcUrl) });
 
     const args = [
       {
@@ -374,7 +388,7 @@ export async function onchainApprover(agentTokenId: string): Promise<{ x: Hex; y
     const chain = activeChain();
     const client = createPublicClient({
       chain,
-      transport: http(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
+      transport: rpc(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
     });
     const [x, y] = await client.readContract({
       address,
@@ -417,8 +431,8 @@ export async function recordApprovalOnchain(input: {
   return enqueue(async () => {
     const account = privateKeyToAccount(config.attestorKey);
     const chain = activeChain();
-    const wallet = createWalletClient({ account, chain, transport: http(config.rpcUrl) });
-    const client = createPublicClient({ chain, transport: http(config.rpcUrl) });
+    const wallet = createWalletClient({ account, chain, transport: rpc(config.rpcUrl) });
+    const client = createPublicClient({ chain, transport: rpc(config.rpcUrl) });
     const args = [BigInt(input.agentTokenId), input.decisionHash, input.assertion] as const;
 
     for (let attempt = 0; attempt < 2; attempt++) {
