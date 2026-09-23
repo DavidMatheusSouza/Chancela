@@ -47,7 +47,9 @@ transfer, the platform that deployed it is the one asked what stopped it.
 Monad, which is where an autonomous trading agent spends its money. The owner of
 such an agent is the person who loses when the model misreads a message.
 
-- **What they integrate:** `guard()` around the call that places the order.
+- **What they integrate:** `guard()` around the call that places the order,
+  with the `PLACE_ORDER` action (`amount` is the order notional in cents;
+  `market`, `side`, and optionally `size`, `price`, `marketAddress`).
   The policy caps each order and the day's total (`maxTransactionValue`,
   `dailyValueCap`), limits how many value-moving actions run per day, blocks
   known-bad counterparties, and sends anything above the step-up threshold to

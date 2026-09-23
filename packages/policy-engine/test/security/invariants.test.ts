@@ -30,9 +30,11 @@ describe('structural invariants', () => {
     }
   });
 
-  it('every tool that moves value is CRITICAL', () => {
+  // PLACE_ORDER is HIGH so a trading agent can work without a human on every
+  // order; it still reaches CRITICAL above 80% of the per-order ceiling.
+  it('every tool that moves value is at least HIGH', () => {
     for (const tool of TOOL_REGISTRY.filter((t) => t.movesValue)) {
-      expect(tool.risk).toBe('CRITICAL');
+      expect(['HIGH', 'CRITICAL']).toContain(tool.risk);
     }
   });
 });

@@ -89,10 +89,8 @@ export async function execute(input: {
     return { ok: false, code: 'TOOL_FAILED', detail: String(err), actionId };
   }
 
-  if (tool.movesValue) {
-    const amount = typeof input.parameters.amount === 'number' ? input.parameters.amount : 0;
-    await repo.recordUsage(input.agentId, new Date().toISOString().slice(0, 10), amount);
-  }
+  // Daily usage is not recorded here: authorize() spends it when it issues the
+  // ALLOW, because most integrators execute on their own side and never call this.
 
   await repo.recordAction({
     id: actionId,
@@ -131,6 +129,7 @@ async function runTool(toolId: string, parameters: Record<string, unknown>): Pro
     case 'READ_TREASURY':
       return { balanceMinorUnits: 1_250_00, currency: 'USD' };
     case 'TRANSFER_FUNDS':
+    case 'PLACE_ORDER':
       throw new Error(
         'No transfer backend is wired in this build. Value movement is intentionally unimplemented.',
       );

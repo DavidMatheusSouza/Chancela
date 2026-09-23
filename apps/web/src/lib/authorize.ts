@@ -107,7 +107,9 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
   const counterparty =
     typeof input.parameters.recipientAddress === 'string'
       ? input.parameters.recipientAddress
-      : undefined;
+      : typeof input.parameters.marketAddress === 'string'
+        ? input.parameters.marketAddress
+        : undefined;
   const riskSignals = await lookupCounterparty(counterparty);
 
   const now = Math.floor(Date.now() / 1000);
@@ -166,6 +168,17 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
   };
 
   await repo.recordDecision(row);
+
+  // An ALLOW for a value-moving action spends the day's limits here, when it is
+  // issued -- not when our executor runs it. An integrator that calls
+  // guard() or this endpoint executes on its own side and never comes back, so
+  // counting at execution meant their daily caps were never counted at all.
+  // An allowed order that is then not sent still counts: the cap is a ceiling
+  // on what was authorised, and erring that way costs a retry, not money.
+  if (result.decision === 'ALLOW' && lookupTool(input.action)?.movesValue) {
+    const amount = typeof input.parameters.amount === 'number' ? input.parameters.amount : 0;
+    await repo.recordUsage(input.agentId, dayKey, amount);
+  }
 
   // A step-up is a question to the owner, so it needs somewhere to be answered.
   const approval =

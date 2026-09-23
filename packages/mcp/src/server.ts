@@ -83,7 +83,7 @@ export function createServer(options: ServerOptions): McpServer {
     'chancela_authorize',
     `Ask Chancela whether this agent may perform an action, BEFORE performing it. Call this before any tool that moves funds, sends a message as the user or company, or creates, changes or deletes records. Pass the exact parameters you are about to use. ${REFUSAL_RULES} No answer, an error or an unverified answer all mean no.`,
     {
-      action: z.string().describe('Action name from the tool registry, e.g. TRANSFER_FUNDS, CREATE_CUSTOMER, SEND_MESSAGE.'),
+      action: z.string().describe('Action name from the tool registry, e.g. TRANSFER_FUNDS, PLACE_ORDER, CREATE_CUSTOMER, SEND_MESSAGE.'),
       parameters: z.record(z.unknown()).default({}).describe('The exact parameters the action will be performed with.'),
       agentId: z.string().optional().describe('Chancela agent id, e.g. TA-001. Defaults to the configured agent.'),
     },

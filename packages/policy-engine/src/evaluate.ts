@@ -280,6 +280,8 @@ function extractCounterparty(parameters: Record<string, unknown>): string | unde
   if (typeof addr === 'string' && addr.length > 0) return addr;
   const to = parameters.to;
   if (typeof to === 'string' && to.length > 0) return to;
+  const market = parameters.marketAddress;
+  if (typeof market === 'string' && market.length > 0) return market;
   return undefined;
 }
 

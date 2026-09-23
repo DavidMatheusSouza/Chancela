@@ -7,6 +7,8 @@ export const addressSchema = z
   .string()
   .regex(/^0x[0-9a-fA-F]{40}$/, 'must be a 20-byte hex address');
 
+const decimalString = z.string().regex(/^\d{1,30}(\.\d{1,30})?$/, 'must be a decimal string');
+
 export const riskLevelSchema = z.enum(RISK_LEVELS);
 export const decisionSchema = z.enum(DECISIONS);
 export const reasonCodeSchema = z.enum(REASON_CODES);
@@ -105,6 +107,29 @@ export const TOOL_PARAMETER_SCHEMAS: Record<string, z.ZodTypeAny> = {
       memo: z.string().max(500).optional(),
     })
     .strict(),
+  PLACE_ORDER: z
+    .object({
+      /** Order notional in minor units (cents). This is what the limits count. */
+      amount: z.number().int().positive(),
+      // No defaults anywhere in this schema: a default is materialised into the
+      // intent hash, and an integrator hashing the order they actually sent
+      // would then get INTENT_MISMATCH for an order the policy allowed.
+      currency: z.string().length(3).optional(),
+      market: z.string().min(1).max(40),
+      side: z.enum(['BUY', 'SELL']),
+      orderType: z.enum(['MARKET', 'LIMIT']).optional(),
+      /** Decimal strings, never floats. */
+      size: decimalString.optional(),
+      price: decimalString.optional(),
+      venue: z.string().min(1).max(40).optional(),
+      /** The market or router contract. Checked against blockedCounterparties. */
+      marketAddress: addressSchema.optional(),
+      clientOrderId: z.string().min(1).max(64).optional(),
+    })
+    .strict()
+    .refine((o) => o.orderType !== 'LIMIT' || o.price !== undefined, {
+      message: 'a LIMIT order needs a price',
+    }),
   CHANGE_POLICY: z.object({ policyId: z.string().min(1) }).strict(),
   CHANGE_OWNER: z.object({ newOwner: addressSchema }).strict(),
   DELETE_AGENT: z.object({ agentId: z.string().min(1) }).strict(),
