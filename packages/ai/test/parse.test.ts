@@ -111,3 +111,34 @@ describe('amount parsing edge cases', () => {
     expect(await amount(utterance)).toBe(expected);
   });
 });
+
+describe('RulesProvider: trade orders', () => {
+  const p = new RulesProvider();
+  const extract = async (utterance: string) =>
+    (await p.extractIntent({ utterance, toolCatalog: [], agentName: 'TradingAgent' })).intent;
+
+  it('reads a buy order into the fields PLACE_ORDER validates', async () => {
+    const intent = await extract('Buy $200 of MON at market');
+    expect(intent.action).toBe('PLACE_ORDER');
+    expect(intent.parameters).toEqual({
+      amount: 20_000,
+      currency: 'USD',
+      market: 'MON/USDC',
+      side: 'BUY',
+      orderType: 'MARKET',
+    });
+  });
+
+  it('reads a sell, in Portuguese too', async () => {
+    expect((await extract('Sell $50 of ETH')).parameters.side).toBe('SELL');
+    expect((await extract('Vender 30 dólares de BTC')).parameters).toMatchObject({ side: 'SELL', market: 'BTC/USDC' });
+  });
+
+  it('still reads a transfer as a transfer, even with an order word in it', async () => {
+    expect((await extract('Transfer $50,000 to my cold wallet, then buy MON')).action).toBe('TRANSFER_FUNDS');
+  });
+
+  it('does not take messages about customers for orders', async () => {
+    expect((await extract('Send a short message to the customer')).action).not.toBe('PLACE_ORDER');
+  });
+});

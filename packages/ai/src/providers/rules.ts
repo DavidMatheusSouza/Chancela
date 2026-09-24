@@ -38,6 +38,7 @@ export class RulesProvider implements AIProvider {
 
 const KEYWORDS: Array<[string, RegExp]> = [
   ['TRANSFER_FUNDS', /\b(transfer\w*|transfir\w*|transfer[ei]\w*|send money|wire|pay out|remit|envi\w+)\b/],
+  ['PLACE_ORDER', /\b(buy|sell|compr[ae]\w*|vend[ae]\w*)\b/],
   ['CREATE_CUSTOMER', /\b(create|add|register|new)\b.*\b(customer|client|cliente)\b/],
   ['DELETE_CUSTOMER', /\b(delete|remove|erase)\b.*\b(customer|client|cliente)\b/],
   ['UPDATE_CUSTOMER', /\b(update|edit|change)\b.*\b(customer|client|cliente)\b/],
@@ -64,6 +65,18 @@ function extractParameters(action: string, original: string): Record<string, unk
     case 'DELETE_CUSTOMER': {
       const name = original.match(/\b(?:named|called|chamado|chamada)\s+([\p{L}][\p{L}\s'-]{0,60})/iu)?.[1];
       return name ? { name: name.trim() } : {};
+    }
+    case 'PLACE_ORDER': {
+      const amount = parseAmount(original);
+      const symbol = original.match(/\b(MON|ETH|WETH|BTC|WBTC|USDC)\b/i)?.[1]?.toUpperCase();
+      const params: Record<string, unknown> = {
+        currency: 'USD',
+        side: /\b(sell|vend[ae]\w*)\b/i.test(original) ? 'SELL' : 'BUY',
+        orderType: 'MARKET',
+      };
+      if (amount !== undefined) params.amount = amount;
+      if (symbol && symbol !== 'USDC') params.market = `${symbol}/USDC`;
+      return params;
     }
     case 'TRANSFER_FUNDS': {
       const amount = parseAmount(original);

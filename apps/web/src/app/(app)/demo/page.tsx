@@ -7,10 +7,12 @@ import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig } from '@/lib/chain';
 import { Badge, Mono } from '@/components/primitives';
 import { DemoRunner, type DemoAgent } from './demo-runner';
+import { TRADING_AGENT_ID } from '@/lib/live-bot';
 
 export const dynamic = 'force-dynamic';
 
-const DEMO_AGENT = 'TA-001';
+// The trading agent the public ledger shows, so the demo and /live tell one story.
+const DEMO_AGENT = TRADING_AGENT_ID;
 
 /**
  * The guided demonstration.

@@ -113,7 +113,7 @@ export const TOOL_REGISTRY: readonly ToolDescriptor[] = [
   {
     toolId: 'TRANSFER_FUNDS',
     label: 'Transfer funds',
-    description: 'Move value out of the agent wallet.',
+    description: 'Move value out of the agent wallet. Parameters: amount (cents), recipient (a name), recipientAddress (0x address, if given).',
     requiredPermission: 'TRANSFER_FUNDS',
     risk: 'CRITICAL',
     movesValue: true,
@@ -122,7 +122,8 @@ export const TOOL_REGISTRY: readonly ToolDescriptor[] = [
   {
     toolId: 'PLACE_ORDER',
     label: 'Place trade order',
-    description: 'Place a buy or sell order on a market. The value is the order notional.',
+    description:
+      'Place a buy or sell order on a market. Parameters: amount (order notional in cents), market (e.g. "MON/USDC"), side ("BUY" or "SELL"), orderType ("MARKET" or "LIMIT").',
     requiredPermission: 'PLACE_ORDER',
     // HIGH, not CRITICAL like a transfer: a trading agent places orders all day,
     // and at CRITICAL no step-up threshold could let a single one through without
