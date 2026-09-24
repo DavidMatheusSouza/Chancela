@@ -54,6 +54,12 @@ export default async function Landing() {
           </div>
 
           <nav className="flex items-center gap-2">
+            <Link
+              href="/live"
+              className="rounded-lg px-3 py-1.5 text-sm text-ink transition-colors hover:text-chain"
+            >
+              Live ledger
+            </Link>
             <a
               href="/demo"
               className="rounded-lg px-3 py-1.5 text-sm text-ink transition-colors hover:text-chain"
@@ -140,6 +146,9 @@ export default async function Landing() {
               </div>
             ))}
           </dl>
+          <Link href="/live" className="mt-2 inline-flex items-center gap-1 text-[12px] text-faint hover:text-ink">
+            Every one of them is public — open the live ledger <ArrowRight className="h-3 w-3" />
+          </Link>
         </Reveal>
 
         <Reveal className="mt-16">

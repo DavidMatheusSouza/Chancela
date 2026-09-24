@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, defineChain, formatEther, getAddress, http, type Hex, type HttpTransportConfig } from 'viem';
+import { createPublicClient, createWalletClient, decodeFunctionData, defineChain, formatEther, getAddress, http, type Hex, type HttpTransportConfig } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 /**
@@ -169,6 +169,67 @@ export async function onchainAgentWallet(agentTokenId: string): Promise<string |
       args: [BigInt(agentTokenId)],
     });
     return getAddress(wallet);
+  } catch {
+    return null;
+  }
+}
+
+/** What Monad itself says one anchoring transaction recorded. */
+export interface OnchainAnchor {
+  /** The transaction succeeded, targets the registry and calls `recordDecision`. */
+  ok: boolean;
+  decisionHash: Hex | null;
+  intentHash: Hex | null;
+  policyHash: Hex | null;
+  from: string;
+  to: string | null;
+  blockNumber: string | null;
+  status: 'success' | 'reverted';
+}
+
+/**
+ * Read an anchoring transaction back from the chain and decode what it wrote.
+ *
+ * This is the check a proof page owes its reader: not "we say we anchored it",
+ * but the calldata Monad executed, decoded here, so the stored decision hash
+ * can be compared against what is actually on-chain. Read-only and keyless.
+ * Null means the chain could not be read, never that the proof failed.
+ */
+export async function readAnchor(txHash: string): Promise<OnchainAnchor | null> {
+  const registry = process.env.POLICY_REGISTRY_ADDRESS;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(txHash)) return null;
+  try {
+    const chain = activeChain();
+    const client = createPublicClient({
+      chain,
+      transport: rpc(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 4_000 }),
+    });
+    const hash = txHash as Hex;
+    const [tx, receipt] = await Promise.all([
+      client.getTransaction({ hash }),
+      client.getTransactionReceipt({ hash }),
+    ]);
+
+    let decoded: { decisionHash: Hex; intentHash: Hex; policyHash: Hex } | null = null;
+    try {
+      const call = decodeFunctionData({ abi: POLICY_REGISTRY_ABI, data: tx.input });
+      if (call.functionName === 'recordDecision') decoded = call.args[0];
+    } catch {
+      decoded = null;
+    }
+
+    const toRegistry =
+      Boolean(tx.to && registry) && tx.to!.toLowerCase() === registry!.toLowerCase();
+    return {
+      ok: receipt.status === 'success' && toRegistry && decoded !== null,
+      decisionHash: decoded?.decisionHash ?? null,
+      intentHash: decoded?.intentHash ?? null,
+      policyHash: decoded?.policyHash ?? null,
+      from: getAddress(tx.from),
+      to: tx.to ? getAddress(tx.to) : null,
+      blockNumber: receipt.blockNumber.toString(),
+      status: receipt.status,
+    };
   } catch {
     return null;
   }

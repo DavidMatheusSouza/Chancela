@@ -1,5 +1,5 @@
-import { hashDecision } from '@chancela/shared';
 import { getRepository } from '@/lib/store';
+import { findDecision, recomputeDecisionHash } from '@/lib/proof';
 import { explorerTxUrl } from '@/lib/chain';
 import { fail, ok } from '@/lib/http';
 
@@ -19,30 +19,11 @@ export const dynamic = 'force-dynamic';
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   const repo = await getRepository();
 
-  const decision =
-    (await repo.getDecision(params.id)) ??
-    (await repo.getDecisionByHash(params.id)) ??
-    (await repo.listDecisions({ limit: 500 })).find((d) => d.auditId === params.id) ??
-    null;
-
+  const decision = await findDecision(repo, params.id);
   if (!decision) return fail(404, 'NOT_FOUND', `No proof for ${params.id}`);
 
-  // Recomputed from the capsule's own fields with the same function the policy
-  // engine used. `hashDecision` commits to this exact subset -- hashing the
-  // whole capsule would not reproduce it, since the capsule carries the hash.
-  const c = decision.capsule;
-  const recomputed = hashDecision({
-    agentId: c.agentId,
-    action: c.action,
-    decision: c.decision,
-    risk: c.risk,
-    reasonCode: c.reasonCode,
-    intentHash: c.intentHash,
-    policyHash: c.policyHash,
-    policyVersion: c.policyVersion,
-    nonce: c.nonce,
-    issuedAt: c.issuedAt,
-  });
+  // Recomputed from the stored capsule on every request, never read back.
+  const recomputed = recomputeDecisionHash(decision);
 
   return ok({
     auditId: decision.auditId,

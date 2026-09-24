@@ -18,7 +18,7 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
 // `/robots.txt` and `/sitemap.xml` are fetched by crawlers, which never carry
 // a session. Gating them behind the login redirect would tell every crawler
 // that the site is a login page.
-const PUBLIC_PATHS = ['/', '/login', '/opengraph-image', '/robots.txt', '/sitemap.xml'];
+const PUBLIC_PATHS = ['/', '/live', '/login', '/opengraph-image', '/robots.txt', '/sitemap.xml'];
 // `/api/network/status` joins the health checks: it reports only the chain id,
 // the public RPC and the registry addresses, all of which are already published
 // in the docs and readable on-chain by anyone.
@@ -37,6 +37,8 @@ function isPublic(pathname: string): boolean {
   // an ownership check, so opening the path here does not open the write.
   if (/^\/api\/agents\/[^/]+(\/audit)?$/.test(pathname)) return true;
   if (pathname.startsWith('/api/proofs/')) return true;
+  // The same proofs, rendered and re-checked against Monad for a person.
+  if (/^\/proof\/[^/]+$/.test(pathname)) return true;
   // Where an agent's runtime waits for its owner's answer. The id is an
   // unguessable capability; approving through the same path checks the session
   // and the ownership itself.
