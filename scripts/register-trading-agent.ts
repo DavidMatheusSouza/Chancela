@@ -1,5 +1,5 @@
 /**
- * Register the live ledger's trading agent (TA-007) on-chain and in the store.
+ * Register the live ledger's trading agent (TA-LIVE) on-chain and in the store.
  *
  * The same four steps as scripts/register-agents.ts -- mint the ERC-8004
  * identity, bind the agent wallet, set the attestor, anchor the policy -- with
@@ -8,7 +8,7 @@
  * one. Then the agent and its policy are written to this deployment's store.
  *
  * Resumable: it stops before spending gas when the store already has the
- * agent, and refuses outright when TA-007 belongs to somebody else.
+ * agent, and refuses outright when TA-LIVE belongs to somebody else.
  *
  *   set -a; . ./.env; set +a; pnpm tsx scripts/register-trading-agent.ts
  */
@@ -101,7 +101,7 @@ const POLICY_ABI = [
  * The agent's wallet. It authorizes orders and never sends one, so it needs an
  * address the registry can bind but no key: derived from a label, nobody holds it.
  */
-const AGENT_WALLET = getAddress(`0x${keccak256(toHex('chancela:TA-007:trading-agent')).slice(-40)}`);
+const AGENT_WALLET = getAddress(`0x${keccak256(toHex('chancela:TA-LIVE:trading-agent')).slice(-40)}`);
 
 async function main() {
   for (const [name, value] of Object.entries({ IDENTITY, POLICY, DEPLOYER, ATTESTATION })) {

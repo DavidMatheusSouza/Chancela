@@ -19,7 +19,8 @@ import { getRepository } from './store';
  * an order and nothing that moves funds out, so the attacks below are refused
  * for three different reasons, each of them by the policy engine.
  */
-export const TRADING_AGENT_ID = 'TA-007';
+// Not TA-<n>: user agents are numbered by count, and TA-007 was already someone's.
+export const TRADING_AGENT_ID = 'TA-LIVE';
 
 export const TRADING_POLICY = {
   version: 1,
