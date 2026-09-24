@@ -4,6 +4,8 @@ import { REASON_TEXT, type ReasonCode } from '@chancela/shared';
 import { PublicHeader } from '@/components/public-header';
 import { DecisionPill, Mono, RiskPill } from '@/components/primitives';
 import { AutoRefresh } from '@/components/auto-refresh';
+import { AttackPanel } from '@/components/attack-panel';
+import { ATTACKS, TRADING_AGENT_ID } from '@/lib/live-bot';
 import { getRepository } from '@/lib/store';
 import { explorerAddressUrl, explorerTxUrl } from '@/lib/chain';
 import { shortHash } from '@/lib/ui';
@@ -41,6 +43,7 @@ export default async function LivePage() {
   ];
   const lastDay = decisions.filter((d) => Date.parse(d.createdAt) >= dayAgo).length;
   const registry = process.env.POLICY_REGISTRY_ADDRESS;
+  const trader = agents.find((a) => a.id === TRADING_AGENT_ID);
 
   return (
     <div className="relative">
@@ -80,6 +83,13 @@ export default async function LivePage() {
             </>
           )}
         </p>
+
+        {trader && (
+          <AttackPanel
+            agentName={trader.name}
+            attacks={ATTACKS.map(({ id, prompt, action }) => ({ id, prompt, action }))}
+          />
+        )}
 
         <section className="card mt-8 overflow-hidden">
           {decisions.length === 0 ? (

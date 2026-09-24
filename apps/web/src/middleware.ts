@@ -37,6 +37,8 @@ function isPublic(pathname: string): boolean {
   // an ownership check, so opening the path here does not open the write.
   if (/^\/api\/agents\/[^/]+(\/audit)?$/.test(pathname)) return true;
   if (pathname.startsWith('/api/proofs/')) return true;
+  // Visitors attacking the live agent. Takes an attack id only; see the route.
+  if (pathname === '/api/live/attack') return true;
   // The same proofs, rendered and re-checked against Monad for a person.
   if (/^\/proof\/[^/]+$/.test(pathname)) return true;
   // Where an agent's runtime waits for its owner's answer. The id is an
