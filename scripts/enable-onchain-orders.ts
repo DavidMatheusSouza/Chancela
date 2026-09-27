@@ -9,7 +9,8 @@
  * Steps, each skipped when already done:
  *   1. check GATE_ADDRESS reads POLICY_REGISTRY_ADDRESS and the venue uses that gate
  *   2. setAgentWallet(TA-LIVE, address of LIVE_AGENT_PRIVATE_KEY)  -- as the token owner
- *   3. top the agent wallet up to 1 MON from the deployer, for gas
+ *   3. top the agent wallet up to 1 MON for gas (from the deployer, or the
+ *      attestor when the deployer is under Monad's reserve balance)
  *   4. store the new wallet on the agent row
  *
  * Needs: DEPLOYER_PRIVATE_KEY (owner of TA-LIVE's token), POLICY_REGISTRY_ADDRESS,
@@ -88,7 +89,17 @@ async function main() {
   // 3. Gas for the orders, and for the refused ones the gate reverts.
   const balance = await client.getBalance({ address: agent.address });
   if (balance < TOP_UP_TO / 2n) {
-    await send('fund agent', wallet.sendTransaction({ to: agent.address, value: TOP_UP_TO - balance }));
+    // Monad reverts a value transfer that leaves the sender under its reserve
+    // balance (10 MON), and the deployer usually is under it. Pay from whichever
+    // of our two keys stays above it.
+    const value = TOP_UP_TO - balance;
+    const RESERVE = parseEther('10');
+    const payer = (await client.getBalance({ address: owner.address })) - value >= RESERVE ? owner : attestor;
+    if ((await client.getBalance({ address: payer.address })) - value < RESERVE) {
+      throw new Error('Neither the deployer nor the attestor stays above the 10 MON reserve after funding');
+    }
+    const payerWallet = createWalletClient({ account: payer, chain: monadTestnet, transport: http(RPC) });
+    await send('fund agent', payerWallet.sendTransaction({ to: agent.address, value }));
   } else {
     console.log(`fund agent      already ${formatEther(balance)} MON`);
   }
