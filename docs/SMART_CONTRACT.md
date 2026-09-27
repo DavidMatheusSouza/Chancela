@@ -239,3 +239,68 @@ contract through `scripts/set-approver.ts`, run by hand with the owner key.
 
 It is a separate contract on purpose: approvals are an addition, and the
 registry that already holds the record stays as deployed.
+
+---
+
+## ChancelaGate — no chancela, no execution
+
+| | |
+|---|---|
+| Source | `packages/contracts/src/ChancelaGate.sol`, `ChancelaGuarded.sol`, `ChancelaDemoVenue.sol` |
+| Tests | 24 in `test/ChancelaGate.t.sol` (one per refusal reason, fuzzing, pinned EIP-712 vectors) · stateful invariants against a reference model in `test/invariant/Gate.invariant.t.sol` · `script/mutants.sh`: 12 mutants, each deleting one rule, all killed · `apps/web/test/gate-onchain.test.ts` deploys to anvil and drives the web app |
+| Deploy | `pnpm --filter @chancela/contracts deploy:gate` (needs `POLICY_REGISTRY_ADDRESS`), then `scripts/enable-onchain-orders.ts` |
+
+The registry records what the policy decided. It does not stop anything by
+itself, because the decision is taken off-chain and a protocol that acted on it
+had to trust whoever relayed it. The gate closes that gap at the point of
+execution. A protocol inherits `ChancelaGuarded` and calls one line before it
+acts:
+
+```solidity
+_requireChancela(grant, signature, keccak256(abi.encode(/* the call's own arguments */)));
+```
+
+The **grant** is a compact EIP-712 struct the attestor signs next to the
+capsule (the capsule is canonical JSON, which a contract should not parse):
+
+```
+Grant(uint256 agentTokenId, address target, bytes32 callHash,
+      bytes32 decisionHash, bytes32 policyHash, uint64 expiresAt)
+domain: name "Chancela", version "1", chainId, verifyingContract = the gate
+```
+
+`consume()` spends it or reverts with `Refused(reason)`. The checks run in this
+order, cheapest first:
+
+| Reason | Refused when |
+|---|---|
+| `WRONG_TARGET` | the grant names another contract, or someone other than that contract is spending it (an agent calling the gate directly would otherwise burn its grant without the call) |
+| `CALL_MISMATCH` | the hash the protocol computed from its arguments is not the one granted. A $200 grant cannot pay for $25,000 |
+| `EXPIRED` | `block.timestamp >= expiresAt` |
+| `ALREADY_USED` | this decision was executed or revoked before. One decision, one execution |
+| `AGENT_SUSPENDED` | the owner suspended the agent in the registry, at any time after the grant was signed |
+| `POLICY_CHANGED` | the grant's policy is no longer the live one. A new version kills every older grant |
+| `NOT_THE_AGENT` | the protocol's caller is not the agent wallet the owner registered |
+| `ATTESTOR_NOT_SET` | the owner has not named an attestor |
+| `BAD_SIGNATURE` | not signed by the registered attestor. Also catches a rotated attestor, and high-s malleable signatures |
+
+`check()` returns the same reason without spending anything, for front-ends and
+relayers. `revoke(tokenId, decisionHash)` lets the ERC-8004 owner cancel a
+single grant before anyone uses it. The owner only needs the decision hash from
+the public record.
+
+**Why keyed by the decision hash.** It is the identifier already anchored in the
+registry, so `GrantConsumed(agentTokenId, decisionHash, target, callHash, agent)`
+points from an executed call straight to the public record of the decision that
+allowed it.
+
+**What the call hash covers.** Only what the target contract hashes. For
+`ChancelaDemoVenue.placeOrder` that is market, side and notional in cents:
+`keccak256(abi.encode(keccak256("PLACE_ORDER(string market,string side,uint256 amount)"), keccak256(market), keccak256(side), amount))`,
+mirrored in `packages/shared/src/grant.ts`. The attestor computes it from the
+same parameters it hashed into the capsule's intent hash. Fields the venue does
+not receive stay bound by the capsule alone.
+
+**No admin.** The gate and the venue have no owner, no pause and no upgrade.
+The gate only ever reads the registry, so all control stays with each agent's
+ERC-8004 owner, exactly as in the registry.

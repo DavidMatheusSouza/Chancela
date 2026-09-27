@@ -31,7 +31,18 @@ const SHOWN = 60;
  */
 export default async function LivePage() {
   const repo = await getRepository();
-  const [agents, decisions] = await Promise.all([repo.listAgents(), repo.listDecisions({ limit: 500 })]);
+  const [agents, decisions, traderActions] = await Promise.all([
+    repo.listAgents(),
+    repo.listDecisions({ limit: 500 }),
+    repo.listActions(TRADING_AGENT_ID),
+  ]);
+  // Orders the trading agent took to the venue on Monad, by the decision behind them.
+  const venueTx = new Map(
+    traderActions
+      .map((a) => [a.decisionId, a.status, a.result as { txHash?: string; reason?: string } | undefined] as const)
+      .filter(([, status, r]) => r?.txHash && (status === 'EXECUTED' || status === 'BLOCKED'))
+      .map(([id, status, r]) => [id, { executed: status === 'EXECUTED', txHash: r!.txHash!, reason: r!.reason }]),
+  );
   const names = new Map(agents.map((a) => [a.id, a.name]));
 
   const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
@@ -109,6 +120,7 @@ export default async function LivePage() {
                     {REASON_TEXT[d.reasonCode as ReasonCode] ?? d.reasonCode}
                   </div>
                   <div className="flex items-center gap-3">
+                    {venueTx.has(d.id) && <VenueLink {...venueTx.get(d.id)!} />}
                     <RiskPill risk={d.risk} />
                     {d.onchainTxHash ? (
                       <a
@@ -152,6 +164,23 @@ export default async function LivePage() {
       </div>
       <AutoRefresh seconds={15} />
     </div>
+  );
+}
+
+/** The order's own transaction at the venue: accepted, or reverted by the gate. */
+function VenueLink({ executed, txHash, reason }: { executed: boolean; txHash: string; reason?: string }) {
+  return (
+    <a
+      href={explorerTxUrl(txHash)}
+      target="_blank"
+      rel="noreferrer"
+      title={executed ? 'The venue accepted the order on Monad' : `The agent sent it anyway; the gate reverted it (${reason})`}
+      className={`relative z-10 rounded-full border px-2 py-0.5 text-[11px] hover:underline ${
+        executed ? 'border-allow/40 text-allow' : 'border-deny/40 text-deny'
+      }`}
+    >
+      {executed ? 'executed on-chain' : 'reverted on-chain'} ↗
+    </a>
   );
 }
 

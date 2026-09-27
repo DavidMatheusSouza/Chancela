@@ -20,6 +20,8 @@ interface Result {
   risk: string;
   auditId: string;
   breaker: { tripped: boolean; count: number; threshold: number; windowSeconds: number };
+  /** Present when the agent then went to the venue on Monad anyway. */
+  onchain?: { status: string; reason?: string; txHash?: string; url?: string };
 }
 
 /**
@@ -65,7 +67,8 @@ export function AttackPanel({ attacks, agentName }: { attacks: AttackOption[]; a
       <p className="mt-1 text-[13px] text-muted">
         {agentName} is a trading agent allowed to place orders up to $500 and nothing else. Send it
         one of these injected instructions and watch its policy answer — the decision lands in the
-        ledger below, anchored on Monad.
+        ledger below, anchored on Monad. The venue it trades on only accepts orders that carry a
+        chancela, so an order the policy refused fails on-chain too, even if the agent sends it anyway.
       </p>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -122,6 +125,16 @@ export function AttackPanel({ attacks, agentName }: { attacks: AttackOption[]; a
                     {result.breaker.windowSeconds}s.
                   </p>
                 )
+              )}
+              {result.onchain?.status === 'REVERTED' && result.onchain.url && (
+                <p className="text-[13px] text-muted">
+                  Then the agent ignored the refusal and sent the order to the venue itself, with a
+                  grant it signed on its own. Monad reverted it:{' '}
+                  <span className="mono text-[12px] text-deny">Refused({result.onchain.reason})</span> ·{' '}
+                  <a href={result.onchain.url} target="_blank" rel="noreferrer" className="text-chain hover:underline">
+                    see the reverted transaction ↗
+                  </a>
+                </p>
               )}
               <Link href={`/proof/${result.auditId}`} className="inline-block text-[12.5px] text-chain hover:underline">
                 Open the proof →

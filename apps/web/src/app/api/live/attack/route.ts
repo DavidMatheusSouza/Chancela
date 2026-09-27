@@ -1,7 +1,8 @@
-import { ATTACKS, TRADING_AGENT_ID } from '@/lib/live-bot';
+import { ATTACKS, TRADING_AGENT_ID, enforceOnchain } from '@/lib/live-bot';
 import { authorize } from '@/lib/authorize';
 import { getRepository } from '@/lib/store';
 import { callerKey, fail, ok, rateLimitCaller } from '@/lib/http';
+import { explorerTxUrl } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,10 @@ export async function POST(request: Request) {
     caller: callerKey(request),
   });
 
+  // An order the policy refused is then sent to the venue anyway, as a
+  // compromised agent would, so the refusal also happens on Monad.
+  const onchain = await enforceOnchain(decision, attack.parameters);
+
   return ok({
     attack: attack.id,
     action: attack.action,
@@ -45,5 +50,11 @@ export async function POST(request: Request) {
     auditId: decision.auditId,
     anchorStatus: decision.anchorStatus,
     breaker: decision.breaker,
+    onchain: onchain && {
+      status: onchain.status,
+      reason: onchain.reason,
+      txHash: onchain.txHash,
+      url: onchain.txHash ? explorerTxUrl(onchain.txHash) : undefined,
+    },
   });
 }

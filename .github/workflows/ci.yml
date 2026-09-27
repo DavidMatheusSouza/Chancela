@@ -64,6 +64,20 @@ jobs:
       - name: Test
         run: forge test -vvv
         working-directory: packages/contracts
+      # Remove each rule from ChancelaGate in turn; every mutant must fail a test.
+      - name: Mutation check (gate)
+        run: bash script/mutants.sh
+        working-directory: packages/contracts
+
+      # The seam between the TypeScript attestor and the Solidity gate: deploy
+      # the contracts just built to anvil and drive the web app's lib/gate.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm db:generate
+      - name: Gate end to end on anvil
+        run: pnpm --filter @chancela/web exec vitest run test/gate-onchain.test.ts
 
   secrets:
     name: Secret scan

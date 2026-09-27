@@ -10,6 +10,8 @@
     "fmt": "PATH=\"$HOME/.foundry/bin:$PATH\" forge fmt",
     "deploy:testnet": "PATH=\"$HOME/.foundry/bin:$PATH\" forge script script/Deploy.s.sol:Deploy --rpc-url monad_testnet --broadcast -vvvv",
     "deploy:mainnet": "PATH=\"$HOME/.foundry/bin:$PATH\" forge script script/Deploy.s.sol:Deploy --rpc-url monad --broadcast --verify -vvvv",
-    "typecheck": "echo 'solidity package - no tsc'"
+    "typecheck": "echo 'solidity package - no tsc'",
+    "deploy:gate": "PATH=\"$HOME/.foundry/bin:$PATH\" forge script script/DeployGate.s.sol:DeployGate --rpc-url monad_testnet --broadcast -vv",
+    "mutants": "bash script/mutants.sh"
   }
 }

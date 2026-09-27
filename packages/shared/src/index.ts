@@ -3,3 +3,4 @@ export * from './hash';
 export * from './types';
 export * from './permissions';
 export * from './schemas';
+export * from './grant';

@@ -303,6 +303,43 @@ the right website, user verification, this exact decision, this owner's key, onc
 passkey and could not produce that signature;
 [here is the first one](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa).
 
+## No chancela, no execution — enforced by the contract that executes
+
+The capsule stops a tool that checks it. A protocol on Monad can go further and
+refuse the transaction itself. [`ChancelaGate`](docs/SMART_CONTRACT.md#chancelagate--no-chancela-no-execution)
+takes a compact EIP-712 grant the attestor signs next to every capsule, and a
+hash of the call the protocol is about to make, computed by the protocol from
+the arguments it actually received. Then it either spends the grant or reverts:
+
+```solidity
+contract MyVenue is ChancelaGuarded {
+    constructor(ChancelaGate gate) ChancelaGuarded(gate) {}
+
+    function placeOrder(string calldata market, string calldata side, uint256 amount,
+                        ChancelaGate.Grant calldata grant, bytes calldata sig) external {
+        _requireChancela(grant, sig, keccak256(abi.encode(ORDER, keccak256(bytes(market)),
+                                                          keccak256(bytes(side)), amount)));
+        // ... only an order the owner's policy allowed, exactly as allowed, once
+    }
+}
+```
+
+The gate reads everything live from the registry, so the owner's controls bind
+every outstanding grant at once. Suspend the agent, anchor a new policy version,
+or rotate the attestor, and grants issued before stop working in the next block.
+A grant for a $200 order cannot pay for a $25,000 one. It cannot be spent at
+another venue, by a wallet other than the agent's, twice, or after it expires.
+Each of those is a named revert (`Refused(CALL_MISMATCH)`, `Refused(ALREADY_USED)`
+and so on) with its own test. The rules are also checked together: random
+sequences of orders, suspensions, re-anchors and revocations are compared with a
+reference model, and a [mutation check](packages/contracts/script/mutants.sh)
+deletes each rule in turn to confirm that some test fails.
+
+The live trading agent on [`/live`](https://chancela.xyz/live) trades on a demo
+venue built this way. When you attack it, the agent then ignores the refusal and
+sends the order to the venue itself, with a grant it signed on its own. Monad
+reverts that transaction, and the ledger links it.
+
 ---
 
 ## Not capturable by a single platform

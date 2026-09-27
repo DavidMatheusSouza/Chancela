@@ -82,6 +82,8 @@ is a transaction on Monad with a proof link printed next to it.
 | The owner, not us, chooses the attestor | `setAttestor()` is `onlyAgentOwner` — one transaction moves an agent away from this deployment |
 | Human approval is verified on-chain | [`ChancelaApprovals`](SMART_CONTRACT.md), P-256 precompile, [first approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa) |
 | The registry's rules hold together, not just one at a time | 6 stateful invariants: 25,600 random calls a run by owners, attestors and strangers, each checked against a reference model — [`PolicyRegistry.invariant.t.sol`](../packages/contracts/test/invariant/PolicyRegistry.invariant.t.sol). Remove any one guard in the contract and it fails. |
+| An agent cannot execute what was refused, even if it ignores the refusal | [`ChancelaGate`](SMART_CONTRACT.md#chancelagate--no-chancela-no-execution) reverts any call without a grant from the registered attestor for exactly that call; one test per refusal reason, stateful fuzzing against a model, 12/12 mutants killed (`pnpm --filter @chancela/contracts mutants`) |
+| The TypeScript attestor and the Solidity gate agree | Pinned EIP-712 vectors asserted on both sides, plus an end-to-end test that deploys the contracts to anvil and drives the web app's `lib/gate` |
 | The deployed bytecode is this source | Sourcify exact match for all three contracts |
 
 ## What is not there yet

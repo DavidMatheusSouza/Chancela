@@ -1,7 +1,10 @@
 import {
+  GRANT_TYPES,
   canonicalJSON,
   capsuleSchema,
+  grantDomain,
   hashIntent,
+  type Grant,
   type AuthorizationCapsule,
   type Hex,
   type SignedCapsule,
@@ -51,6 +54,21 @@ export async function signCapsule(capsule: AuthorizationCapsule): Promise<Signed
   const account = privateKeyToAccount(getAttestationKey());
   const signature = await account.signMessage({ message: capsulePayload(capsule) });
   return { capsule, signature: signature as Hex, attestationAddress: account.address };
+}
+
+/**
+ * Sign the on-chain grant for a decision a contract will carry out. Same key as
+ * the capsule: ChancelaGate accepts it only from the attestor the agent's owner
+ * registered, and only for the call it names.
+ */
+export async function signGrant(grant: Grant, chainId: number, gate: Hex): Promise<Hex> {
+  const account = privateKeyToAccount(getAttestationKey());
+  return (await account.signTypedData({
+    domain: grantDomain(chainId, gate),
+    types: GRANT_TYPES,
+    primaryType: 'Grant',
+    message: grant,
+  })) as Hex;
 }
 
 export interface VerifyOptions {

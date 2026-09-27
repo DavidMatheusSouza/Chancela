@@ -16,5 +16,8 @@ delete process.env.DATABASE_URL;
 delete process.env.ATTESTATION_PRIVATE_KEY;
 delete process.env.POLICY_REGISTRY_ADDRESS;
 delete process.env.APPROVALS_ADDRESS;
+delete process.env.GATE_ADDRESS;
+delete process.env.DEMO_VENUE_ADDRESS;
+delete process.env.LIVE_AGENT_PRIVATE_KEY;
 delete process.env.MONAD_RPC_URL;
 delete process.env.MONAD_TESTNET_RPC_URL;

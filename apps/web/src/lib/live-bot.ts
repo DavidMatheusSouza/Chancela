@@ -1,8 +1,10 @@
+import { randomUUID } from 'node:crypto';
 import { hashPolicyDocument, type Hex } from '@chancela/shared';
 import { attestorFunds } from './chain';
 import { DEMO_OWNER_ADDRESS } from './demo-signin';
 import type { Repository } from './repository';
 import { authorize, type AuthorizeOutput } from './authorize';
+import { attemptRefusedOrder, executeAllowedOrder, gateConfig, orderFrom, type VenueResult } from './gate';
 import { getRepository } from './store';
 
 /**
@@ -174,7 +176,7 @@ export function nextOrder(random: () => number = Math.random): Order {
 const RESERVE_ANCHORS = 300;
 
 export type TickResult =
-  | { ran: true; decision: AuthorizeOutput }
+  | { ran: true; decision: AuthorizeOutput; onchain?: VenueResult }
   | { ran: false; reason: 'NO_AGENT' | 'LOW_FUNDS' };
 
 /** One scheduled request, unless the agent is missing or gas is running short. */
@@ -192,5 +194,47 @@ export async function tick(): Promise<TickResult> {
     parameters: order.parameters,
     caller: 'live-bot',
   });
-  return { ran: true, decision };
+  const onchain = await enforceOnchain(decision, order.parameters);
+  return { ran: true, decision, onchain };
+}
+
+/**
+ * Take an order decision to the venue on Monad.
+ *
+ * ALLOW: the agent sends the order with the attestor's grant, and the venue
+ * accepts it. DENY: the agent disobeys and sends it with a grant it forged, and
+ * the gate reverts it. REQUIRE_APPROVAL is left alone -- it waits for the owner.
+ * Either way the transaction is recorded as the decision's action, so the ledger
+ * can link it. Undefined when the gate is not configured or the action is not
+ * an order.
+ */
+export async function enforceOnchain(
+  decision: AuthorizeOutput,
+  parameters: Record<string, unknown>,
+): Promise<VenueResult | undefined> {
+  if (!gateConfig()) return undefined;
+  const order = orderFrom(parameters);
+  if (!order || (decision.decision !== 'ALLOW' && decision.decision !== 'DENY')) return undefined;
+  const repo = await getRepository();
+  const agent = await repo.getAgent(TRADING_AGENT_ID);
+  if (!agent?.erc8004TokenId) return undefined;
+
+  const bound = { decisionHash: decision.decisionHash, policyHash: decision.policyHash, expiresAt: decision.expiresAt };
+  const result =
+    decision.decision === 'ALLOW'
+      ? await executeAllowedOrder(agent.erc8004TokenId, order, bound)
+      : await attemptRefusedOrder(agent.erc8004TokenId, order, bound);
+  if (result.status === 'SKIPPED') return result;
+
+  await repo.recordAction({
+    id: `act_${randomUUID()}`,
+    agentId: TRADING_AGENT_ID,
+    decisionId: decision.decisionId,
+    toolId: 'PLACE_ORDER',
+    status: result.status === 'EXECUTED' ? 'EXECUTED' : result.status === 'REVERTED' ? 'BLOCKED' : 'FAILED',
+    result: { chain: 'monad', venue: result.venue, txHash: result.txHash, blockNumber: result.blockNumber, reason: result.reason },
+    error: result.error,
+    executedAt: new Date().toISOString(),
+  });
+  return result;
 }
