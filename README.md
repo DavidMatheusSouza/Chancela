@@ -335,8 +335,11 @@ sequences of orders, suspensions, re-anchors and revocations are compared with a
 reference model, and a [mutation check](packages/contracts/script/mutants.sh)
 deletes each rule in turn to confirm that some test fails.
 
-The live trading agent on [`/live`](https://chancela.xyz/live) trades on a demo
-venue built this way. When you attack it, the agent then ignores the refusal and
+Deployed on Monad testnet and verified on Sourcify: gate
+[`0xcbBA27Ec…6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF),
+demo venue [`0x0f889Df0…2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934).
+The live trading agent on [`/live`](https://chancela.xyz/live) trades on that
+venue. When you attack it, the agent then ignores the refusal and
 sends the order to the venue itself, with a grant it signed on its own. Monad
 reverts that transaction, and the ledger links it.
 
@@ -472,10 +475,10 @@ docker compose up
 chancela/
 ├── apps/web/                  Next.js — dashboard + REST API
 ├── packages/
-│   ├── policy-engine/         PURE. No I/O, no clock, no network. 55 tests.
+│   ├── policy-engine/         PURE. No I/O, no clock, no network. 69 tests.
 │   ├── shared/                canonical JSON, hashing, schemas, tool registry
 │   ├── ai/                    AIProvider: Qwen · Kimi · OpenAI · deterministic
-│   ├── contracts/             Foundry — policy registry + passkey approvals (P-256 precompile). 41 tests + 6 invariants.
+│   ├── contracts/             Foundry — policy registry, passkey approvals (P-256 precompile), the gate. 65 tests + 11 invariant checks, mutation-checked.
 │   ├── indexer/               Envio HyperIndex → GraphQL
 │   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
 │   ├── mcp/                   MCP server: the gate as a tool for any agent. 7 tests.
@@ -494,11 +497,12 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 
 | Suite | Tests |
 |---|---|
-| Policy engine — evaluation, injection, property-based invariants | 55 |
-| Contracts — Foundry, with fuzzing (registry 26, approvals 15) | 41 |
-| Contracts — stateful invariants against a reference model, 25,600 calls a run | 6 |
-| Shared — canonicalisation and hashing | 31 |
-| AI providers and intent parsing | 24 |
+| Policy engine — evaluation, injection, property-based invariants | 69 |
+| Contracts — Foundry, with fuzzing (registry 26, approvals 15, gate 24) | 65 |
+| Contracts — stateful invariants against a reference model, 25,600 calls a run (registry 6, gate 4 + reachability) | 11 |
+| Gate end to end — contracts deployed to anvil, driven by the web app | 5 |
+| Shared — canonicalisation, hashing, EIP-712 grant vectors | 34 |
+| AI providers and intent parsing | 28 |
 | Attestation + end-to-end flow | 20 |
 | Demo mode and the shared demo account | 17 |
 | MetaMask `mm` plugin — core and install contract | 17 |
@@ -515,7 +519,10 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Chain reads never served from the server fetch cache | 1 |
 | Nansen counterparty labels — request shape, severity, fail-closed fallback, honest status | 5 |
 | Agent ownership | 5 |
-| **Total** | **318** |
+| Live trading agent and its attacks | 8 |
+| Public proof pages, re-checked against Monad | 7 |
+| Daily limits counted at authorization | 3 |
+| **Total** | **391** |
 
 ## Documentation
 

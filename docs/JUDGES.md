@@ -84,7 +84,7 @@ is a transaction on Monad with a proof link printed next to it.
 | The registry's rules hold together, not just one at a time | 6 stateful invariants: 25,600 random calls a run by owners, attestors and strangers, each checked against a reference model — [`PolicyRegistry.invariant.t.sol`](../packages/contracts/test/invariant/PolicyRegistry.invariant.t.sol). Remove any one guard in the contract and it fails. |
 | An agent cannot execute what was refused, even if it ignores the refusal | [`ChancelaGate`](SMART_CONTRACT.md#chancelagate--no-chancela-no-execution) reverts any call without a grant from the registered attestor for exactly that call; one test per refusal reason, stateful fuzzing against a model, 12/12 mutants killed (`pnpm --filter @chancela/contracts mutants`) |
 | The TypeScript attestor and the Solidity gate agree | Pinned EIP-712 vectors asserted on both sides, plus an end-to-end test that deploys the contracts to anvil and drives the web app's `lib/gate` |
-| The deployed bytecode is this source | Sourcify exact match for all three contracts |
+| The deployed bytecode is this source | Sourcify exact match for all five contracts |
 
 ## What is not there yet
 
@@ -110,3 +110,5 @@ Said here so you do not have to find it:
 | Policy registry | [`0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) |
 | ERC-8004 identity | [`0x41db378FE661f9c6D31B031f42107C85eCad88b7`](https://testnet.monadexplorer.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) |
 | Passkey approvals | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) |
+| Gate (no chancela, no execution) | [`0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF) |
+| Demo venue (orders only through the gate) | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) |

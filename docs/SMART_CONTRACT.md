@@ -246,6 +246,8 @@ registry that already holds the record stays as deployed.
 
 | | |
 |---|---|
+| Gate (testnet 10143) | [`0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF) · Sourcify exact match |
+| Demo venue | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) · Sourcify exact match |
 | Source | `packages/contracts/src/ChancelaGate.sol`, `ChancelaGuarded.sol`, `ChancelaDemoVenue.sol` |
 | Tests | 24 in `test/ChancelaGate.t.sol` (one per refusal reason, fuzzing, pinned EIP-712 vectors) · stateful invariants against a reference model in `test/invariant/Gate.invariant.t.sol` · `script/mutants.sh`: 12 mutants, each deleting one rule, all killed · `apps/web/test/gate-onchain.test.ts` deploys to anvil and drives the web app |
 | Deploy | `pnpm --filter @chancela/contracts deploy:gate` (needs `POLICY_REGISTRY_ADDRESS`), then `scripts/enable-onchain-orders.ts` |
