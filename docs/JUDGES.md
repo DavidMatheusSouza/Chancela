@@ -5,7 +5,7 @@ check without taking our word for it.
 
 | You have | Do this | You will have seen |
 |---|---|---|
-| 60 seconds | `npx chancela-check` | A live decision verified against Monad by your own machine |
+| 60 seconds | `npx chancela-check` | A live decision verified against Monad by your own machine, then a grant forged on your machine refused by the gate on Monad |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
 | 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 318 tests, and a real agent being stopped over MCP |
 
@@ -82,7 +82,7 @@ is a transaction on Monad with a proof link printed next to it.
 | The owner, not us, chooses the attestor | `setAttestor()` is `onlyAgentOwner` — one transaction moves an agent away from this deployment |
 | Human approval is verified on-chain | [`ChancelaApprovals`](SMART_CONTRACT.md), P-256 precompile, [first approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa) |
 | The registry's rules hold together, not just one at a time | 6 stateful invariants: 25,600 random calls a run by owners, attestors and strangers, each checked against a reference model — [`PolicyRegistry.invariant.t.sol`](../packages/contracts/test/invariant/PolicyRegistry.invariant.t.sol). Remove any one guard in the contract and it fails. |
-| An agent cannot execute what was refused, even if it ignores the refusal | [`ChancelaGate`](SMART_CONTRACT.md#chancelagate--no-chancela-no-execution) reverts any call without a grant from the registered attestor for exactly that call; one test per refusal reason, stateful fuzzing against a model, 12/12 mutants killed (`pnpm --filter @chancela/contracts mutants`) |
+| An agent cannot execute what was refused, even if it ignores the refusal | `npx chancela-check` forges a grant and sends the order from the agent's own wallet: `Refused(BAD_SIGNATURE)`, `CALL_MISMATCH`, `NOT_THE_AGENT`, answered by Monad. [`ChancelaGate`](SMART_CONTRACT.md#chancelagate--no-chancela-no-execution) reverts any call without a grant from the registered attestor for exactly that call; one test per refusal reason, stateful fuzzing against a model, 12/12 mutants killed (`pnpm --filter @chancela/contracts mutants`) |
 | The TypeScript attestor and the Solidity gate agree | Pinned EIP-712 vectors asserted on both sides, plus an end-to-end test that deploys the contracts to anvil and drives the web app's `lib/gate` |
 | The deployed bytecode is this source | Sourcify exact match for all five contracts |
 

@@ -14,6 +14,7 @@
  */
 import { createClient, attestorFromRegistry, type Decision } from 'chancela-sdk';
 import { createPublicClient, http, type Address, type Hex } from 'viem';
+import { checkGate, GATE_DEFAULTS } from './gate';
 
 /** The public deployment and the contracts it is documented to use. */
 export const DEFAULTS = {
@@ -106,130 +107,144 @@ export async function check(options: Options = {}): Promise<Step[]> {
     attestor: attestorFromRegistry({ rpcUrl: rpc, registry, tokenId: () => tokenId }),
   });
 
-  // 1. Whose signature counts -- asked of the registry, not of the service.
-  let attestor: Address;
-  try {
-    attestor = await chainClient.readContract({
-      address: registry,
-      abi: REGISTRY_ABI,
-      functionName: 'attestorOf',
-      args: [tokenId],
-    });
-    if (/^0x0{40}$/.test(attestor)) {
-      add({ title: `Attestor for token ${tokenId}`, ok: false, detail: 'none registered on-chain', source: 'chain' });
-      return steps;
+  // Steps 1-7 need the service to answer; if it does not, the gate below
+  // still runs, because it never asks the service anything.
+  await (async () => {
+    // 1. Whose signature counts -- asked of the registry, not of the service.
+    let attestor: Address;
+    try {
+      attestor = await chainClient.readContract({
+        address: registry,
+        abi: REGISTRY_ABI,
+        functionName: 'attestorOf',
+        args: [tokenId],
+      });
+      if (/^0x0{40}$/.test(attestor)) {
+        add({ title: `Attestor for token ${tokenId}`, ok: false, detail: 'none registered on-chain', source: 'chain' });
+        return;
+      }
+      add({
+        title: `Whose signature counts for ${agentId}`,
+        ok: true,
+        detail: `${attestor} — set by the token holder, read from ${registry}`,
+        source: 'chain',
+      });
+    } catch (err) {
+      add({ title: 'Read the attestor from the registry', ok: false, detail: (err as Error).message, source: 'chain' });
+      return;
     }
+
+    // 2. A real decision, on an action the policy allows.
+    const parameters = { name: 'Judge', email: 'judge@example.com' };
+    let allowed: Decision;
+    try {
+      allowed = await client.authorize(agentId, DEFAULTS.allowedAction, parameters);
+      add({
+        title: `Ask to ${DEFAULTS.allowedAction}`,
+        ok: allowed.decision === 'ALLOW',
+        detail: `${allowed.decision} — ${allowed.reasonCode}, audit ${allowed.auditId}`,
+        source: 'service',
+      });
+    } catch (err) {
+      add({ title: `Ask to ${DEFAULTS.allowedAction}`, ok: false, detail: (err as Error).message, source: 'service' });
+      return;
+    }
+
+    // 3. The signature is the attestor's, and the capsule is bound to these exact
+    //    parameters. Verified here, with the address from step 1.
+    const verdict = await client.verify(allowed, { agentId, action: DEFAULTS.allowedAction, parameters });
     add({
-      title: `Whose signature counts for ${agentId}`,
-      ok: true,
-      detail: `${attestor} — set by the token holder, read from ${registry}`,
-      source: 'chain',
-    });
-  } catch (err) {
-    add({ title: 'Read the attestor from the registry', ok: false, detail: (err as Error).message, source: 'chain' });
-    return steps;
-  }
-
-  // 2. A real decision, on an action the policy allows.
-  const parameters = { name: 'Judge', email: 'judge@example.com' };
-  let allowed: Decision;
-  try {
-    allowed = await client.authorize(agentId, DEFAULTS.allowedAction, parameters);
-    add({
-      title: `Ask to ${DEFAULTS.allowedAction}`,
-      ok: allowed.decision === 'ALLOW',
-      detail: `${allowed.decision} — ${allowed.reasonCode}, audit ${allowed.auditId}`,
-      source: 'service',
-    });
-  } catch (err) {
-    add({ title: `Ask to ${DEFAULTS.allowedAction}`, ok: false, detail: (err as Error).message, source: 'service' });
-    return steps;
-  }
-
-  // 3. The signature is the attestor's, and the capsule is bound to these exact
-  //    parameters. Verified here, with the address from step 1.
-  const verdict = await client.verify(allowed, { agentId, action: DEFAULTS.allowedAction, parameters });
-  add({
-    title: 'Verify that capsule locally, against the on-chain attestor',
-    ok: verdict.ok,
-    detail: verdict.ok ? `signed by ${attestor}, bound to the parameters in hand` : `${verdict.code} ${verdict.detail ?? ''}`,
-    source: 'local',
-  });
-
-  // 4. The same capsule, with the parameters swapped underneath it. This is the
-  //    attack a boolean "allowed: true" cannot survive, and the reason the
-  //    capsule commits to an intent hash.
-  const tampered = await client.verify(allowed, {
-    agentId,
-    action: DEFAULTS.allowedAction,
-    parameters: { ...parameters, email: 'attacker@example.com' },
-  });
-  add({
-    title: 'Swap the parameters under that same capsule',
-    ok: tampered.code === 'INTENT_MISMATCH',
-    detail: tampered.ok ? 'ACCEPTED — the capsule is not bound to its parameters' : `rejected: ${tampered.code}`,
-    source: 'local',
-  });
-
-  // 5. A refusal is an answer too, and it has to be signed and recorded like
-  //    any other -- an audit trail that only proves the allows proves nothing.
-  let refused: Decision | undefined;
-  try {
-    refused = await client.authorize(agentId, DEFAULTS.refusedAction, { id: 'cus_1' });
-    const refusedVerdict = await client.verify(refused, {
-      agentId,
-      action: DEFAULTS.refusedAction,
-      parameters: { id: 'cus_1' },
-    });
-    add({
-      title: `Ask to ${DEFAULTS.refusedAction}, which the policy does not grant`,
-      ok: refused.decision !== 'ALLOW' && refusedVerdict.code === 'NOT_AUTHORIZED',
-      detail: `${refused.decision} — ${refused.reasonCode}; the SDK treats it as "no"`,
+      title: 'Verify that capsule locally, against the on-chain attestor',
+      ok: verdict.ok,
+      detail: verdict.ok ? `signed by ${attestor}, bound to the parameters in hand` : `${verdict.code} ${verdict.detail ?? ''}`,
       source: 'local',
     });
-  } catch (err) {
-    add({ title: `Ask to ${DEFAULTS.refusedAction}`, ok: false, detail: (err as Error).message, source: 'service' });
-  }
 
-  // 6. Does the chain hold the decision this machine was handed? Anchoring is
-  //    asynchronous, so give it a few seconds before concluding it is missing.
-  const onChain = await waitForDecision(chainClient, registry, allowed.capsule.decisionHash);
-  add({
-    title: 'Look that decision up in the registry contract',
-    ok: onChain,
-    detail: onChain
-      ? `isDecisionRecorded(${short(allowed.capsule.decisionHash)}) = true`
-      : 'not recorded yet — anchoring may be over budget or the key out of gas',
-    source: 'chain',
-  });
-
-  // 7. And the refusal, which is the half a service has any reason to hide.
-  if (refused) {
-    const refusedOnChain = await waitForDecision(chainClient, registry, refused.capsule.decisionHash);
+    // 4. The same capsule, with the parameters swapped underneath it. This is the
+    //    attack a boolean "allowed: true" cannot survive, and the reason the
+    //    capsule commits to an intent hash.
+    const tampered = await client.verify(allowed, {
+      agentId,
+      action: DEFAULTS.allowedAction,
+      parameters: { ...parameters, email: 'attacker@example.com' },
+    });
     add({
-      title: 'Look the refusal up too',
-      ok: refusedOnChain,
-      detail: refusedOnChain ? `isDecisionRecorded(${short(refused.capsule.decisionHash)}) = true` : 'not recorded yet',
+      title: 'Swap the parameters under that same capsule',
+      ok: tampered.code === 'INTENT_MISMATCH',
+      detail: tampered.ok ? 'ACCEPTED — the capsule is not bound to its parameters' : `rejected: ${tampered.code}`,
+      source: 'local',
+    });
+
+    // 5. A refusal is an answer too, and it has to be signed and recorded like
+    //    any other -- an audit trail that only proves the allows proves nothing.
+    let refused: Decision | undefined;
+    try {
+      refused = await client.authorize(agentId, DEFAULTS.refusedAction, { id: 'cus_1' });
+      const refusedVerdict = await client.verify(refused, {
+        agentId,
+        action: DEFAULTS.refusedAction,
+        parameters: { id: 'cus_1' },
+      });
+      add({
+        title: `Ask to ${DEFAULTS.refusedAction}, which the policy does not grant`,
+        ok: refused.decision !== 'ALLOW' && refusedVerdict.code === 'NOT_AUTHORIZED',
+        detail: `${refused.decision} — ${refused.reasonCode}; the SDK treats it as "no"`,
+        source: 'local',
+      });
+    } catch (err) {
+      add({ title: `Ask to ${DEFAULTS.refusedAction}`, ok: false, detail: (err as Error).message, source: 'service' });
+    }
+
+    // 6. Does the chain hold the decision this machine was handed? Anchoring is
+    //    asynchronous, so give it a few seconds before concluding it is missing.
+    const onChain = await waitForDecision(chainClient, registry, allowed.capsule.decisionHash);
+    add({
+      title: 'Look that decision up in the registry contract',
+      ok: onChain,
+      detail: onChain
+        ? `isDecisionRecorded(${short(allowed.capsule.decisionHash)}) = true`
+        : 'not recorded yet — anchoring may be over budget or the key out of gas',
       source: 'chain',
     });
-  }
 
-  // 8. The contract that answered is the source in the repository -- asserted
-  //    by Sourcify, which recompiles it, not by anyone shipping this.
-  if (options.sourcify !== false) {
-    try {
-      const response = await doFetch(`https://sourcify.dev/server/v2/contract/${DEFAULTS.chainId}/${registry}`, {
-        signal: AbortSignal.timeout(15_000),
-      });
-      const body = (await response.json()) as { match?: string | null };
+    // 7. And the refusal, which is the half a service has any reason to hide.
+    if (refused) {
+      const refusedOnChain = await waitForDecision(chainClient, registry, refused.capsule.decisionHash);
       add({
-        title: 'Is that contract the published source',
-        ok: body.match === 'exact_match',
-        detail: body.match ? `Sourcify: ${body.match}` : 'not verified on Sourcify',
+        title: 'Look the refusal up too',
+        ok: refusedOnChain,
+        detail: refusedOnChain ? `isDecisionRecorded(${short(refused.capsule.decisionHash)}) = true` : 'not recorded yet',
+        source: 'chain',
+      });
+    }
+  })();
+
+  // 8-11. The gate, attacked with a grant forged on this machine.
+  await checkGate({ rpc, registry, chainId: DEFAULTS.chainId }, add);
+
+  // Last: the contracts that answered are the source in the repository --
+  // asserted by Sourcify, which recompiles them, not by anyone shipping this.
+  if (options.sourcify !== false) {
+    const contracts = { registry, gate: GATE_DEFAULTS.gate, venue: GATE_DEFAULTS.venue };
+    const found: string[] = [];
+    let ok = true;
+    try {
+      for (const [name, address] of Object.entries(contracts)) {
+        const response = await doFetch(`https://sourcify.dev/server/v2/contract/${DEFAULTS.chainId}/${address}`, {
+          signal: AbortSignal.timeout(15_000),
+        });
+        const body = (await response.json()) as { match?: string | null };
+        ok &&= body.match === 'exact_match';
+        found.push(`${name} ${body.match ?? 'not verified'}`);
+      }
+      add({
+        title: 'Are those contracts the published source',
+        ok,
+        detail: `Sourcify: ${found.join(', ')}`,
         source: 'chain',
       });
     } catch {
-      add({ title: 'Is that contract the published source', ok: true, detail: 'Sourcify unreachable — skipped', source: 'chain' });
+      add({ title: 'Are those contracts the published source', ok: true, detail: 'Sourcify unreachable — skipped', source: 'chain' });
     }
   }
 

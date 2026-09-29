@@ -21,6 +21,11 @@ Built for **Monad Metropolis 2026**, Track 04: *Trust, Identity & AI Infrastruct
 ERC-8004 identity [`0x41db378F…88b7`](https://testnet.monadexplorer.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) ·
 three agents registered, policies anchored, every decision recorded.
 
+**Proof in one click:** [this transaction](https://testnet.monadexplorer.com/tx/0xaa158c9c1f6328c1c237554304de5a081df57c83bafbe42b5b8f71ea194c9287)
+is a live trading agent sending a $25,000 order its policy had just refused,
+with a grant it signed itself. The venue's gate reverted it on Monad:
+`Refused(BAD_SIGNATURE)`. [Try it yourself →](https://chancela.xyz/live)
+
 ### See it in two minutes
 
 **[Open the guided demo →](https://chancela.xyz/demo)** — the link starts a demo
@@ -50,6 +55,14 @@ the registry contract by hash. Each line says who answered — the chain, your
 machine, or the service. The registry address is compiled into the tool, not
 read from the deployment being checked. [What it does, in
 detail](packages/check/README.md).
+
+Then it tries to break the gate. A key made up on your machine signs a grant
+for the live trading agent's $200 order, correct in every field but the signer,
+and the order goes to the venue from the agent's own wallet. Monad reverts it:
+`Refused(BAD_SIGNATURE)`. Raise the amount under the same grant —
+`CALL_MISMATCH`; send it from another wallet — `NOT_THE_AGENT`. No key of ours,
+no MON spent, and no question to our server: that part holds with chancela.xyz
+down.
 
 ---
 
@@ -482,7 +495,7 @@ chancela/
 │   ├── indexer/               Envio HyperIndex → GraphQL
 │   ├── sdk/                   TypeScript client: authorize, verify locally, guard. 14 tests.
 │   ├── mcp/                   MCP server: the gate as a tool for any agent. 7 tests.
-│   ├── check/                 `npx chancela-check` — verify a deployment against Monad. 5 tests.
+│   ├── check/                 `npx chancela-check` — verify a deployment against Monad, then attack its gate. 9 tests.
 │   └── mm-plugin/             `mm` CLI plugin for MetaMask Agent Wallet
 ├── prisma/schema.prisma
 └── docs/
@@ -512,7 +525,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Approvals — the request lifecycle | 11 |
 | Passkey keys, onboarding and wallet binding | 9 |
 | MCP server | 7 |
-| Deployment checker — the verifier's own failure modes | 5 |
+| Deployment checker — the verifier's own failure modes, and the gate attack | 9 |
 | Circuit breaker, and the shared demo agents reopening | 12 |
 | HTTP rate limiting and caller identity | 7 |
 | Anchor budget | 6 |
@@ -522,7 +535,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Live trading agent and its attacks | 8 |
 | Public proof pages, re-checked against Monad | 7 |
 | Daily limits counted at authorization | 3 |
-| **Total** | **391** |
+| **Total** | **395** |
 
 ## Documentation
 

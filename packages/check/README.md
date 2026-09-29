@@ -24,8 +24,16 @@ Chancela — checking https://chancela.xyz for TA-001
             isDecisionRecorded(0x619ac2a7…) = true
   ✓ monad   Look the refusal up too
             isDecisionRecorded(0xbbce248b…) = true
-  ✓ monad   Is that contract the published source
-            Sourcify: exact_match
+  ✓ monad   The venue executes only through the gate
+            venue 0x0f889D…2934 → gate 0xcbBA27…6FDF; trading agent #4 is wallet 0xA77a6f…235B
+  ✓ monad   Forge a grant here and send the agent's $200 order anyway
+            Monad reverted: Refused(BAD_SIGNATURE) — signed by 0xA2Bb7c…E40f, not the attestor 0xeaeeD9…9F5F
+  ✓ monad   Same grant, order raised to $2,000
+            Monad reverted: Refused(CALL_MISMATCH) — the venue hashes the call it actually received
+  ✓ monad   Same grant, sent from a wallet that is not the agent
+            Monad reverted: Refused(NOT_THE_AGENT) — 0xaa7be1…6Ebd is not 0xA77a6f…235B
+  ✓ monad   Are those contracts the published source
+            Sourcify: registry exact_match, gate exact_match, venue exact_match
 
 Everything above was answered by Monad or by this machine. The service was
 trusted only to reply.
@@ -54,6 +62,25 @@ true` cannot survive. The capsule commits to an intent hash over the exact
 parameters, so a permission granted for `{name: "Judge"}` does not verify for
 `{name: "Judge", email: "attacker@example.com"}`. That gap — between what the
 model asked for and what the tool runs — is where agent frameworks leak.
+
+## Then it attacks the gate
+
+Signed, recorded decisions do not stop an agent that ignores a refusal and
+sends the transaction anyway. [`ChancelaGate`](https://github.com/DavidMatheusSouza/Chancela/blob/main/docs/SMART_CONTRACT.md#chancelagate--no-chancela-no-execution)
+does, in the contract that executes — so the last steps try to get past it.
+
+A key is generated on your machine and signs a grant for the live trading
+agent's order that is correct in every field but the signer: right venue, right
+call, the policy that is live on-chain right now, not expired, never used. The
+order is then sent to the demo venue **from the agent's own registered
+wallet**, as an `eth_call`, so Monad runs the venue's code exactly as it would
+for a transaction. It reverts with `Refused(BAD_SIGNATURE)`. The same grant with
+the amount raised reverts with `CALL_MISMATCH`; sent from any other wallet,
+`NOT_THE_AGENT`.
+
+No key of ours is involved and nothing is spent. The service is not asked
+anything either, so these steps run — and must still refuse — when chancela.xyz
+is down. The gate, the venue and the trading agent's token id are compiled in.
 
 ## Options
 
