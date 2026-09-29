@@ -19,7 +19,7 @@
     "verification"
   ],
   "bin": {
-    "chancela-check": "./dist/cli.js"
+    "chancela-check": "dist/cli.js"
   },
   "files": [
     "dist",
