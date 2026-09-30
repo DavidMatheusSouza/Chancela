@@ -63,6 +63,10 @@ such an agent is the person who loses when the model misreads a message.
   `dailyValueCap`), limits how many value-moving actions run per day, blocks
   known-bad counterparties, and sends anything above the step-up threshold to
   the owner's passkey — verified on-chain by `ChancelaApprovals`.
+- **Kit, ready to hand over:** [`examples/trading-agent`](../examples/trading-agent)
+  — the order call wrapped in TypeScript (`chancela-sdk`) or Python (one file,
+  `eth-account` only, local signature check against the on-chain attestor),
+  both runnable against the public `TA-LIVE` agent with no account.
 - **Why this and not a kill switch:** a kill switch stops an agent after
   someone notices. The gate refuses the one order that should not happen, and
   the agent keeps trading within its limits.
@@ -93,6 +97,7 @@ Measured from "I have an agent" to "it asks first", with the published packages:
 | HTTP | 1 minute | One `POST /api/agents/:id/authorize` before the action. No account, no key. |
 | MCP (Claude, Cursor, any MCP client) | 2 minutes | A config block with `npx -y chancela-mcp`. The model gets a `chancela_authorize` tool whose description tells it what to do after a refusal. |
 | MetaMask Agent Wallet | 2 minutes | `mm plugins install mm-plugin-chancela`, then `mm chancela authorize … && mm transfer …` |
+| Python | 5 minutes | [`chancela.py`](../examples/trading-agent/chancela.py), one file: `chancela.guard(agent, "PLACE_ORDER", order, lambda d: exchange.place(**order))`, verified locally like the SDK |
 | TypeScript SDK | 5 minutes | `chancela.guard(agent, action, params, () => doIt())` — the function runs only if the permission verifies locally against the on-chain attestor |
 | Self-hosted | 30 minutes | `docker compose up`, MIT, no call home. Point the agent's attestor at your own key with `setAttestor()`. |
 

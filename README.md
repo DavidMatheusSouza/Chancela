@@ -106,6 +106,10 @@ client (Claude, Cursor) the gate as a tool with no code, and
 [`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela) puts it in
 front of MetaMask Agent Wallet: `mm chancela authorize … && mm transfer …`.
 
+**Trading agent?** [`examples/trading-agent`](examples/trading-agent) wraps the
+order call in TypeScript or Python (one file, verifies the signature against the
+on-chain attestor itself) and runs live against a public agent with no account.
+
 ## Sponsor integrations
 
 Each one does real work in the product and reports its true state on
