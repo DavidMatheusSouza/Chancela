@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { getRepository } from '@/lib/store';
 import { Badge, Card, Empty, Label, Mono, StatusDot } from '@/components/primitives';
 import { Reveal } from '@/components/reveal';
+import { NewAgent } from './new-agent';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AgentsPage() {
+export default async function AgentsPage({ searchParams }: { searchParams: { new?: string } }) {
   const repo = await getRepository();
   const agents = await repo.listAgents();
   const rows = await Promise.all(
@@ -18,12 +19,16 @@ export default async function AgentsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
-      <header>
-        <h1 className="text-[22px] font-semibold tracking-tight">Agents</h1>
-        <p className="mt-1 text-sm text-muted">
-          Each agent is an ERC-8004 identity with exactly one active policy version.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-[22px] font-semibold tracking-tight">Agents</h1>
+          <p className="mt-1 text-sm text-muted">
+            Each agent is an ERC-8004 identity with exactly one active policy version.
+          </p>
+        </div>
+        {searchParams.new ? null : <NewAgent />}
       </header>
+      {searchParams.new ? <NewAgent initiallyOpen /> : null}
 
       {rows.length === 0 ? (
         <Empty
