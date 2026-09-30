@@ -17,8 +17,8 @@ const { bindMessage } = await import('../src/lib/bind-message.js');
 const { PATCH } = await import('../src/app/api/agents/[id]/route.js');
 
 const REGISTERED = '0x000000000000000000000000000000000000c0de';
-// Anvil #3 -- a published test key standing in for a visitor's derived key.
-const visitorKey = privateKeyToAccount('0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6');
+// A published Anvil test key standing in for a visitor's derived key.
+const visitorKey = privateKeyToAccount('0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a');
 
 const bind = async (agentId: string) =>
   PATCH(
