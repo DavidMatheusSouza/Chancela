@@ -1,7 +1,8 @@
 /**
  * Record the technical demo video: landing page, the no-login demo button, the
- * full guided run, then /integrations -- against the live site, so it shows
- * whatever actually happened, Monad transaction included.
+ * full guided run, then the attack on /live that Monad reverts and the reverted
+ * transaction in the explorer -- against the live site, so it shows whatever
+ * actually happened.
  *
  * It notes the moment each step appears (marks.json), and
  * scripts/caption-demo.py turns those into captions that are timed to this
@@ -21,7 +22,7 @@ const QUESTIONS = {
   identity: 'Who is this agent, and what may it do?',
   allow: 'It asks for something inside its policy.',
   proof: 'Can anyone check that this happened?',
-  deny: 'Now something the policy does not grant.',
+  deny: 'Now an order bigger than its policy allows.',
   injection: 'Can the instruction talk its way past the policy?',
   breaker: 'And if it simply keeps trying?',
   approval: 'Inside the rules — but too much for the agent alone.',
@@ -34,7 +35,7 @@ const t0 = Date.now(); const marks = {}; const mark = (k) => { if (!(k in marks)
 try {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' }); mark('landing');
   await page.waitForTimeout(6000);
-  await page.getByRole('link', { name: /watch the 2-minute demo/i }).click();
+  await page.getByRole('link', { name: /run the live demo/i }).first().click();
   await page.waitForURL('**/demo', { timeout: 30000 }); await page.waitForLoadState('networkidle'); mark('demo');
   await page.waitForTimeout(5000);
   await page.getByRole('button', { name: /run full demo/i }).click(); mark('run');
@@ -44,8 +45,17 @@ try {
     if ('audit' in marks && (Date.now() - t0) / 1000 - marks.audit > 9) break;
     await page.waitForTimeout(500);
   }
-  await page.goto(`${BASE}/integrations`, { waitUntil: 'networkidle' }); mark('integrations');
+  // The on-chain half: the agent is told to buy $25,000, the policy refuses,
+  // the agent sends the order to the venue anyway and Monad reverts it.
+  await page.goto(`${BASE}/live`, { waitUntil: 'networkidle' }); mark('live');
+  await page.waitForTimeout(5000);
+  await page.getByRole('button', { name: /\$25,000 of MON/ }).click(); mark('attack');
+  await page.getByText('Monad reverted it', { exact: false }).waitFor({ timeout: 90000 }); mark('reverted');
+  await page.getByRole('status').scrollIntoViewIfNeeded();
   await page.waitForTimeout(7000);
+  const tx = await page.getByRole('link', { name: /see the reverted transaction/i }).getAttribute('href');
+  await page.goto(tx, { waitUntil: 'load', timeout: 60000 }); mark('explorer');
+  await page.waitForTimeout(10000);
   mark('end');
 } finally {
   writeFileSync(`${OUT}/marks.json`, JSON.stringify(marks, null, 1));

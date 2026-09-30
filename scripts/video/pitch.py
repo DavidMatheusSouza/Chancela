@@ -10,14 +10,18 @@ marks = json.load(open(f"{REC}/marks.json"))
 src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
 
 SEG = [
- ("still", "s1", "Hi. I'm a technology professional, with a background in infrastructure, support and automation, and I have always cared about making systems more secure and reliable. I built Chancela alone, in Brazil, during this hackathon. I don't speak English, so a synthetic voice is reading my words. Chancela comes from that background. It is the next step of automation: if AI agents are going to make decisions and take actions on their own, they need an identity, permissions, and accountability for what they do."),
- ("still", "s2", "Companies are already handing agents real tools: wallets, customer data, email. But an agent's judgement is a language model, and it can be talked into anything. Today's protection is a system prompt that says: please don't. And when something goes wrong, the only record is the company's own log."),
- ("clip", ("allow", "injection"), "Chancela is the layer that controls those actions. It interprets the agent's intent, checks its permissions and policies, allows or blocks the action, and records a verifiable proof on Monad. The decision never comes from the model, and refusals are recorded too."),
- ("still", "s4", "It only works on Monad: one transaction per decision needs sub-second finality, and fees close to zero."),
- ("still", "s5", "The first users are teams building trading, treasury and payment agents. Each will write an if statement. What they won't write is the rest: replay protection, parameter binding, key separation, a circuit breaker. And nobody can write, alone, a check that outsiders can verify. That is the product."),
- ("still", "s6", "It is live on testnet, with packages on npm, and integrates with one H T T P call. When a human must decide, they approve with a passkey, and Monad verifies that signature itself. Next: three agent teams, and mainnet. It is open source, and the owner, not the platform, chooses whose signature counts. Thank you."),
+ ("still", "s1", "Hi. I'm David, from Brazil, with a background in infrastructure, support and automation. I built Chancela alone during this hackathon, and a synthetic voice is reading my words. Chancela gives AI agents limits they cannot talk their way past."),
+ ("still", "s2", "Agents are getting wallets. Sooner or later one will be told to do something it should not: by a user, a web page, or an email. Today its only limit is a system prompt, and nothing stops the transaction."),
+ ("clip", ("attack", "explorer"), "Here is Chancela stopping one, live on Monad. A trading agent is told to buy twenty-five thousand dollars. Its policy refuses. It sends the order anyway, and the venue's gate reverts it on-chain."),
+ ("still", "s4", "The model only proposes. A deterministic policy decides, and signs. Monad records every decision, refusals included. And the venue enforces it."),
+ ("still", "s5", "Who pays? Teams running trading and treasury agents, venues that accept agent orders, and platforms that host agents. Self-hosting is free. We charge for running the attestor, per decision."),
+ ("still", "s6", "It only works on Monad: one transaction per decision, under a hundredth of a MON, in sub-second blocks."),
+ ("still", "s7", "Wallet spending limits are a good second line, but only the provider can check them. Chancela's record can be checked by anyone."),
+ ("still", "s8", "It is live: five verified contracts, three hundred and eighty-nine tests, and four packages on npm."),
+ ("still", "s9", "No outside team is live on it yet. One trading team has agreed to integrate. Next: three design partners, and mainnet."),
+ ("still", "s10", "Don't trust us. Run N P X chancela check, or open chancela dot x y z. Thank you."),
 ]
-SHOW = {"H T T P": "HTTP", "S D K": "SDK"}
+SHOW = {"H T T P": "HTTP", "S D K": "SDK", "N P X chancela check": "npx chancela-check", "chancela dot x y z": "chancela.xyz", "twenty-five thousand dollars": "$25,000", "three hundred and eighty-nine": "389"}
 
 def chunks(text):
     for k, v in SHOW.items(): text = text.replace(k, v)

@@ -10,14 +10,13 @@ python3 -m venv .tts && .tts/bin/pip install edge-tts  # once; needs ffmpeg with
 
 node scripts/record-demo-captioned.mjs https://chancela.xyz recording
 
-# slides -> PNG (any Chromium; 1920x1080)
-mkdir -p video-out/slides
-for f in scripts/video/slide-*.html; do n=$(basename "$f" .html | sed -E 's/slide-([0-9]).*/s\1/')
-  chromium --headless=new --hide-scrollbars --window-size=1920,1080 --virtual-time-budget=6000 \
-    --screenshot="video-out/slides/$n.png" "file://$PWD/$f"; done
+# slides and terminal stills -> PNG: the pitch deck's slide files (deck/project/…),
+# plus receipt.txt (`cast receipt <reverted tx>`) and check-gate.txt (the gate
+# half of a real `npx chancela-check` run) in the same folder
+node scripts/video/render-stills.mjs <folder>     # -> video-out/slides/s1..s10.png, stills/t1,t2.png
 
-RECORDING=recording VIDEO_OUT=video-out .tts/bin/python scripts/video/tech.py    # <= 3:00
-RECORDING=recording VIDEO_OUT=video-out .tts/bin/python scripts/video/pitch.py   # <= 2:00
+RECORDING=$PWD/recording VIDEO_OUT=$PWD/video-out STILLS=$PWD/stills .tts/bin/python scripts/video/tech.py  # <= 3:00
+RECORDING=$PWD/recording VIDEO_OUT=$PWD/video-out .tts/bin/python scripts/video/pitch.py  # <= 2:00
 ```
 
 `tech.py` stretches each step of the recording to the length of its narration,

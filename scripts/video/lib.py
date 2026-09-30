@@ -1,5 +1,5 @@
 """Shared pieces for the narrated videos: speech, captions, cutting, assembling."""
-import asyncio, json, os, subprocess, edge_tts
+import asyncio, json, os, subprocess, time, edge_tts
 
 VOICE = "en-US-AndrewNeural"
 RATE = "-4%"
@@ -15,8 +15,16 @@ async def _say(text, path):
     await edge_tts.Communicate(text, VOICE, rate=RATE).save(path)
 
 def say(text, path):
-    if not os.path.exists(path):
-        asyncio.run(_say(text, path))
+    # The public endpoint drops a request now and then; a retry is enough.
+    for attempt in range(5):
+        if os.path.exists(path) and os.path.getsize(path) > 0:
+            break
+        try:
+            asyncio.run(_say(text, path))
+        except edge_tts.exceptions.NoAudioReceived:
+            if os.path.exists(path): os.remove(path)
+            if attempt == 4: raise
+            time.sleep(3 * (attempt + 1))
     return dur(path)
 
 ASS_HEAD = """[Script Info]
