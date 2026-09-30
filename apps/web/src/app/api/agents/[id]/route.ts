@@ -83,8 +83,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (body.status === 'REVOKED') {
       return fail(403, 'SHARED_DEMO_ACCOUNT', `Revoking is permanent, so it is switched off here. ${SHARED_DEMO_REFUSAL}`);
     }
-    if (body.walletAddress !== undefined && guard.agent.walletProvider === 'MERA') {
-      return fail(403, 'SHARED_DEMO_ACCOUNT', `This agent already has a passkey-derived key bound. ${SHARED_DEMO_REFUSAL}`);
+    // Any bound wallet, not only a passkey-derived one: TA-LIVE's is EXTERNAL,
+    // named in the registry, and the gate honours orders only from it. A visitor
+    // rebinding it here once left the store disagreeing with the chain.
+    if (body.walletAddress !== undefined && guard.agent.walletAddress) {
+      return fail(403, 'SHARED_DEMO_ACCOUNT', `This agent already has a wallet bound. ${SHARED_DEMO_REFUSAL}`);
     }
   }
 
