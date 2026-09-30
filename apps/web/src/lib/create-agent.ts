@@ -19,7 +19,10 @@ export async function createAgentFor(
 ) {
   const owner = getAddress(input.ownerAddress);
   const existing = await repo.listAgents();
-  const id = `TA-${String(existing.length + 1).padStart(3, '0')}`;
+  // The highest number in use plus one, not the count: ids that are not
+  // numbered (TA-LIVE) or that were removed must not make the next one collide.
+  const highest = Math.max(0, ...existing.map((a) => Number(/^TA-(\d+)$/.exec(a.id)?.[1] ?? 0)));
+  const id = `TA-${String(highest + 1).padStart(3, '0')}`;
 
   // The index is per owner: it selects a key under *their* passkey, so it must
   // not depend on how many agents other people happen to have.

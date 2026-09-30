@@ -149,7 +149,7 @@ Monad testnet, all verified on Sourcify (exact match):
 | ChancelaGate | [`0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF) |
 | Demo venue | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) |
 
-**413 tests** (324 TypeScript, 72 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
+**414 tests** (325 TypeScript, 72 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
 model, a mutation check that deletes each gate rule and confirms a test
 fails, and the contracts run against the **official ERC-8004 registry on a
 Monad mainnet fork** — [the full table](docs/DESIGN.md#verify). Slither in CI;

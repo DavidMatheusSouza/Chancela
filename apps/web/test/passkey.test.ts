@@ -58,6 +58,16 @@ describe('agent creation', () => {
     expect(policy.document.limits.maxTransactionValue).toBe(0);
     expect((await repo.getActivePolicy(agent.id))!.version).toBe(1);
   });
+
+  it('numbers after the highest id in use, so a removed or unnumbered agent never causes a collision', async () => {
+    const repo = await getRepository();
+    const owner = at("m/44'/60'/1'/0/7").address;
+    for (const id of ['TA-LIVE', 'TA-050']) {
+      await repo.createAgent({ id, name: id, ownerAddress: owner, status: 'ACTIVE', derivationIndex: 0 });
+    }
+    const { agent } = await createAgentFor(repo, { ownerAddress: owner, name: 'Next', permissions: [] });
+    expect(agent.id).toBe('TA-051');
+  });
 });
 
 describe('binding a wallet', () => {

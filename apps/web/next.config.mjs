@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@chancela/shared', '@chancela/policy-engine', '@chancela/ai'],
   poweredByHeader: false,
+  // Production serves .next from this directory, so a preview or a test build
+  // must go elsewhere: NEXT_DIST_DIR=.next-preview next build && next start.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   /**
    * Privy's React SDK reaches for Farcaster and Solana adapters that this
    * product has no use for -- an owner here is an Ethereum address. They are

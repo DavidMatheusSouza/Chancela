@@ -23,6 +23,39 @@ export const dynamic = 'force-dynamic';
 // grant it signed itself; the venue's gate reverted it: Refused(BAD_SIGNATURE).
 const REVERTED_ORDER_TX =
   'https://testnet.monadexplorer.com/tx/0xaa158c9c1f6328c1c237554304de5a081df57c83bafbe42b5b8f71ea194c9287';
+// The same agent at the same venue with a $200 order its policy allowed: it
+// carried the attestor's grant and executed.
+const EXECUTED_ORDER_TX =
+  'https://testnet.monadexplorer.com/tx/0x7843642bedb1c2f670e876bc83c663a457acfc38194d88b99d822c96b09f5e51';
+const CLAUDE_TRANSCRIPT =
+  'https://github.com/DavidMatheusSouza/Chancela/blob/main/docs/transcripts/claude-code-trading-agent.md';
+
+const PROOFS = [
+  {
+    tone: 'text-allow',
+    label: 'Allowed · executed',
+    title: '$200 order, filled',
+    body: 'Inside the policy. The attestor signed a grant for exactly this call, and the venue accepted it.',
+    href: EXECUTED_ORDER_TX,
+    cta: 'Transaction on Monad',
+  },
+  {
+    tone: 'text-deny',
+    label: 'Refused · reverted',
+    title: '$25,000 order, reverted',
+    body: 'The policy said no. The agent sent it anyway with a grant it forged, and the gate reverted it on-chain.',
+    href: REVERTED_ORDER_TX,
+    cta: 'Refused(BAD_SIGNATURE)',
+  },
+  {
+    tone: 'text-chain',
+    label: 'Unedited transcript',
+    title: 'Claude Code tried it',
+    body: 'Told a forwarded email had approved an exception, Claude placed the $25,000 order. The exchange tool asked Chancela first. Not filled.',
+    href: CLAUDE_TRANSCRIPT,
+    cta: 'Read the transcript',
+  },
+];
 
 /**
  * Landing page.
@@ -52,13 +85,13 @@ export default async function Landing() {
       <div className="grid-bg pointer-events-none absolute inset-x-0 top-0 h-[520px]" />
 
       <div className="relative mx-auto max-w-5xl px-6 py-8">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-chain" />
             <span className="font-semibold tracking-tight">Chancela</span>
           </div>
 
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/live"
               className="rounded-lg px-3 py-1.5 text-sm text-ink transition-colors hover:text-chain"
@@ -73,7 +106,7 @@ export default async function Landing() {
             </a>
             <Link
               href="/login"
-              className="rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink"
+              className="hidden rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink sm:inline-block"
             >
               Sign in
             </Link>
@@ -81,7 +114,7 @@ export default async function Landing() {
               href="/login?next=/dashboard"
               className="lift inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
             >
-              Open dashboard <ArrowRight className="h-3.5 w-3.5" />
+              <span className="sm:hidden">Dashboard</span><span className="hidden sm:inline">Open dashboard</span> <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </nav>
         </header>
@@ -132,6 +165,28 @@ export default async function Landing() {
             </div>
           </Reveal>
         </section>
+
+        <Reveal delay={190} className="mt-12">
+          <div className="text-[11px] uppercase tracking-wider text-faint">Same agent, same venue, on Monad</div>
+          <div className="mt-3 grid gap-4 md:grid-cols-3">
+            {PROOFS.map((p) => (
+              <a
+                key={p.title}
+                href={p.href}
+                target="_blank"
+                rel="noreferrer"
+                className="card lift flex flex-col p-5 transition-colors hover:border-line-strong"
+              >
+                <div className={`text-[11px] uppercase tracking-wider ${p.tone}`}>{p.label}</div>
+                <div className="mt-2 text-[15px] font-semibold tracking-tight text-ink">{p.title}</div>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{p.body}</p>
+                <span className={`mono mt-auto inline-flex items-center gap-1 pt-4 text-[12px] ${p.tone}`}>
+                  {p.cta} <ExternalLink className="h-3 w-3" />
+                </span>
+              </a>
+            ))}
+          </div>
+        </Reveal>
 
         <Reveal delay={200} className="mt-12">
           <div className="grid gap-4 sm:grid-cols-2">

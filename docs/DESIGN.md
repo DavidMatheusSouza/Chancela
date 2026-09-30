@@ -476,8 +476,8 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Daily limits counted at authorization | 3 |
 
 
-The rows group suites by topic. A full run on 30 September 2026 counted **413**:
-324 TypeScript tests across eight packages, 72 Foundry tests (4 of them on a
+The rows group suites by topic. A full run on 30 September 2026 counted **414**:
+325 TypeScript tests across eight packages, 72 Foundry tests (4 of them on a
 Monad mainnet fork against the official ERC-8004 registry, run when
 `MONAD_MAINNET_RPC_URL` is set, as CI does) and 17 Python tests for the
 [trading-agent client](../examples/trading-agent).
