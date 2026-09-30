@@ -45,14 +45,14 @@ export default async function LivePage() {
   );
   const names = new Map(agents.map((a) => [a.id, a.name]));
 
-  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
   const stats = [
     { label: 'Decisions', value: decisions.length, tone: 'text-ink' },
     { label: 'Refused', value: decisions.filter((d) => d.outcome === 'DENY').length, tone: 'text-deny' },
     { label: 'Held for a human', value: decisions.filter((d) => d.outcome === 'REQUIRE_APPROVAL').length, tone: 'text-warn' },
     { label: 'Anchored on Monad', value: decisions.filter((d) => d.anchorStatus === 'CONFIRMED').length, tone: 'text-chain' },
   ];
-  const lastDay = decisions.filter((d) => Date.parse(d.createdAt) >= dayAgo).length;
+  // A daily count mostly measures who visited today; what the gate did is the claim.
+  const reverted = [...venueTx.values()].filter((t) => !t.executed).length;
   const registry = process.env.POLICY_REGISTRY_ADDRESS;
   const trader = agents.find((a) => a.id === TRADING_AGENT_ID);
 
@@ -84,7 +84,7 @@ export default async function LivePage() {
           ))}
         </dl>
         <p className="mt-2 text-[12px] text-faint">
-          {agents.length} agents · {lastDay} decisions in the last 24h
+          {agents.length} agents · {reverted} {reverted === 1 ? 'order' : 'orders'} reverted by the gate on Monad
           {registry && (
             <>
               {' '}· registry{' '}

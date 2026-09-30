@@ -6,8 +6,16 @@ page says so.
 
 ## Status, plainly
 
-- **Integrations by other teams: none yet.** When one exists it is linked here,
-  repository and all. Until then this section stays at the top.
+- **Integrations by other teams: none live yet.** When one exists it is linked
+  here, repository and all. Until then this section stays at the top.
+- **Agreed, not yet built:** a team running a trading agent has agreed to put
+  Chancela in front of it, through the SDK or plain HTTP. We are waiting on their
+  details (agent, actions, limits). They are not named here until they agree to
+  be, and their code is not on GitHub, so there is nothing to link yet.
+- **Proposal written:** [Metrix AI](https://github.com/yigenfeng0707-netizen/metrix-ai),
+  an autonomous trading agent in Track 01, identified as a target; an
+  integration proposal was written for it (a PR from us, off by default). No
+  integration has come of it.
 - **Packages on npm:** [`chancela-sdk`](https://www.npmjs.com/package/chancela-sdk),
   [`chancela-mcp`](https://www.npmjs.com/package/chancela-mcp),
   [`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela),
@@ -18,8 +26,9 @@ page says so.
 
 ## Who adopts it first, on Monad
 
-Named, in the order we are going after them. None of them has been contacted
-yet; this is the plan, written down so it can be checked against what happens.
+Named, in the order we are going after them. None of the four below has been
+contacted yet; the contacts so far are in *Status* above. This is the plan,
+written down so it can be checked against what happens.
 
 ### 1. Monad's Agent Hub — the platform that hands out agents
 
@@ -126,7 +135,12 @@ users, and the option to take the attestor in-house at any time.
 What we ask for: a link to the integration, and a short written note — good or
 bad — that goes on this page as is.
 
-Progress on that list is recorded here, with dates, as it happens.
+Progress on that list is recorded here, with dates, as it happens:
+
+| Date | Who | State |
+|---|---|---|
+| 22 Sep 2026 | Metrix AI (Track 01) | Identified as a target; integration proposal written. No integration. |
+| 23 Sep 2026 | A trading-agent team (not yet named) | Agreed to integrate via SDK/HTTP. Waiting on their details. Not live. |
 
 ## How it sustains itself
 
@@ -148,7 +162,7 @@ audit trail with them, because none of it was ever ours.
 ## Roadmap
 
 1. ~~Publish the packages~~ — done, 20 September 2026.
-2. **Three design partners** — see above.
+2. **Three design partners** — one agreed, none live; see *Status* above.
 3. **Policy templates** for treasury, support and sales, so a sane default is
    one click instead of a JSON document.
 4. **Mainnet.** The code switches on chain id; the ERC-8004 mainnet registry

@@ -195,6 +195,22 @@ precisely because it holds no authority.
 
 ---
 
+## Tencent Cloud — Hunyuan
+
+| | |
+|---|---|
+| Technology | Hunyuan through TokenHub (Singapore), OpenAI-compatible at `tokenhub-intl.tencentcloudmaas.com/v1`, model `hy4-preview` |
+| Purpose | A third sponsor provider behind the same `AIProvider` interface |
+| Integration | `createHunyuanProvider` in `packages/ai/src/providers/openai-compatible.ts`; `AI_PROVIDER=hunyuan` or `auto` |
+| Status | **Implemented — needs key** (`HUNYUAN_API_KEY`; `HUNYUAN_MODEL` to override the model) |
+
+`json_object` rather than strict JSON Schema, because the vendor does not say
+which structured-output form it accepts; the Zod gate rejects anything
+malformed either way. Not verified against the live API yet: no key has been
+set, and `/integrations` says so.
+
+---
+
 ## Groq and OpenRouter — free providers
 
 | | |
@@ -202,7 +218,7 @@ precisely because it holds no authority.
 | Technology | OpenAI-compatible chat completions |
 | Purpose | Real intent extraction, and the provider-swap demonstration, at zero cost |
 | Integration | `packages/ai/src/providers/openai-compatible.ts` |
-| Status | **Implemented** — Groq verified live against `openai/gpt-oss-120b` |
+| Status | **Implemented** — Groq verified live against `openai/gpt-oss-120b`, and the provider configured on chancela.xyz today |
 
 Neither is a hackathon sponsor and neither is claimed as one. They exist so the
 central architectural claim can be demonstrated without a paid key: Kimi has no

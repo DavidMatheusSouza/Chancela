@@ -9,9 +9,10 @@ Track 04 page of the hackathon platform, read on 20 September 2026.
 | | |
 |---|---|
 | Start here | [JUDGES.md](JUDGES.md) — the 60-second, 3-minute and 10-minute paths |
+| 60 seconds | `npx chancela-check` (v0.2.0 on npm). 12 checks from your own machine against Monad, ending with three grants forged locally and reverted by the gate on Monad: `BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`. Those three never ask the service anything, so they run even with the site down. |
 | Live product | <https://chancela.xyz> — Monad testnet (chain 10143) |
 | Fastest path | <https://chancela.xyz/demo> → **Run full demo**. No login: the link starts a demo session by itself. Eight steps, about a minute and a half, all live. |
-| Test login | For the rest of the product, press **Continue as demo owner** on the sign-in page. No wallet, no password, no install. |
+| Test login | Opening <https://chancela.xyz/demo> signs you in as the demo owner automatically; from there the whole product is open. Or press **Continue as demo owner** on <https://chancela.xyz/login>. No wallet, no password, no install. |
 | Without logging in | `curl -X POST https://chancela.xyz/api/agents/TA-001/authorize -H 'content-type: application/json' -d '{"action":"CREATE_CUSTOMER","parameters":{"name":"Maria"}}'` then `GET /api/proofs/<auditId>` |
 | On-chain | Policy registry [`0xb403392D…412e`](https://testnet.monadexplorer.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) — every decision, refusals included, is a transaction there |
 | Code | <https://github.com/DavidMatheusSouza/Chancela> (public, MIT) |
@@ -26,11 +27,11 @@ passkey on the sign-in page: it comes with an agent of your own.
 
 | Criterion | Weight | Where it is answered |
 |---|---|---|
-| Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All three contracts are verified on Sourcify as an exact match, so the source here is provably the source on chain. 318 tests including contract fuzzing; [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
+| Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All five contracts (policy registry, ERC-8004 identity, approvals, gate, demo venue) are verified on Sourcify as an exact match, so the source here is provably the source on chain. 389 tests — 321 TypeScript, 68 Foundry including fuzzing and stateful invariants; [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
 | Design & Craft — developer experience | 20% | One endpoint, one `curl`, no account ([README](../README.md#integrate-in-five-minutes)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. [`chancela-mcp`](../packages/mcp): the same gate as an MCP tool for Claude, Cursor or any MCP client, one block of config. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
 | Originality & Track Insight — privacy-preserving, not capturable | 15% | [README: Not capturable by a single platform](../README.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
 | Founder & Market Readiness — who adopts it, why not roll their own | 25% | [ADOPTION.md](ADOPTION.md): who adopts first, integration effort per path, how it sustains itself. [README: Who this is for](../README.md#who-this-is-for), and the pitch video. |
-| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly, the design-partner offer, roadmap. **Open — see below.** |
+| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly: one trading-agent team has agreed to integrate, none is live yet; the design-partner offer; roadmap. **Open — see below.** |
 
 ## Deliverables
 
@@ -45,14 +46,24 @@ Before submitting:
 
 - [ ] Attestation key holds at least 10 MON (`/api/network/status` → `attestorFunds.anchorsLeft`). Two weeks of judging must not end in `FAILED` anchors.
 - [ ] `.env` backed up somewhere that is not this server.
-- [ ] Qwen, Kimi and Nansen keys set, or those bounties left unclaimed — `/integrations` reports the truth either way.
-- [x] Real passkey-derived keys bound on `/keys` at `chancela.xyz` for all three agents and written to the registry (20 Sep 2026).
+- [ ] Qwen, Kimi, Hunyuan and Nansen keys set, or those bounties left unclaimed — `/integrations` reports the truth either way. Groq is the provider configured today.
+- [x] Real passkey-derived keys bound on `/keys` at `chancela.xyz` for the three original demo agents (TA-001, TA-002, TA-003) and written to the registry (20 Sep 2026). The live deployment lists nine agents in all (30 Sep 2026), including the trading agent `TA-LIVE` and agents created by visitors' passkey accounts.
 
 ## The open criterion: traction
 
 Twenty percent of the score is "any evidence of developer interest (even one
-other team integrating it during the hackathon)". There is none yet, and nothing
-in this repository can manufacture it. What would count, cheapest first:
+other team integrating it during the hackathon)". Where it stands on 30 September
+2026, in [ADOPTION.md](ADOPTION.md):
+
+- **A trading-agent team has agreed to integrate** through the SDK or HTTP. They
+  are not named here yet and their code is not on GitHub; we are waiting on their
+  details. Nothing is live.
+- **Metrix AI** ([repository](https://github.com/yigenfeng0707-netizen/metrix-ai),
+  Track 01) was identified as a target, and an integration proposal written for
+  it. No integration has come of it.
+
+**No external integration is live yet.** Nothing in this repository can
+manufacture one. What would count, cheapest first:
 
 1. **One other Metropolis team calling `/authorize` from their agent.** It is one
    `curl` or five lines with the SDK. Ask in the hackathon Discord for teams

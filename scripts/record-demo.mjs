@@ -2,7 +2,7 @@
  * Record the guided demo as a silent screen capture.
  *
  * It drives the real site: signs in as the demo owner, opens /demo, presses
- * Run full demo and watches the six steps land. Nothing is simulated, so the
+ * Run full demo and watches the eight steps land. Nothing is simulated, so the
  * recording shows whatever actually happened -- including a slow anchor.
  *
  * There is no narration. Voice has to be recorded over this, or burnt in as

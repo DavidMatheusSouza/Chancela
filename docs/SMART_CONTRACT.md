@@ -26,7 +26,8 @@ What ERC-8004 does not define is authorization. That is the gap:
 >   longer reproduces what is at `0xb403392D…412e`, and a later explorer
 >   verification would fail. The deployed artefact is the record; the source
 >   matches it — and that is now asserted by a third party rather than by us:
->   all three contracts are verified on Sourcify as an **exact match**, metadata
+>   all five contracts (registry, identity, approvals, gate, demo venue) are
+>   verified on Sourcify as an **exact match**, metadata
 >   hash included. `curl https://sourcify.dev/server/v2/contract/10143/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e`,
 >   or see [DEPLOYMENT.md](DEPLOYMENT.md#live-deployment--monad-testnet-chainid-10143).
 > - **Agent ids (`TA-001`…) and audit ids (`TA-AUDIT-…`).** `hashPolicyDocument`

@@ -3,10 +3,10 @@ import {
   ArrowRight,
   BadgeCheck,
   Boxes,
+  ExternalLink,
   FileCheck2,
   Fingerprint,
   KeyRound,
-  LogIn,
   Play,
   ScrollText,
   ShieldCheck,
@@ -18,6 +18,11 @@ import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
+
+// A live trading agent sent a $25,000 order its policy had refused, with a
+// grant it signed itself; the venue's gate reverted it: Refused(BAD_SIGNATURE).
+const REVERTED_ORDER_TX =
+  'https://testnet.monadexplorer.com/tx/0xaa158c9c1f6328c1c237554304de5a081df57c83bafbe42b5b8f71ea194c9287';
 
 /**
  * Landing page.
@@ -99,9 +104,9 @@ export default async function Landing() {
 
           <Reveal delay={120}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-              ERC-8004 tells you who an agent is. Chancela decides what it is allowed to do, and
-              proves why on-chain. Identity, permissions, policies and verifiable accountability for
-              autonomous agents.
+              For anyone who lets an AI agent trade or move treasury funds on Monad. The agent&apos;s
+              limits live in a policy the model cannot argue with, every decision is proved on-chain,
+              and the venue itself reverts any order the policy did not sign.
             </p>
           </Reveal>
 
@@ -112,19 +117,61 @@ export default async function Landing() {
                 className="lift inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-bg hover:opacity-90"
               >
                 <Play className="h-4 w-4" />
-                Watch the 2-minute demo
+                Run the live demo
               </a>
-              <Link
-                href="/login?next=/dashboard"
+              <a
+                href={REVERTED_ORDER_TX}
+                target="_blank"
+                rel="noreferrer"
                 className="lift inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-ink"
               >
-                <LogIn className="h-4 w-4" />
-                Sign in
-              </Link>
+                <ExternalLink className="h-4 w-4" />
+                See Monad revert a $25k order
+              </a>
               <span className="text-[12.5px] text-faint">No login, no wallet — two minutes, against the real system.</span>
             </div>
           </Reveal>
         </section>
+
+        <Reveal delay={200} className="mt-12">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="card p-5">
+              <div className="text-[11px] uppercase tracking-wider text-faint">Who it is for</div>
+              <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-muted">
+                <li>
+                  <span className="text-ink">Teams running trading or treasury agents</span> that want a
+                  hard per-order and per-day limit a prompt injection cannot move.
+                </li>
+                <li>
+                  <span className="text-ink">Venues and protocols</span> that want to accept orders from
+                  agents without trusting the agent: one modifier, and a refused order reverts.
+                </li>
+                <li>
+                  <span className="text-ink">Platforms hosting agents for other people</span>, who need
+                  to show each owner what their agent was allowed to do, and what it tried.
+                </li>
+              </ul>
+            </div>
+            <div className="card p-5">
+              <div className="text-[11px] uppercase tracking-wider text-faint">Why Monad</div>
+              <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-muted">
+                <li>
+                  <span className="text-ink">One transaction per decision, refusals included.</span>{' '}
+                  Measured on testnet: 92,478 gas, about 0.009 MON each. Elsewhere this gets batched
+                  into daily roots, and the per-action proof is gone.
+                </li>
+                <li>
+                  <span className="text-ink">Sub-second blocks</span>, so the proof lands while the
+                  agent is still waiting for its answer, not in tomorrow&apos;s batch.
+                </li>
+                <li>
+                  <span className="text-ink">P-256 verified in the EVM</span>: an owner&apos;s passkey
+                  approval is checked by the chain itself, not by us.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </Reveal>
 
         <Reveal delay={120} className="mt-14">
           <div className="relative h-px overflow-hidden bg-line sweep" />
