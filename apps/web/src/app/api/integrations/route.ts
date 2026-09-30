@@ -72,16 +72,11 @@ export async function GET() {
       },
       ...providers.map((p) => ({
         id: `ai-${p.id}`,
-        name: p.id === 'rules' ? 'Deterministic parser' : p.id.toUpperCase(),
+        name: p.label,
         role: 'Intent extraction. Holds no authority over any decision.',
         status: p.configured ? 'CONNECTED' : 'NOT_CONFIGURED',
         detail: p.model,
-        docs:
-          p.id === 'qwen'
-            ? 'https://www.alibabacloud.com/help/en/model-studio/qwen3-8-max'
-            : p.id === 'kimi'
-              ? 'https://platform.moonshot.ai/'
-              : '',
+        docs: p.docs,
       })),
     ],
   });

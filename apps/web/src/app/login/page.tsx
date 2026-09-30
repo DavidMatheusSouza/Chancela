@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { SignIn } from './sign-in';
 import { PrivySignInLazy } from './privy-lazy';
 import { PasskeySignIn } from './passkey-sign-in';
+import { DEMO_OWNER_ADDRESS, demoSignInAllowed } from '@/lib/demo-signin';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,8 +13,10 @@ export const metadata = {
 };
 
 export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
-  const demoOwner = process.env.DEMO_OWNER_ADDRESS ?? '';
-  const devSignIn = process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_SIGNIN === 'true';
+  // The same key and the same switch the demo sign-in itself uses, so the
+  // button shows exactly when pressing it can work.
+  const demoOwner = DEMO_OWNER_ADDRESS;
+  const devSignIn = demoSignInAllowed();
   const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? '';
 
   return (

@@ -134,6 +134,23 @@ export function createKimiProvider(apiKey: string, model = 'kimi-k2.6'): AIProvi
 }
 
 /**
+ * Tencent Hunyuan through TokenHub (Singapore) -- OpenAI-compatible at /v1.
+ *
+ * `json_object` rather than strict JSON Schema: the vendor lists structured
+ * output without saying which form it accepts, and the Zod gate in `parseIntent`
+ * rejects anything malformed anyway.
+ */
+export function createHunyuanProvider(apiKey: string, model = 'hy4-preview'): AIProvider {
+  return new OpenAICompatibleProvider({
+    name: 'hunyuan',
+    model,
+    baseUrl: process.env.HUNYUAN_BASE_URL ?? 'https://tokenhub-intl.tencentcloudmaas.com/v1',
+    apiKey,
+    useJsonSchema: false,
+  });
+}
+
+/**
  * Groq -- OpenAI-compatible, free tier, no card.
  *
  * `json_object` rather than strict JSON Schema: schema support varies by model

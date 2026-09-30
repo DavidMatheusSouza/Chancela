@@ -52,7 +52,7 @@ agent authorization?
 | Envio | Best Use of Envio | $1,000 | High | Implemented — needs codegen and a run | **P1** |
 | Dynamic | Best Use of Dynamic | $5,000 | **Re-open** | Declined — see below | **P2** |
 | Perpl | Best Analytics / Risk Tool | $3,000 | **Re-open** | Declined — see below | **P2** |
-| Kepler Plan (Tencent) | Build with Hunyuan | $2,000 credits | Cheap | **Not previously considered** | **P2** |
+| Kepler Plan (Tencent) | Build with Hunyuan | $2,000 credits | Direct | Implemented — `hy4-preview` via TokenHub; needs `HUNYUAN_API_KEY` | **P0** |
 | Chainlink | Best workflow with CRE | $3,000 | Weak | Declined — scheduled revalidation is plausible but unbuilt | P3 |
 | Alchemy | Best Projects using Alchemy | $1,000 credits | None | Declined — swapping an RPC string adds no product value | P3 |
 | Cleanverse | Best Integration of CVI/CVA | $2,000 | None | Declined — payment compliance, not agent authorization | P3 |
@@ -91,6 +91,7 @@ decision from differently-worded intents, the better the point lands.
 |---|---|
 | `QWEN_API_KEY` | $5,000 in credits, and the demo's central beat |
 | `KIMI_API_KEY` | $3,000 in credits, and the provider-swap claim |
+| `HUNYUAN_API_KEY` | $2,000 in credits, and a fifth vendor reaching the same decision |
 | `NANSEN_API_KEY` | strengthens an already-implemented integration |
 
 ## The rule this page is held to

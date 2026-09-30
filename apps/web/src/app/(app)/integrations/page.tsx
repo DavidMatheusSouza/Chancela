@@ -73,16 +73,11 @@ export default async function IntegrationsPage() {
     ...providers
       .filter((p) => p.id !== 'rules')
       .map<Row>((p) => ({
-        name: p.id === 'qwen' ? 'Qwen (Alibaba Cloud)' : p.id === 'kimi' ? 'Kimi (Moonshot)' : 'OpenAI',
+        name: p.label,
         role: 'Intent extraction. Holds no authority over any authorization decision.',
         status: p.configured ? 'CONNECTED' : 'NOT_CONFIGURED',
         detail: p.model,
-        docs:
-          p.id === 'qwen'
-            ? 'https://www.alibabacloud.com/help/en/model-studio/qwen3-8-max'
-            : p.id === 'kimi'
-              ? 'https://platform.moonshot.ai/'
-              : 'https://platform.openai.com/docs',
+        docs: p.docs,
       })),
   ];
 
