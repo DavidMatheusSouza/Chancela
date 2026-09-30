@@ -30,3 +30,4 @@ packages/mm-plugin/oclif.manifest.json
 # Timestamped .env backups taken during deploys — these hold real keys.
 .env.bak.*
 .env.recovery-template
+__pycache__/
