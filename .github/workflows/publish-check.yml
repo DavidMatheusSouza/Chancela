@@ -1,6 +1,7 @@
 name: Publish chancela-check
 
-# Pushing a tag named chancela-check-v<version> publishes that version to npm.
+# Pushing a tag named chancela-check-v<version> stages that version on npm;
+# it goes public once a maintainer approves it (with 2FA) on npmjs.com.
 # No token anywhere: npm trusts this workflow in this repository (trusted
 # publishing, OIDC), and the package gets a provenance statement linking the
 # tarball to the commit and the run that built it.
@@ -43,6 +44,9 @@ jobs:
 
       # Trusted publishing needs npm 11.5.1 or later.
       - run: npm install -g npm@latest
-      - name: Publish
+      # Staged, not published: the version waits on npmjs.com until a
+      # maintainer approves it with 2FA. The trust relationship for this
+      # workflow only grants stage-publish.
+      - name: Stage for publishing
         working-directory: packages/check
-        run: npm publish --access public --provenance
+        run: npm stage publish --access public --provenance
