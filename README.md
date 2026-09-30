@@ -19,7 +19,9 @@ Here it is the signed permission without which nothing an agent asks for is carr
 **Proof in one click:** [this transaction](https://testnet.monadexplorer.com/tx/0xaa158c9c1f6328c1c237554304de5a081df57c83bafbe42b5b8f71ea194c9287)
 is a live trading agent sending a $25,000 order its policy had just refused,
 with a grant it signed itself. The venue's gate reverted it on Monad:
-`Refused(BAD_SIGNATURE)`. [Try it yourself →](https://chancela.xyz/live)
+`Refused(BAD_SIGNATURE)`. And [this one](https://testnet.monadexplorer.com/tx/0x7843642bedb1c2f670e876bc83c663a457acfc38194d88b99d822c96b09f5e51)
+is the same agent at the same venue with a $200 order the policy allowed: it
+carried the attestor's grant and executed. [Try it yourself →](https://chancela.xyz/live)
 
 ## Check it
 
@@ -136,9 +138,11 @@ Monad testnet, all verified on Sourcify (exact match):
 | ChancelaGate | [`0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF) |
 | Demo venue | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) |
 
-**389 tests** (321 TypeScript, 68 Foundry), including Foundry fuzzing, stateful invariants against a reference
-model, and a mutation check that deletes each gate rule and confirms a test
-fails — [the full table](docs/DESIGN.md#verify).
+**412 tests** (323 TypeScript, 72 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
+model, a mutation check that deletes each gate rule and confirms a test
+fails, and the contracts run against the **official ERC-8004 registry on a
+Monad mainnet fork** — [the full table](docs/DESIGN.md#verify). Slither in CI;
+every finding triaged in [AUDIT.md](docs/AUDIT.md).
 
 ## Status, honestly
 

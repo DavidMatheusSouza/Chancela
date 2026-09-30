@@ -64,6 +64,13 @@ jobs:
       - name: Test
         run: forge test -vvv
         working-directory: packages/contracts
+      # The same contracts against the ERC-8004 registry the ecosystem uses, on a
+      # fork of Monad mainnet: an identity registered there governs them here.
+      - name: Official ERC-8004 (Monad mainnet fork)
+        run: forge test --network monad --match-path test/OfficialERC8004.fork.t.sol -vv
+        working-directory: packages/contracts
+        env:
+          MONAD_MAINNET_RPC_URL: https://rpc.monad.xyz
       # Remove each rule from ChancelaGate in turn; every mutant must fail a test.
       - name: Mutation check (gate)
         run: bash script/mutants.sh
@@ -78,6 +85,39 @@ jobs:
       - run: pnpm db:generate
       - name: Gate end to end on anvil
         run: pnpm --filter @chancela/web exec vitest run test/gate-onchain.test.ts
+
+  python:
+    name: Python client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install eth-account
+      # Offline: vectors.json comes from the TypeScript side, so the two clients
+      # hash and verify byte for byte the same.
+      - name: Tests
+        run: python -m unittest -v
+        working-directory: examples/trading-agent
+
+  slither:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install pinned dependencies
+        run: |
+          forge install foundry-rs/forge-std@v1.9.4 --no-git
+          forge install OpenZeppelin/openzeppelin-contracts@v5.1.0 --no-git
+          pip install slither-analyzer==0.11.4
+        working-directory: packages/contracts
+      # Triaged findings are in docs/AUDIT.md; a new high-impact one fails the build.
+      - name: Slither
+        run: slither . --filter-paths "lib/|test/|script/" --exclude-dependencies --fail-high
+        working-directory: packages/contracts
 
   secrets:
     name: Secret scan

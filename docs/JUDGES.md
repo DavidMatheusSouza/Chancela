@@ -7,7 +7,7 @@ check without taking our word for it.
 |---|---|---|
 | 60 seconds | `npx chancela-check` | 12 checks: a live decision verified against Monad by your own machine, then three grants forged on your machine reverted by the gate on Monad |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
-| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 389 tests (321 TypeScript, 68 Foundry), and a real agent being stopped over MCP |
+| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 412 tests (323 TypeScript, 72 Foundry, 17 Python), and a real agent being stopped over MCP |
 
 No wallet, no account and no API key is needed for any of them.
 
@@ -72,7 +72,7 @@ Monad. You can attack it from that page.
 ```bash
 git clone https://github.com/DavidMatheusSouza/Chancela && cd Chancela
 pnpm install
-pnpm verify:all          # typecheck + 389 tests (321 TS + 68 Foundry, fuzzing and invariants; needs Foundry)
+pnpm verify:all          # typecheck + TS and Foundry suites (fuzzing, invariants; needs Foundry)
 pnpm verify:deployment   # live addresses == docs == deployment record, and all verified
 pnpm example:agent       # a support agent, a real model, a prompt injection it falls for
 ```

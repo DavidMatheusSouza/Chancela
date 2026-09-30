@@ -476,8 +476,11 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Daily limits counted at authorization | 3 |
 
 
-The rows group suites by topic. A full run on 30 September 2026 counted **389**:
-321 TypeScript tests across eight packages and 68 Foundry tests.
+The rows group suites by topic. A full run on 30 September 2026 counted **412**:
+323 TypeScript tests across eight packages, 72 Foundry tests (4 of them on a
+Monad mainnet fork against the official ERC-8004 registry, run when
+`MONAD_MAINNET_RPC_URL` is set, as CI does) and 17 Python tests for the
+[trading-agent client](../examples/trading-agent).
 
 ## Documentation
 
@@ -488,6 +491,7 @@ The rows group suites by topic. A full run on 30 September 2026 counted **389**:
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design and data model |
 | [THREAT_MODEL.md](THREAT_MODEL.md) | Attacks considered and how each is stopped |
 | [SECURITY.md](SECURITY.md) | Controls, key handling, disclosure |
+| [AUDIT.md](AUDIT.md) | What was checked and how, Slither findings triaged, known limits |
 | [SMART_CONTRACT.md](SMART_CONTRACT.md) | Registry design and ERC-8004 binding |
 | [API.md](API.md) | REST reference |
 | [packages/sdk](../packages/sdk) | TypeScript client that verifies permissions locally |

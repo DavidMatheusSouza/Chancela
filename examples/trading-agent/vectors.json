@@ -1,0 +1,79 @@
+{
+  "_comment": "Produced by the TypeScript implementation (packages/shared). Both the SDK tests and test_chancela.py assert against it, so the two clients cannot drift apart. Keys are published Anvil test vectors.",
+  "agentId": "TA-LIVE",
+  "action": "PLACE_ORDER",
+  "cases": [
+    {
+      "parameters": {
+        "amount": 20000,
+        "market": "MON/USDC",
+        "side": "BUY",
+        "orderType": "MARKET"
+      },
+      "canonical": "{\"amount\":20000,\"market\":\"MON/USDC\",\"orderType\":\"MARKET\",\"side\":\"BUY\"}",
+      "intentHash": "0x3bc0cad6f9fc3775e8f15ab2d37acff448edb7d34a91a4f04f2cbca8d4b3ed2e"
+    },
+    {
+      "parameters": {
+        "side": "SELL",
+        "market": "WETH/USDC",
+        "amount": 1,
+        "orderType": "LIMIT",
+        "price": "3120.55",
+        "size": "0.0421",
+        "clientOrderId": "bot-7f3a"
+      },
+      "canonical": "{\"amount\":1,\"clientOrderId\":\"bot-7f3a\",\"market\":\"WETH/USDC\",\"orderType\":\"LIMIT\",\"price\":\"3120.55\",\"side\":\"SELL\",\"size\":\"0.0421\"}",
+      "intentHash": "0x579a5974f780e9c48eaa2d1d83cd3a371895500e3e21b23519bdd46ff8ee914a"
+    },
+    {
+      "parameters": {
+        "amount": 9007199254740991,
+        "market": "é/ü",
+        "side": "BUY",
+        "nested": {
+          "z": [
+            true,
+            null,
+            0,
+            "x\u0001\n\"\\😀 "
+          ],
+          "A": {}
+        },
+        "😀": "k",
+        "｡": 2,
+        "Z": 0
+      },
+      "canonical": "{\"Z\":0,\"amount\":9007199254740991,\"market\":\"é/ü\",\"nested\":{\"A\":{},\"z\":[true,null,0,\"x\\u0001\\n\\\"\\\\😀 \"]},\"side\":\"BUY\",\"😀\":\"k\",\"｡\":2}",
+      "intentHash": "0x469a14e716981d4a4d2eae2cccaebb6003e7c1ee7bf85c16a04075899563d783"
+    }
+  ],
+  "signed": {
+    "attestor": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "parameters": {
+      "amount": 20000,
+      "market": "MON/USDC",
+      "side": "BUY",
+      "orderType": "MARKET"
+    },
+    "now": 1800000030,
+    "capsule": {
+      "version": 1,
+      "agentId": "TA-LIVE",
+      "ownerAddress": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "action": "PLACE_ORDER",
+      "intentHash": "0x3bc0cad6f9fc3775e8f15ab2d37acff448edb7d34a91a4f04f2cbca8d4b3ed2e",
+      "policyId": "pol_TA-LIVE_v1",
+      "policyVersion": 1,
+      "policyHash": "0xabababababababababababababababababababababababababababababababab",
+      "decision": "ALLOW",
+      "risk": "HIGH",
+      "reasonCode": "OK",
+      "nonce": "n-1",
+      "issuedAt": 1800000000,
+      "expiresAt": 1800000060,
+      "decisionHash": "0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+    },
+    "signature": "0x0da5ed151a21fa0ad1a5b96aaa6a3b09dca11d6c6578a5dae3d9d7fb70f27e886633a7c04f37bed3b6c0470a719c44fd117eb188000466dc648e745a756a27e81c"
+  }
+}
