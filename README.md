@@ -69,13 +69,19 @@ agent decides to send it anyway.
 - **Platforms hosting agents for other people**, who must show each owner what
   their agent was allowed to do — and what it tried.
 
-**Why not the wallet's own spending limits?** Wallet-level policies (smart-account
-modules, embedded-wallet policy engines, session keys) are a good second line and
-Chancela is designed to sit next to them. What they do not give you: a decision a
-third party can verify without asking you, refusals on the record, a permission
-bound to the exact call rather than to a budget, and a check the *venue* runs
-rather than the agent's own wallet. The owner can also move the agent to another
-attestor in one transaction — no platform holds it hostage. [More in DESIGN.md](docs/DESIGN.md#not-capturable-by-a-single-platform).
+**Why not what already exists?** Each of these is a good layer, and Chancela is
+designed to sit next to them. This is what each one gives you on its own:
+
+| | Stops the order if the agent sends it anyway | Bound to the exact call, not a budget | Refusals on a public record | A third party can verify, without asking the operator | Human step-up verified on-chain |
+|---|:-:|:-:|:-:|:-:|:-:|
+| System prompt, or an `if` in the agent | — | — | — | — | — |
+| Wallet spending limits, session keys | ✓ | — (budget) | — | config only | — |
+| Allowlist / budget contract in front of payments | ✓ | — (budget, counterparty) | reverts only | ✓ | — |
+| Identity and reputation registries (ERC-8004 alone) | — | — | feedback after the fact | ✓ | — |
+| **Chancela** | ✓ at venues with `ChancelaGuarded`; `guard()` elsewhere | ✓ intent hash / call hash | ✓ every decision anchored | ✓ `npx chancela-check` | ✓ P-256 precompile |
+
+And the owner can move the agent to another attestor in one transaction — no
+platform, us included, holds it hostage. [More in DESIGN.md](docs/DESIGN.md#not-capturable-by-a-single-platform).
 
 ## Why Monad
 
