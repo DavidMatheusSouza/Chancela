@@ -28,17 +28,17 @@ passkey on the sign-in page: it comes with an agent of your own.
 | Criterion | Weight | Where it is answered |
 |---|---|---|
 | Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All five contracts (policy registry, ERC-8004 identity, approvals, gate, demo venue) are verified on Sourcify as an exact match, so the source here is provably the source on chain. 413 tests — 324 TypeScript, 72 Foundry including fuzzing, stateful invariants and a mainnet fork against the official ERC-8004 registry, 17 Python; Slither in CI with every finding triaged in [AUDIT.md](AUDIT.md); [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
-| Design & Craft — developer experience | 20% | One endpoint, one `curl`, no account ([README](../README.md#integrate-in-five-minutes)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. [`chancela-mcp`](../packages/mcp): the same gate as an MCP tool for Claude, Cursor or any MCP client, one block of config. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
-| Originality & Track Insight — privacy-preserving, not capturable | 15% | [README: Not capturable by a single platform](../README.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
-| Founder & Market Readiness — who adopts it, why not roll their own | 25% | [ADOPTION.md](ADOPTION.md): who adopts first, integration effort per path, how it sustains itself. [README: Who this is for](../README.md#who-this-is-for), and the pitch video. |
+| Design & Craft — developer experience | 20% | A [trading-agent kit](../examples/trading-agent) in TypeScript and one-file Python, runnable against a public agent with no account; an [unedited transcript of Claude Code](transcripts/claude-code-trading-agent.md) acting as the agent over MCP. One endpoint, one `curl`, no account ([README](../README.md#integrate)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. [`chancela-mcp`](../packages/mcp): the same gate as an MCP tool for Claude, Cursor or any MCP client, one block of config. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
+| Originality & Track Insight — privacy-preserving, not capturable | 15% | [DESIGN.md: Not capturable by a single platform](DESIGN.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
+| Founder & Market Readiness — who adopts it, why not roll their own | 25% | [README: Who builds it](../README.md#who-builds-it). [README: what each existing approach gives you](../README.md#who-it-is-for), side by side. [ADOPTION.md](ADOPTION.md): who adopts first, integration effort per path, how it sustains itself. [README: Who it is for](../README.md#who-it-is-for), and the pitch video. |
 | Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly: one trading-agent team has agreed to integrate, none is live yet; the design-partner offer; roadmap. **Open — see below.** |
 
 ## Deliverables
 
 - [x] **Logo** — [`docs/assets/chancela-logo.png`](assets/chancela-logo.png), 1024×1024, 35 KB. Upload as is.
 - [x] **Public GitHub repository** — public, so `metropolis@hackathon.monad.xyz` can read it.
-- [ ] **Technical demo video, ≤ 3:00** — made: 2:00, 1080p, narrated and captioned, recorded against the live site: the Monad transaction on screen, and the step where a transfer waits for its owner's passkey. Still to do: upload (YouTube unlisted, Loom or Vimeo) and paste the link.
-- [ ] **Pitch video, ≤ 2:00** — made: 1:54, slides plus product footage, narrated and captioned; it says it is read by a synthetic voice. Still to do: upload and paste the link.
+- [ ] **Technical demo video, ≤ 3:00** — made (30 Sep): 2:24, narrated and captioned, recorded against the live site; ends on `/live` with a $25,000 order reverted by the gate on Monad, the receipt read with `cast`, and `npx chancela-check`. Pipeline in `scripts/video`. Still to do: upload (YouTube unlisted, Loom or Vimeo) and paste the link.
+- [ ] **Pitch video, ≤ 2:00** — made (30 Sep): 1:44, slides plus product footage, narrated and captioned; it says it is read by a synthetic voice. Still to do: upload and paste the link.
 - [x] **Live product link** with access instructions — the table above; paste it into the form.
 - [ ] Product advertisement, ≤ 0:30 — optional, not judged. The first 30 seconds of the technical video, cut at the refusal, would do.
 
@@ -76,7 +76,9 @@ manufacture one. What would count, cheapest first:
 When it exists, add it to the README under *Where this goes next* with a link —
 a real repository beats any sentence about it.
 
-## Script — technical demo, 3:00
+## Script — technical demo (first cut)
+
+The current 2:24 cut is generated by `scripts/video/tech.py`; this is the first script, kept for reference.
 
 Screen recording of the live site. No slides, no code. Record with
 `node scripts/record-demo.mjs https://chancela.xyz recording` for the guided run,
@@ -94,9 +96,9 @@ then add the terminal and explorer shots. Read slowly; cut words, not pauses.
 | 2:30 | `/keys`: unlock with a passkey, keys derive, one proves itself | "Keys come from the owner's passkey: WebAuthn, one derived key per agent, no seed phrase, nothing stored." |
 | 2:45 | `/integrations`, then the README section "Not capturable" | "Every integration reports its real state. The contract has no admin key, the code is MIT, and the owner can change attestor in one transaction. That is Chancela." |
 
-## Script — pitch, 1:54
+## Script — pitch (first cut, 1:54)
 
-Generated by `scripts/video/pitch.py`: slides, a clip of the product, a synthetic
+The current 1:44 cut's narration is in `scripts/video/pitch.py`; this is the first one, kept for reference. Generated by `scripts/video/pitch.py`: slides, a clip of the product, a synthetic
 voice and captions. The opening is the builder's own reason for making this,
 translated from Portuguese; the video says plainly that a synthetic voice reads it.
 
@@ -144,5 +146,8 @@ translated from Portuguese; the video says plainly that a synthetic voice reads 
 > BIP-32, no seed phrase). Developers integrate with one HTTP call, a TypeScript
 > SDK that verifies permissions against the on-chain attestor, or a MetaMask
 > Agent Wallet plugin. No admin key, MIT-licensed, self-hostable: the owner, not
-> the platform, chooses whose signature counts. Built solo during the Metropolis
-> build window; live on Monad testnet at chancela.xyz.
+> the platform, chooses whose signature counts. A venue that inherits
+> `ChancelaGuarded` enforces it on-chain: an order without a grant from the
+> owner's attestor for exactly that call reverts. The contracts pass against the
+> official ERC-8004 registry on a Monad mainnet fork. Built solo during the
+> Metropolis build window; live on Monad testnet at chancela.xyz.

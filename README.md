@@ -155,6 +155,17 @@ fails, and the contracts run against the **official ERC-8004 registry on a
 Monad mainnet fork** — [the full table](docs/DESIGN.md#verify). Slither in CI;
 every finding triaged in [AUDIT.md](docs/AUDIT.md).
 
+## Who builds it
+
+David Matheus Souza, in Brazil, with a background in infrastructure, support
+and automation — the side of IT that gets the call when an automated system
+does something nobody approved. Chancela comes from there: if agents are going
+to act on their own, the question after an incident is always the same — *who
+allowed this, under which rule, and can you prove it?* — and today the only
+answer is the operator's own log. Built alone during the Metropolis build
+window; the videos are narrated by a synthetic voice reading his words.
+Reach him through [GitHub issues](https://github.com/DavidMatheusSouza/Chancela/issues).
+
 ## Status, honestly
 
 Built by one person during the Metropolis build window. **No external team has
