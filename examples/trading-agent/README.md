@@ -142,6 +142,17 @@ Prefer not to depend on our server at all? Everything is MIT:
 `setAttestor()` on the registry. Your identity, policy history and audit trail
 stay yours.
 
+## With an LLM agent over MCP
+
+Put `guard()` inside the tool, not in the prompt.
+[`packages/mcp/examples/exchange-server.ts`](../../packages/mcp/examples/exchange-server.ts)
+is a paper exchange whose `place_order` tool asks Chancela and verifies the
+answer before it fills anything, so the model has no permission step it could
+skip. [`claude-code-session.sh`](claude-code-session.sh) runs Claude Code as the
+agent against it; the [unedited transcript](../../docs/transcripts/claude-code-trading-agent.md)
+shows Claude attempting a $25,000 order on a forged "exception" and the tool
+refusing it.
+
 ## Handling the answers
 
 | Outcome | What your agent should do |

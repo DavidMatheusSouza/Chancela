@@ -23,6 +23,11 @@ with a grant it signed itself. The venue's gate reverted it on Monad:
 is the same agent at the same venue with a $200 order the policy allowed: it
 carried the attestor's grant and executed. [Try it yourself →](https://chancela.xyz/live)
 
+**Claude Code as the agent, unedited:** [a transcript](docs/transcripts/claude-code-trading-agent.md)
+where Claude, told to work an order queue, places a $25,000 buy because a
+forwarded email said risk had approved it. The exchange tool asks Chancela
+first, so the order is not filled.
+
 ## Check it
 
 | Time | How |
