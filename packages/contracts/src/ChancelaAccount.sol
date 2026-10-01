@@ -20,9 +20,10 @@ import {ChancelaGuarded} from "./ChancelaGuarded.sol";
 ///     can, because the gate checks the caller against the registry;
 ///   - the account belongs to exactly one agent (`agentTokenId`): a grant
 ///     issued to any other agent is refused here, even a valid one;
-///   - the holder of the agent's ERC-8004 identity can `withdraw` at any time,
-///     no grant needed -- the owner is never locked out of their own funds,
-///     and selling the identity hands that right over with it.
+///   - the holder of the agent's ERC-8004 identity can `withdraw` MON, or make
+///     any call with `ownerExecute` (moving a token the agent bought, say), at
+///     any time and with no grant -- the owner is never locked out of their own
+///     funds, and selling the identity hands that right over with it.
 ///
 /// @dev The call hash covers target, value and the exact calldata, so a grant
 ///      for a 0.01 MON swap cannot pay for a 10 MON one, or for the same amount
@@ -39,12 +40,14 @@ contract ChancelaAccount is ChancelaGuarded {
         bytes32 indexed decisionHash, address indexed target, uint256 value, bytes4 selector
     );
     event Withdrawn(address indexed to, uint256 value);
+    event OwnerExecuted(address indexed target, uint256 value, bytes4 selector);
     event Received(address indexed from, uint256 value);
 
     error NotThisAgent(uint256 grantedTo, uint256 accountAgent);
     error NotIdentityOwner(address caller);
     error CallFailed(bytes returnData);
     error SelfCall();
+    error ZeroAddress();
 
     constructor(ChancelaGate gate, uint256 agentTokenId_) ChancelaGuarded(gate) {
         agentTokenId = agentTokenId_;
@@ -68,19 +71,44 @@ contract ChancelaAccount is ChancelaGuarded {
         _requireChancela(grant, signature, callHash(target, value, data));
 
         bool ok;
+        // Sending value to a caller-chosen target is this function's purpose; the
+        // grant above binds target, value and calldata, so only the call the
+        // policy allowed gets here. Triaged in docs/AUDIT.md.
+        // slither-disable-next-line arbitrary-send-eth
         (ok, result) = target.call{value: value}(data);
         if (!ok) revert CallFailed(result);
         emit Executed(grant.decisionHash, target, value, data.length >= 4 ? bytes4(data[:4]) : bytes4(0));
     }
 
-    /// @notice The identity owner takes funds out. No grant: the owner's
+    /// @notice The identity owner takes MON out. No grant: the owner's
     ///         authority comes from holding the agent's ERC-8004 token.
     function withdraw(address payable to, uint256 value) external {
-        address owner = chancelaGate.registry().identityRegistry().ownerOf(agentTokenId);
-        if (msg.sender != owner) revert NotIdentityOwner(msg.sender);
+        _onlyIdentityOwner();
+        if (to == address(0)) revert ZeroAddress();
         (bool ok, bytes memory ret) = to.call{value: value}("");
         if (!ok) revert CallFailed(ret);
         emit Withdrawn(to, value);
+    }
+
+    /// @notice The identity owner makes any call from the account -- to move a
+    ///         token out, unwind a position, or anything the agent could do.
+    function ownerExecute(address target, uint256 value, bytes calldata data)
+        external
+        returns (bytes memory result)
+    {
+        _onlyIdentityOwner();
+        if (target == address(this)) revert SelfCall();
+        bool ok;
+        // The caller is the agent's owner, checked against the registry above.
+        // slither-disable-next-line arbitrary-send-eth
+        (ok, result) = target.call{value: value}(data);
+        if (!ok) revert CallFailed(result);
+        emit OwnerExecuted(target, value, data.length >= 4 ? bytes4(data[:4]) : bytes4(0));
+    }
+
+    function _onlyIdentityOwner() private view {
+        address owner = chancelaGate.registry().identityRegistry().ownerOf(agentTokenId);
+        if (msg.sender != owner) revert NotIdentityOwner(msg.sender);
     }
 
     /// @notice What the attestor signs as the grant's `callHash`.

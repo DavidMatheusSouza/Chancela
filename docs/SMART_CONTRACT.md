@@ -26,7 +26,7 @@ What ERC-8004 does not define is authorization. That is the gap:
 >   longer reproduces what is at `0xb403392D…412e`, and a later explorer
 >   verification would fail. The deployed artefact is the record; the source
 >   matches it — and that is now asserted by a third party rather than by us:
->   all five contracts (registry, identity, approvals, gate, demo venue) are
+>   all six contracts (registry, identity, approvals, gate, demo venue, account) are
 >   verified on Sourcify as an **exact match**, metadata
 >   hash included. `curl https://sourcify.dev/server/v2/contract/10143/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e`,
 >   or see [DEPLOYMENT.md](DEPLOYMENT.md#live-deployment--monad-testnet-chainid-10143).
@@ -307,3 +307,40 @@ not receive stay bound by the capsule alone.
 **No admin.** The gate and the venue have no owner, no pause and no upgrade.
 The gate only ever reads the registry, so all control stays with each agent's
 ERC-8004 owner, exactly as in the registry.
+
+## ChancelaAccount — the gate in front of any contract
+
+| | |
+|---|---|
+| Account for TA-LIVE (testnet 10143) | [`0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8`](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8) · Sourcify exact match |
+| Source | `packages/contracts/src/ChancelaAccount.sol` |
+| Tests | 17 in `test/ChancelaAccount.t.sol` · call-hash vector pinned on both sides (`packages/shared/test/grant.test.ts`) |
+| Deploy | `ACCOUNT_AGENT_ID=<token> forge script script/DeployAccount.s.sol` (needs `GATE_ADDRESS`), then `scripts/account-swap-demo.ts` |
+
+`ChancelaGuarded` protects a venue that adopts it. Most protocols never will, so
+the account turns the gate around: the agent's funds live in a contract that
+makes a call -- any target, any value, any calldata -- only if the gate consumes
+a grant whose call hash is `keccak256(abi.encode(CALL_TYPEHASH, target, value,
+keccak256(data)))`. The protocol on the other side changes nothing.
+
+- **One agent per account.** A grant issued to another agent is refused with
+  `NotThisAgent`, even when it is genuine and sent by that agent's own wallet.
+- **The account's own functions are out of reach** of a grant (`SelfCall`).
+- **The owner is never locked out.** The holder of the agent's ERC-8004 identity
+  can `withdraw` MON or make any call with `ownerExecute` -- moving a token the
+  agent bought, unwinding a position -- with no grant. Selling the identity hands
+  that over; the agent never has it.
+- **A failed call reverts everything,** so the grant is not spent on nothing.
+
+Run on Monad testnet, 1 October 2026, against a Uniswap-V2-style DEX
+(`0x430c23895c8D44883526e3E0B09327dAD8766660`) that knows nothing about Chancela:
+
+| | Result |
+|---|---|
+| $1 MON→USDC swap, allowed by TA-LIVE's policy, grant signed by the attestor | [executed](https://testnet.monadexplorer.com/tx/0xe7a6370ad48a1139eef2e588794679c3e4376c95d380085424b42b271636a6c4) — 1.0036 USDC into the account |
+| The same grant with ten times the value | [reverted](https://testnet.monadexplorer.com/tx/0x3f4fb1814f2d512931ab0876129ded8fe06bd944eeb5866c0442f78a6b1fad66) — `Refused(CALL_MISMATCH)` |
+| A $25,000 order the policy refused, sent with a grant the agent signed itself | [reverted](https://testnet.monadexplorer.com/tx/0x67e3278e7d2f8bb6458eaad2347a4844a1b597d064c2d14b16300884a48459f6) — `Refused(BAD_SIGNATURE)` |
+| The identity owner moves the USDC out, no grant | [executed](https://testnet.monadexplorer.com/tx/0x348446f22f28386c3a25ca5664fa1222b652bbbcc24a96ea54abdc226d595d29); the agent's own attempt reverts `NotIdentityOwner` |
+
+On mainnet the same script calls Uniswap V3's SwapRouter02 (`CHAIN=mainnet`).
+

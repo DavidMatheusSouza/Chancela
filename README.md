@@ -26,6 +26,15 @@ with a grant it signed itself. The venue's gate reverted it on Monad:
 is the same agent at the same venue with a $200 order the policy allowed: it
 carried the attestor's grant and executed. [Try it yourself →](https://chancela.xyz/live)
 
+**Any protocol, no integration:** the agent's funds sit in a
+[`ChancelaAccount`](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8), which makes a call only with a grant for
+exactly that call. Through it, on a DEX that has never heard of Chancela: a $1
+MON→USDC swap the policy allowed, [executed](https://testnet.monadexplorer.com/tx/0xe7a6370ad48a1139eef2e588794679c3e4376c95d380085424b42b271636a6c4); the same grant with ten
+times the value, [reverted](https://testnet.monadexplorer.com/tx/0x3f4fb1814f2d512931ab0876129ded8fe06bd944eeb5866c0442f78a6b1fad66) (`CALL_MISMATCH`); a $25,000 order the
+policy refused, sent with a forged grant, [reverted](https://testnet.monadexplorer.com/tx/0x67e3278e7d2f8bb6458eaad2347a4844a1b597d064c2d14b16300884a48459f6) (`BAD_SIGNATURE`).
+The agent's owner [took the USDC out](https://testnet.monadexplorer.com/tx/0x348446f22f28386c3a25ca5664fa1222b652bbbcc24a96ea54abdc226d595d29) without asking anyone; the agent
+cannot.
+
 **Claude Code as the agent, unedited:** [a transcript](docs/transcripts/claude-code-trading-agent.md)
 where Claude, told to work an order queue, places a $25,000 buy because a
 forwarded email said risk had approved it. The exchange tool asks Chancela
@@ -151,8 +160,9 @@ Monad testnet, all verified on Sourcify (exact match):
 | Passkey approvals | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) |
 | ChancelaGate | [`0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF) |
 | Demo venue | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) |
+| ChancelaAccount (TA-LIVE) | [`0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8`](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8) |
 
-**414 tests** (325 TypeScript, 72 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
+**433 tests** (327 TypeScript, 89 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
 model, a mutation check that deletes each gate rule and confirms a test
 fails, and the contracts run against the **official ERC-8004 registry on a
 Monad mainnet fork** — [the full table](docs/DESIGN.md#verify). Slither in CI;

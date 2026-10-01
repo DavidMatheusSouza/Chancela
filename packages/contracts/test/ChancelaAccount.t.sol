@@ -16,6 +16,12 @@ contract ThirdPartyPool {
         balanceOf[msg.sender] += msg.value;
     }
 
+    function withdrawTo(address to, uint256 value) external {
+        balanceOf[msg.sender] -= value;
+        (bool ok,) = to.call{value: value}("");
+        require(ok, "pool: send");
+    }
+
     function fail() external pure {
         revert("pool: no");
     }
@@ -207,6 +213,30 @@ contract ChancelaAccountTest is Test {
         vm.prank(owner);
         account.withdraw(payable(owner), 4 ether);
         assertEq(owner.balance, 4 ether);
+    }
+
+    function test_theOwnerMovesWhatTheAgentBoughtWithoutAGrant() public {
+        // The agent deposited into the pool; the owner pulls the position out.
+        Gate.Grant memory g = _grant(TOKEN, address(pool), 1 ether, DEPOSIT);
+        bytes memory sig = _sign(g, attestorKey);
+        vm.prank(agent);
+        account.execute(address(pool), 1 ether, DEPOSIT, g, sig);
+
+        bytes memory pull = abi.encodeWithSignature("withdrawTo(address,uint256)", owner, 1 ether);
+        vm.prank(agent);
+        vm.expectRevert(abi.encodeWithSelector(Vault.NotIdentityOwner.selector, agent));
+        account.ownerExecute(address(pool), 0, pull);
+
+        vm.prank(owner);
+        account.ownerExecute(address(pool), 0, pull);
+        assertEq(owner.balance, 1 ether);
+        assertEq(pool.balanceOf(address(account)), 0);
+    }
+
+    function test_withdrawingToNobodyIsRefused() public {
+        vm.prank(owner);
+        vm.expectRevert(Vault.ZeroAddress.selector);
+        account.withdraw(payable(address(0)), 1 ether);
     }
 
     function test_theAgentCannotWithdraw() public {

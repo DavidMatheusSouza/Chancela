@@ -7,7 +7,7 @@ check without taking our word for it.
 |---|---|---|
 | 60 seconds | `npx chancela-check` | 12 checks: a live decision verified against Monad by your own machine, then three grants forged on your machine reverted by the gate on Monad |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
-| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 414 tests (325 TypeScript, 72 Foundry, 17 Python), and a real agent being stopped over MCP |
+| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 433 tests (327 TypeScript, 89 Foundry, 17 Python), and a real agent being stopped over MCP |
 
 No wallet, no account and no API key is needed for any of them.
 
@@ -107,7 +107,8 @@ is a transaction on Monad with a proof link printed next to it.
 | The registry's rules hold together, not just one at a time | 6 stateful invariants: 25,600 random calls a run by owners, attestors and strangers, each checked against a reference model — [`PolicyRegistry.invariant.t.sol`](../packages/contracts/test/invariant/PolicyRegistry.invariant.t.sol). Remove any one guard in the contract and it fails. |
 | An agent cannot execute what was refused, even if it ignores the refusal | `npx chancela-check` forges a grant and sends the order from the agent's own wallet: `Refused(BAD_SIGNATURE)`, `CALL_MISMATCH`, `NOT_THE_AGENT`, answered by Monad. [`ChancelaGate`](SMART_CONTRACT.md#chancelagate--no-chancela-no-execution) reverts any call without a grant from the registered attestor for exactly that call; one test per refusal reason, stateful fuzzing against a model, 12/12 mutants killed (`pnpm --filter @chancela/contracts mutants`) |
 | The TypeScript attestor and the Solidity gate agree | Pinned EIP-712 vectors asserted on both sides, plus an end-to-end test that deploys the contracts to anvil and drives the web app's `lib/gate` |
-| The deployed bytecode is this source | Sourcify exact match for all five contracts: registry, identity, approvals, gate, venue — `pnpm verify:deployment` |
+| The gate works in front of a protocol that never adopted it | [`ChancelaAccount`](SMART_CONTRACT.md#chancelaaccount--the-gate-in-front-of-any-contract): a real swap on a third-party DEX [executed](https://testnet.monadexplorer.com/tx/0xe7a6370ad48a1139eef2e588794679c3e4376c95d380085424b42b271636a6c4); the same grant with 10x the value [reverted](https://testnet.monadexplorer.com/tx/0x3f4fb1814f2d512931ab0876129ded8fe06bd944eeb5866c0442f78a6b1fad66); a refused order with a forged grant [reverted](https://testnet.monadexplorer.com/tx/0x67e3278e7d2f8bb6458eaad2347a4844a1b597d064c2d14b16300884a48459f6); the owner [withdrew](https://testnet.monadexplorer.com/tx/0x348446f22f28386c3a25ca5664fa1222b652bbbcc24a96ea54abdc226d595d29) with no grant |
+| The deployed bytecode is this source | Sourcify exact match for all six contracts: registry, identity, approvals, gate, venue, account — `pnpm verify:deployment` |
 
 ## What is not there yet
 
@@ -137,3 +138,4 @@ Said here so you do not have to find it:
 | Passkey approvals | [`0x4ed26528cC5518df075A4Ba463D56B478fAba42b`](https://testnet.monadexplorer.com/address/0x4ed26528cC5518df075A4Ba463D56B478fAba42b) |
 | Gate (no chancela, no execution) | [`0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF`](https://testnet.monadexplorer.com/address/0xcbBA27Ec6DFfbC548ADd02c6B978Bf76679F6FDF) |
 | Demo venue (orders only through the gate) | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) |
+| ChancelaAccount (TA-LIVE's funds, any protocol) | [`0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8`](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8) |

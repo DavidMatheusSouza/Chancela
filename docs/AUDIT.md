@@ -4,9 +4,9 @@ What has been checked in the contracts, how, and what is still a known limit.
 This is a self-review with tools, not a professional audit; nobody outside the
 project has reviewed this code yet.
 
-Scope: the five contracts deployed on Monad testnet and verified on Sourcify
+Scope: the six contracts deployed on Monad testnet and verified on Sourcify
 (exact match) — `TrustAgentPolicyRegistry`, `ChancelaGate`, `ChancelaGuarded`,
-`ChancelaDemoVenue`, `ChancelaApprovals` — plus our testnet copy of the
+`ChancelaDemoVenue`, `ChancelaApprovals`, `ChancelaAccount` — plus our testnet copy of the
 ERC-8004 identity registry.
 
 ## How it was checked
@@ -24,8 +24,10 @@ ERC-8004 identity registry.
 
 ## Slither findings, triaged
 
-Run on 30 September 2026: **0 high, 2 medium, 4 low, all reviewed.** None
-required a code change. Reproduce with
+Run on 1 October 2026, `ChancelaAccount` included: **0 high, 2 medium, 7 low,
+3 informational, all reviewed.** One high-impact finding was triaged in the
+source (below); two findings on the account led to code changes before it was
+deployed. Reproduce with
 `slither packages/contracts --filter-paths "lib/|test/|script/"`.
 
 | Impact | Detector | Where | Verdict |
@@ -34,6 +36,11 @@ required a code change. Reproduce with
 | Medium | `unused-return` | `ChancelaGate._check`: `version` and `anchoredAt` of `activePolicy` ignored | Intended. The grant commits to the policy **hash**; comparing the hash already covers any version change. |
 | Low | `timestamp` | `ChancelaGate._check`: `block.timestamp >= grant.expiresAt` | Intended. Grants live 60 seconds; a validator's timestamp freedom is far below that. The boundary itself is pinned by a test and by the "expiry off by one" mutant. |
 | Low | `timestamp` | `ChancelaApprovals.recordApproval`: `_approvedAt[decisionHash] != 0` | False positive. The stored timestamp is only compared with zero, as a "was this decision already approved" flag; its value never decides anything. |
+| High → triaged | `arbitrary-send-eth` | `ChancelaAccount.execute` and `ownerExecute` send value to a caller-chosen target | Intended: that is what the account is for. In `execute` the grant binds target, value and calldata, so only the call the policy allowed is sent; in `ownerExecute` the caller is the ERC-8004 owner, checked against the registry. Marked with `slither-disable-next-line` and a comment pointing here; CI still fails on any other high finding. |
+| Low → fixed | `missing-zero-check` | `ChancelaAccount.withdraw` to `address(0)` | Now reverts `ZeroAddress`. Found by this run, fixed before the account was deployed. |
+| — → fixed | design review | `withdraw` moved only MON, so a token the agent bought could not be recovered by the owner without a grant | `ownerExecute` added: the identity owner can make any call from the account. Tested: the owner pulls a position, the agent cannot. |
+| Low | `reentrancy-events` | `ChancelaAccount.execute`, `withdraw`, `ownerExecute`: event after the external call | Benign. In `execute` the grant is spent inside the gate before the call, so re-entering with it is `ALREADY_USED`; a different grant would be its own allowed call. The other two are owner-only. Emitting after the call means the event records only calls that succeeded. |
+| Info | `low-level-calls` | `ChancelaAccount` | Intended: an account must call arbitrary contracts; every result is checked and a failure reverts with the callee's data. |
 | Low | `reentrancy-benign`, `reentrancy-events` | `ChancelaDemoVenue.placeOrder`: state written and event emitted after `gate.consume()` | Benign. The external call is to the immutable gate, which calls only the registry's view functions and never calls back. The grant is marked used inside the gate **before** it returns, so a re-entrant second use would be refused as `ALREADY_USED` anyway. |
 
 ## Known limits

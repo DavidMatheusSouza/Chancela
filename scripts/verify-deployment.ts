@@ -99,8 +99,25 @@ async function main(): Promise<void> {
   note(`rpc       ${RPC}`);
   note(`block     ${await client.getBlockNumber()}\n`);
 
+  // The gate, the venue and the agent account are not service configuration;
+  // their addresses are the ones published in deployments/10143.json.
+  let published: Record<string, string> = {};
+  try {
+    published = JSON.parse(readFileSync(new URL('../packages/contracts/deployments/10143.json', import.meta.url), 'utf8'));
+  } catch {
+    /* reported in step 4 */
+  }
+  const contracts = {
+    policyRegistry,
+    identityRegistry,
+    approvals,
+    gate: published.gate as Hex | undefined,
+    demoVenue: published.demoVenue as Hex | undefined,
+    account: published.account as Hex | undefined,
+  };
+
   // 1. Every configured address holds code.
-  for (const [name, address] of Object.entries({ policyRegistry, identityRegistry, approvals })) {
+  for (const [name, address] of Object.entries(contracts)) {
     if (!address) {
       fail(`${name} is not configured`);
       continue;
@@ -117,7 +134,7 @@ async function main(): Promise<void> {
   // `exact_match` includes the metadata hash, so it covers the comments and the
   // compiler settings too -- there is no version of this repository that
   // produces that bytecode other than this one.
-  for (const [name, address] of Object.entries({ policyRegistry, identityRegistry, approvals })) {
+  for (const [name, address] of Object.entries(contracts)) {
     if (!address) continue;
     try {
       const response = await fetch(`https://sourcify.dev/server/v2/contract/${CHAIN_ID}/${address}`, {
