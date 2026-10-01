@@ -37,6 +37,8 @@ passkey on the sign-in page: it comes with an agent of your own.
 
 - [x] **Logo** — [`docs/assets/chancela-logo.png`](assets/chancela-logo.png), 1024×1024, 35 KB. Upload as is.
 - [x] **Public GitHub repository** — public, so `metropolis@hackathon.monad.xyz` can read it.
+Video files: [`docs/assets/videos/chancela-technical-demo.mp4`](assets/videos/chancela-technical-demo.mp4) and [`docs/assets/videos/chancela-pitch.mp4`](assets/videos/chancela-pitch.mp4).
+
 - [ ] **Technical demo video, ≤ 3:00** — made (30 Sep): 2:24, narrated and captioned, recorded against the live site; ends on `/live` with a $25,000 order reverted by the gate on Monad, the receipt read with `cast`, and `npx chancela-check`. Pipeline in `scripts/video`. Still to do: upload (YouTube unlisted, Loom or Vimeo) and paste the link.
 - [ ] **Pitch video, ≤ 2:00** — made (30 Sep): 1:44, slides plus product footage, narrated and captioned; it says it is read by a synthetic voice. Still to do: upload and paste the link.
 - [x] **Live product link** with access instructions — the table above; paste it into the form.
