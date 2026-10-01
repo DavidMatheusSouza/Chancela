@@ -34,7 +34,12 @@ const page = await context.newPage();
 const t0 = Date.now(); const marks = {}; const mark = (k) => { if (!(k in marks)) { marks[k] = (Date.now() - t0) / 1000; console.log(k, marks[k].toFixed(1)); } };
 try {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' }); mark('landing');
-  await page.waitForTimeout(6000);
+  await page.waitForTimeout(4000);
+  // The three proofs under the hero: executed, reverted, Claude Code's attempt.
+  await page.mouse.wheel(0, 520); mark('proofs');
+  await page.waitForTimeout(7000);
+  await page.mouse.wheel(0, -520);
+  await page.waitForTimeout(1200);
   await page.getByRole('link', { name: /run the live demo/i }).first().click();
   await page.waitForURL('**/demo', { timeout: 30000 }); await page.waitForLoadState('networkidle'); mark('demo');
   await page.waitForTimeout(5000);
@@ -54,6 +59,7 @@ try {
   await page.getByRole('status').scrollIntoViewIfNeeded();
   await page.waitForTimeout(7000);
   const tx = await page.getByRole('link', { name: /see the reverted transaction/i }).getAttribute('href');
+  marks.tx = tx;
   await page.goto(tx, { waitUntil: 'load', timeout: 60000 }); mark('explorer');
   await page.waitForTimeout(10000);
   mark('end');

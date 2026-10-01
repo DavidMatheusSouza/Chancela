@@ -10,9 +10,12 @@ src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
 
 # (from, to, narration, caption) -- or ("still", png, narration, caption)
 SEG = [
- ("landing", "demo",
-  "This is Chancela, live on Monad testnet. It gives AI agents limits they cannot talk their way past: a policy decides, Monad records, and the venue enforces.",
+ ("landing", "proofs",
+  "This is Chancela, live on Monad testnet. A policy decides what an AI agent may do, Monad records it, and the venue enforces it.",
   "Chancela, live on Monad testnet: limits an AI agent cannot talk its way past.\nA policy decides, Monad records, the venue enforces."),
+ ("proofs", "demo",
+  "The front page leads with proof. The same agent at the same venue: an order its policy allowed, executed. One it refused, reverted. And Claude Code, trying it.",
+  "Proof first. Same agent, same venue: the allowed order executed, the refused one reverted.\nAnd Claude Code, acting as the agent, tried it."),
  ("demo", "identity",
   "One click opens the guided demo. No login, no wallet, and every step runs against the real system.",
   "One click, no login, no wallet.\nEvery step runs against the real system."),
@@ -35,7 +38,7 @@ SEG = [
   "It keeps trying, so the circuit breaker suspends the agent. Even allowed orders stop, until its owner reactivates it.",
   "It keeps trying: the circuit breaker suspends the agent.\nEven allowed orders stop, until the owner reactivates it."),
  ("approval", "audit",
-  "Some actions are inside the policy, and still too much for an agent alone. This transfer waits for its owner's passkey, and Monad verifies that signature itself, with its P 256 precompile.",
+  "Some actions need a human. This transfer waits for its owner's passkey, and Monad verifies that signature itself.",
   "Inside the policy, but a human decides: the owner approves with a passkey —\nand Monad itself verifies that signature, with its P-256 precompile."),
  ("audit", "live",
   "Every attempt is on the record: what was asked, what was decided, and why.",
@@ -49,8 +52,14 @@ SEG = [
  ("still", "t1",
   "That is not our word. Ask the chain: the transaction came from the agent's wallet, went to the venue, and failed.",
   "Not our word — the chain's: from the agent's wallet, to the venue, status 0.\nThe order the policy refused did not execute."),
+ ("still", "t3",
+  "And the same agent's two hundred dollar order, the one its policy allowed, carried the attestor's grant. Same wallet, same venue: filled.",
+  "Same agent, same venue: the $200 order the policy allowed carried the attestor's grant.\nStatus 1: filled. The refused one, status 0."),
+ ("still", "t4",
+  "Here Claude Code is the agent. A forwarded email claims risk approved an exception, and Claude places the twenty-five thousand dollar order. The exchange tool asks Chancela first. Not filled.",
+  "Claude Code as the agent, unedited: told risk approved an exception, it placed the $25,000 order.\nThe exchange tool asked Chancela first. Rejected: LIMIT_EXCEEDED."),
  ("still", "t2",
-  "And anyone can run one command, N P X chancela check, that forges a grant on their own machine and watches Monad reject it three ways. Open source, on npm, live today. Chancela.",
+  "Anyone can run N P X chancela check: it forges a grant on their own machine, and Monad rejects it three ways. Open source, live today.",
   "One command, npx chancela-check: a grant forged on your machine, rejected by Monad three ways.\nOpen source, on npm, live today.  chancela.xyz"),
 ]
 videos, audios, events, t = [], [], [], 0.0

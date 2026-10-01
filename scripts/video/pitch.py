@@ -13,15 +13,16 @@ SEG = [
  ("still", "s1", "Hi. I'm David, from Brazil, with a background in infrastructure, support and automation. I built Chancela alone during this hackathon, and a synthetic voice is reading my words. Chancela gives AI agents limits they cannot talk their way past."),
  ("still", "s2", "Agents are getting wallets. Sooner or later one will be told to do something it should not: by a user, a web page, or an email. Today its only limit is a system prompt, and nothing stops the transaction."),
  ("clip", ("attack", "explorer"), "Here is Chancela stopping one, live on Monad. A trading agent is told to buy twenty-five thousand dollars. Its policy refuses. It sends the order anyway, and the venue's gate reverts it on-chain."),
+ ("still", "s3", "Same agent, same venue: a two hundred dollar order its policy allowed was filled. Both transactions are public."),
  ("still", "s4", "The model only proposes. A deterministic policy decides, and signs. Monad records every decision, refusals included. And the venue enforces it."),
- ("still", "s5", "Who pays? Teams running trading and treasury agents, venues that accept agent orders, and platforms that host agents. Self-hosting is free. We charge for running the attestor, per decision."),
+ ("still", "s5", "Who pays? Teams running trading agents, venues, and platforms that host agents. Self-hosting is free; we charge for running the attestor."),
  ("still", "s6", "It only works on Monad: one transaction per decision, under a hundredth of a MON, in sub-second blocks."),
  ("still", "s7", "Wallet spending limits are a good second line, but only the provider can check them. Chancela's record can be checked by anyone."),
- ("still", "s8", "It is live: five verified contracts, three hundred and eighty-nine tests, and four packages on npm."),
- ("still", "s9", "No outside team is live on it yet. One trading team has agreed to integrate. Next: three design partners, and mainnet."),
+ ("still", "s8", "It is live: five verified contracts, four hundred and fourteen tests, including the official E R C eighty-oh-four registry on a mainnet fork, and four packages on npm."),
+ ("still", "s9", "No outside team is live yet; one trading team agreed to integrate. Claude Code, acting as the agent, tried a forged exception and was refused. Next: mainnet."),
  ("still", "s10", "Don't trust us. Run N P X chancela check, or open chancela dot x y z. Thank you."),
 ]
-SHOW = {"H T T P": "HTTP", "S D K": "SDK", "N P X chancela check": "npx chancela-check", "chancela dot x y z": "chancela.xyz", "twenty-five thousand dollars": "$25,000", "three hundred and eighty-nine": "389"}
+SHOW = {"H T T P": "HTTP", "S D K": "SDK", "N P X chancela check": "npx chancela-check", "chancela dot x y z": "chancela.xyz", "twenty-five thousand dollars": "$25,000", "four hundred and fourteen": "414", "two hundred dollar": "$200", "E R C eighty-oh-four": "ERC-8004"}
 
 def chunks(text):
     for k, v in SHOW.items(): text = text.replace(k, v)
