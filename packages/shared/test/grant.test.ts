@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { grantDigest, orderCallHash, type Grant } from '../src/grant';
+import { accountCallHash, grantDigest, orderCallHash, type Grant } from '../src/grant';
 
 /**
  * Pinned vectors. The same numbers are asserted in
@@ -31,5 +31,22 @@ describe('grant encoding', () => {
     expect(orderCallHash({ market: 'MON/USDC', side: 'BUY', amount: 20_001 })).not.toBe(base);
     expect(orderCallHash({ market: 'MON/USDC', side: 'SELL', amount: 20_000 })).not.toBe(base);
     expect(orderCallHash({ market: 'WBTC/USDC', side: 'BUY', amount: 20_000 })).not.toBe(base);
+  });
+});
+
+describe('ChancelaAccount call hash', () => {
+  it('matches the vector pinned in ChancelaAccount.t.sol', () => {
+    // callHash(0x…1234, 0.01 ether, deposit()) as the contract computes it.
+    expect(
+      accountCallHash({ target: '0x0000000000000000000000000000000000001234', value: 10_000_000_000_000_000n, data: '0xd0e30db0' }),
+    ).toBe('0xfa3a282cf932cf30b843d548f9a8ba9b5be40fcaacbd0f42cf8afbb51c14a7ec');
+  });
+
+  it('moves with the value, the target and the calldata', () => {
+    const base = { target: '0x0000000000000000000000000000000000001234', value: 1n, data: '0xd0e30db0' } as const;
+    const h = accountCallHash(base);
+    expect(accountCallHash({ ...base, value: 2n })).not.toBe(h);
+    expect(accountCallHash({ ...base, target: '0x0000000000000000000000000000000000001235' })).not.toBe(h);
+    expect(accountCallHash({ ...base, data: '0xd0e30db1' })).not.toBe(h);
   });
 });

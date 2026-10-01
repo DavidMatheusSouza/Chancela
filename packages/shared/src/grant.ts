@@ -63,6 +63,23 @@ export function orderCallHash(order: { market: string; side: string; amount: num
   ) as Hex;
 }
 
+/** ChancelaAccount.CALL_TYPEHASH */
+export const CALL_TYPEHASH = keccak256(toHex('CALL(address target,uint256 value,bytes data)'));
+
+/**
+ * The call hash ChancelaAccount computes before it makes a call: the target,
+ * the native value sent and the exact calldata. A grant signed over it cannot
+ * be spent on a bigger amount, another contract or other arguments.
+ */
+export function accountCallHash(call: { target: Hex; value: bigint; data: Hex }): Hex {
+  return keccak256(
+    encodeAbiParameters(
+      [{ type: 'bytes32' }, { type: 'address' }, { type: 'uint256' }, { type: 'bytes32' }],
+      [CALL_TYPEHASH, call.target, call.value, keccak256(call.data)],
+    ),
+  ) as Hex;
+}
+
 /** Revert reasons, in ChancelaGate.Reason order. */
 export const GATE_REASONS = [
   'OK',
