@@ -35,7 +35,11 @@ pnpm deploy:testnet
 Then set `POLICY_REGISTRY_ADDRESS` in `.env` and restart the app. `/api/health`
 should report `"anchoring": "enabled"`.
 
-Mainnet deployment uses `pnpm deploy:mainnet`, which also verifies on Monadscan.
+Mainnet: `bash scripts/mainnet-launch.sh` deploys the registry (bound to the
+official ERC-8004 registry), the gate, an agent and its account, verifies them on
+Sourcify and runs the swap proof; it can be rehearsed on a fork first (see the
+header of the script). The addresses it produced are in
+`packages/contracts/deployments/143.json`.
 
 ## Indexer
 

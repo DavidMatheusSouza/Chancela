@@ -380,8 +380,9 @@ order:
 2. **Three design partners** from agent teams building on Monad. The offer is
    concrete: a policy gate and public audit trail for their agent in an
    afternoon, in exchange for telling us where it chafes.
-3. **Mainnet.** The contracts and the app already switch on a chain id; what is
-   missing is a funded attestor and the ERC-8004 mainnet registry, which exists.
+3. **Mainnet.** The registry, the gate and one agent's account are deployed there,
+   bound to the official ERC-8004 registry; what is missing is the app and its
+   per-decision anchors, which still run on testnet.
 4. **A second, independent attestor** run by someone else — the point at which
    "not capturable" stops being a design property and becomes a fact.
 5. **Policy templates** for the common cases — treasury, support, sales — so a

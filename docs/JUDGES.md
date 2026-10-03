@@ -118,7 +118,10 @@ Said here so you do not have to find it:
   integrate through the SDK or HTTP and we are waiting on their details; Metrix AI
   (Track 01) is a target with a written proposal. Nothing is live —
   [ADOPTION.md](ADOPTION.md).
-- **Testnet only.** Mainnet needs a funded attestor; the code switches on chain id.
+- **Mainnet is contracts and one agent, not the app.** The registry, the gate and
+  TA-LIVE's account are on mainnet and have made a real Uniswap swap and reverted two
+  attacks ([README](../README.md#deployed)); chancela.xyz, the audit anchors and passkey
+  approvals still run on testnet.
 - **One attestor.** The design allows any number; only this deployment runs one.
 - **The breaker is public.** Anyone who can call an agent can suspend it — a
   deliberate fail-closed trade-off ([THREAT_MODEL.md](THREAT_MODEL.md)). If

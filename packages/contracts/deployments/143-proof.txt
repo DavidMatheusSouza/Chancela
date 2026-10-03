@@ -1,0 +1,8 @@
+chain 143 · account 0xdf94b10824d2df9b73b7a053377cd41dfb00f034 · router 0xfe31f71c1b106eac32f1a19239c9a9a72ddfb900
+order $0.01 = 0.32142971939185497 MON (pool: 1 MON = 0.031111 USDC)
+policy: ALLOW OK · https://chancela.xyz/proof/TA-AUDIT-40ED3FFC
+attack: same grant, 10x the value  REVERTED Refused(CALL_MISMATCH)  https://monadvision.com/tx/0x2f17258be57852cccae5a7da7afac6bb2a29dabf9868f3f3bd391815d422ee93
+allowed swap through the account   EXECUTED  https://monadvision.com/tx/0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915
+USDC in the account: 0 -> 0.01
+policy: DENY LIMIT_EXCEEDED · https://chancela.xyz/proof/TA-AUDIT-FE8031EB
+attack: refused order, forged grant REVERTED Refused(BAD_SIGNATURE)  https://monadvision.com/tx/0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415

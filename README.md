@@ -9,7 +9,7 @@
 [![chancela-check](https://img.shields.io/npm/v/chancela-check?label=chancela-check)](https://www.npmjs.com/package/chancela-check)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Monad Metropolis 2026 · Track 04: *Trust, Identity & AI Infrastructure* · live at **[chancela.xyz](https://chancela.xyz)** on Monad testnet (10143).
+Monad Metropolis 2026 · Track 04: *Trust, Identity & AI Infrastructure* · live at **[chancela.xyz](https://chancela.xyz)** on Monad testnet (10143) · contracts and one agent on **Monad mainnet (143)**.
 
 > ERC-8004 tells you *who* an agent is. Chancela decides *what it is allowed to do* — and proves why, on-chain.
 
@@ -34,6 +34,13 @@ times the value, [reverted](https://testnet.monadexplorer.com/tx/0x3f4fb1814f2d5
 policy refused, sent with a forged grant, [reverted](https://testnet.monadexplorer.com/tx/0x67e3278e7d2f8bb6458eaad2347a4844a1b597d064c2d14b16300884a48459f6) (`BAD_SIGNATURE`).
 The agent's owner [took the USDC out](https://testnet.monadexplorer.com/tx/0x348446f22f28386c3a25ca5664fa1222b652bbbcc24a96ea54abdc226d595d29) without asking anyone; the agent
 cannot.
+
+**On mainnet, with real MON:** the same agent is [ERC-8004 #10277](https://monadvision.com/tx/0x88924ec1002461b92ce13201e825634455afa8bb754c13e9ba5c9c4c99b4a4f3) in the
+official registry, and its [`ChancelaAccount`](https://monadvision.com/address/0xdf94b10824D2DF9b73b7A053377CD41dFb00F034) trades on
+Uniswap V3. A one-cent MON→USDC swap the policy allowed, [executed](https://monadvision.com/tx/0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915);
+the same grant at ten times the value, [reverted](https://monadvision.com/tx/0x2f17258be57852cccae5a7da7afac6bb2a29dabf9868f3f3bd391815d422ee93) (`CALL_MISMATCH`);
+a $25,000 order the policy refused, sent with a forged grant, [reverted](https://monadvision.com/tx/0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415)
+(`BAD_SIGNATURE`). Small on purpose: the amounts are a cent, the chain and the DEX are real.
 
 **Claude Code as the agent, unedited:** [a transcript](docs/transcripts/claude-code-trading-agent.md)
 where Claude, told to work an order queue, places a $25,000 buy because a
@@ -162,6 +169,24 @@ Monad testnet, all verified on Sourcify (exact match):
 | Demo venue | [`0x0f889Df0214052a184f8d9aC0173149722Ff2934`](https://testnet.monadexplorer.com/address/0x0f889Df0214052a184f8d9aC0173149722Ff2934) |
 | ChancelaAccount (TA-LIVE) | [`0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8`](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8) |
 
+Monad mainnet, verified on Sourcify (exact match), deployed 3 October 2026 with
+[`scripts/mainnet-launch.sh`](scripts/mainnet-launch.sh):
+
+| Contract | Address |
+|---|---|
+| Policy registry | [`0x41db378FE661f9c6D31B031f42107C85eCad88b7`](https://monadvision.com/address/0x41db378FE661f9c6D31B031f42107C85eCad88b7) |
+| ERC-8004 identity (official, not ours) | [`0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`](https://monadvision.com/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432) · TA-LIVE is #10277 |
+| ChancelaGate | [`0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e`](https://monadvision.com/address/0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e) |
+| Demo venue | [`0xD920e314018f51396c31AA9e184d84318551e8bA`](https://monadvision.com/address/0xD920e314018f51396c31AA9e184d84318551e8bA) |
+| ChancelaAccount (TA-LIVE) | [`0xdf94b10824D2DF9b73b7A053377CD41dFb00F034`](https://monadvision.com/address/0xdf94b10824D2DF9b73b7A053377CD41dFb00F034) |
+
+Two mainnet addresses repeat testnet ones with a different contract behind them
+(same deployer, same nonce, different deploy order): `0x41db…88b7` is the policy
+registry on mainnet and the identity registry on testnet; `0xb403…412e` is the
+gate on mainnet and the policy registry on testnet. The app at chancela.xyz and
+the per-decision audit anchors run on testnet; passkey approvals are not on
+mainnet yet.
+
 **433 tests** (327 TypeScript, 89 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
 model, a mutation check that deletes each gate rule and confirms a test
 fails, and the contracts run against the **official ERC-8004 registry on a
@@ -184,7 +209,8 @@ Reach him through [GitHub issues](https://github.com/DavidMatheusSouza/Chancela/
 Built by one person during the Metropolis build window. **No external team has
 integrated yet.** One trading-agent team has agreed to put Chancela in front of
 its orders; this section will link it when it is live, not before. Next:
-design partners on Monad, mainnet (the app already switches on chain id), and a
+design partners on Monad, moving the app and its audit anchors to mainnet (the
+contracts and one agent are already there), and a
 second attestor run by someone else. [ADOPTION.md](docs/ADOPTION.md) has the plan.
 
 ## Run it yourself

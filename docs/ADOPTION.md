@@ -170,7 +170,8 @@ audit trail with them, because none of it was ever ours.
 2. **Three design partners** — one agreed, none live; see *Status* above.
 3. **Policy templates** for treasury, support and sales, so a sane default is
    one click instead of a JSON document.
-4. **Mainnet.** The code switches on chain id; the ERC-8004 mainnet registry
-   exists. Missing: a funded attestor.
+4. **Mainnet.** Contracts and one agent are there since 3 October 2026, bound to
+   the official ERC-8004 registry ([addresses](../README.md#deployed)). Missing:
+   the app and its per-decision anchors, which still run on testnet.
 5. **A second, independent attestor** run by someone else — the point where
    "not capturable" stops being a design property and becomes a fact.
