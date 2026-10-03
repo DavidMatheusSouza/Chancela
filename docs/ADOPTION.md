@@ -14,8 +14,10 @@ page says so.
   be, and their code is not on GitHub, so there is nothing to link yet.
 - **Proposal written:** [Metrix AI](https://github.com/yigenfeng0707-netizen/metrix-ai),
   an autonomous trading agent in Track 01, identified as a target; an
-  integration proposal was written for it (a PR from us, off by default). No
-  integration has come of it.
+  integration proposal was written for it (a PR from us, off by default). The
+  patch itself now exists and runs against the live deployment
+  ([`examples/integrations/metrix`](../examples/integrations/metrix)); it has
+  not been sent to or accepted by Metrix. No integration has come of it.
 - **Packages on npm:** [`chancela-sdk`](https://www.npmjs.com/package/chancela-sdk),
   [`chancela-mcp`](https://www.npmjs.com/package/chancela-mcp),
   [`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela),
@@ -146,6 +148,8 @@ Progress on that list is recorded here, with dates, as it happens:
 |---|---|---|
 | 22 Sep 2026 | Metrix AI (Track 01) | Identified as a target; integration proposal written. No integration. |
 | 23 Sep 2026 | A trading-agent team (not yet named) | Agreed to integrate via SDK/HTTP. Waiting on their details. Not live. |
+| 3 Oct 2026 | Metrix AI (Track 01) | Patch written and run live against our deployment; not yet offered to them. No integration. |
+| 3 Oct 2026 | — | Contracts and one agent on Monad mainnet; a real Uniswap V3 swap allowed, two attacks reverted. |
 
 ## How it sustains itself
 

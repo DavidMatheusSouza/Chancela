@@ -30,6 +30,26 @@ const EXECUTED_ORDER_TX =
 const CLAUDE_TRANSCRIPT =
   'https://github.com/DavidMatheusSouza/Chancela/blob/main/docs/transcripts/claude-code-trading-agent.md';
 
+// Monad mainnet, 3 October 2026: the agent's ChancelaAccount on Uniswap V3.
+const MAINNET_TX = 'https://monadvision.com/tx/';
+const MAINNET_PROOFS = [
+  {
+    tone: 'text-allow',
+    label: 'One-cent swap the policy allowed: executed',
+    href: `${MAINNET_TX}0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915`,
+  },
+  {
+    tone: 'text-deny',
+    label: 'Same grant, ten times the value: CALL_MISMATCH',
+    href: `${MAINNET_TX}0x2f17258be57852cccae5a7da7afac6bb2a29dabf9868f3f3bd391815d422ee93`,
+  },
+  {
+    tone: 'text-deny',
+    label: 'Refused $25,000 order, forged grant: BAD_SIGNATURE',
+    href: `${MAINNET_TX}0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415`,
+  },
+];
+
 const PROOFS = [
   {
     tone: 'text-allow',
@@ -167,7 +187,7 @@ export default async function Landing() {
         </section>
 
         <Reveal delay={190} className="mt-12">
-          <div className="text-[11px] uppercase tracking-wider text-faint">Same agent, same venue, on Monad</div>
+          <div className="text-[11px] uppercase tracking-wider text-faint">Same agent, same venue, on Monad testnet</div>
           <div className="mt-3 grid gap-4 md:grid-cols-3">
             {PROOFS.map((p) => (
               <a
@@ -185,6 +205,29 @@ export default async function Landing() {
                 </span>
               </a>
             ))}
+          </div>
+          <div className="card mt-4 p-5">
+            <div className="text-[11px] uppercase tracking-wider text-chain">Also on Monad mainnet, with real MON</div>
+            <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-muted">
+              The agent is ERC-8004 #10277 in the official registry and its funds sit in a
+              ChancelaAccount, which makes a call only with a grant for exactly that call. It trades
+              on Uniswap V3, a protocol that has never heard of Chancela. The amounts are a cent; the
+              chain and the DEX are real.
+            </p>
+            <ul className="mt-3 grid gap-2 md:grid-cols-3">
+              {MAINNET_PROOFS.map((p) => (
+                <li key={p.href}>
+                  <a
+                    href={p.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`mono inline-flex items-start gap-1 text-[12px] leading-relaxed hover:underline ${p.tone}`}
+                  >
+                    {p.label} <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </Reveal>
 

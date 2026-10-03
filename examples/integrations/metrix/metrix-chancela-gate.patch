@@ -1,0 +1,173 @@
+diff --git a/apps/agent/.env.example b/apps/agent/.env.example
+index 361ed7d..a4f5908 100644
+--- a/apps/agent/.env.example
++++ b/apps/agent/.env.example
+@@ -49,3 +49,10 @@ LLM_API_BASE=https://api-inference.modelscope.cn/v1
+ LLM_API_KEY=
+ LLM_MODEL=Qwen/Qwen3.5-35B-A3B
+ # LLM_API_KEY 为空时也会读 MODELSCOPE_API_KEY
++
++# ---- Chancela policy gate (optional, off unless CHANCELA_AGENT_ID is set) ----
++# Every non-sim order is checked against a policy the owner anchors on Monad,
++# outside this process. https://github.com/DavidMatheusSouza/Chancela
++# CHANCELA_AGENT_ID=TA-LIVE          # public demo agent: PLACE_ORDER up to $500 per order
++# CHANCELA_TOKEN_ID=4                # its ERC-8004 token id in Chancela's registry
++# CHANCELA_QUOTE_USD=1               # USD per unit of the quote currency (e.g. MON price for MON-quoted markets)
+diff --git a/apps/agent/package.json b/apps/agent/package.json
+index 1aabac3..ba846db 100644
+--- a/apps/agent/package.json
++++ b/apps/agent/package.json
+@@ -17,6 +17,8 @@
+     "@metrix/shared": "*",
+     "@noble/ed25519": "^2.1.0",
+     "@noble/hashes": "^1.5.0",
++    "chancela-sdk": "^0.1.0",
++    "viem": "^2.21.32",
+     "dotenv": "^16.4.5",
+     "ethers": "^5.7.2",
+     "fastify": "^5.0.0",
+diff --git a/apps/agent/src/execution/chancela-gate.ts b/apps/agent/src/execution/chancela-gate.ts
+new file mode 100644
+index 0000000..b33cf8a
+--- /dev/null
++++ b/apps/agent/src/execution/chancela-gate.ts
+@@ -0,0 +1,78 @@
++import type { IntentOrder } from "@metrix/shared";
++
++/**
++ * Chancela policy gate (optional, off by default).
++ *
++ * When CHANCELA_AGENT_ID is set, every non-sim order is first sent to Chancela
++ * (https://github.com/DavidMatheusSouza/Chancela) as a PLACE_ORDER request. The
++ * limits live in a policy the agent's owner anchors on Monad -- outside this
++ * process, so neither the chat command `set_risk` nor a prompt injection can
++ * loosen them. The order goes out only if the answer is ALLOW *and* its signed
++ * capsule verifies against the attestor read from the registry contract for
++ * exactly these parameters. Anything else (DENY, approval pending, unreachable,
++ * bad signature) throws, and the agent loop records the order as rejected.
++ *
++ * R1–R6 still run first; this is a second, external gate, not a replacement.
++ */
++const env = process.env;
++
++export const chancelaGate = {
++  agentId: env.CHANCELA_AGENT_ID ?? "",
++  /** ERC-8004 token id of the agent in Chancela's registry. */
++  tokenId: BigInt(env.CHANCELA_TOKEN_ID ?? "0"),
++  apiUrl: env.CHANCELA_API_URL ?? "https://chancela.xyz",
++  rpcUrl: env.CHANCELA_RPC_URL ?? "https://testnet-rpc.monad.xyz",
++  registry: (env.CHANCELA_REGISTRY ?? "0xb403392DDE0FdA621264FE3dCe1B7C3ad5bA412e") as `0x${string}`,
++  /** USD value of one unit of the market's quote currency (1 for USDC quotes). */
++  quoteUsd: Number(env.CHANCELA_QUOTE_USD ?? 1),
++};
++
++export function chancelaEnabled(): boolean {
++  return chancelaGate.agentId !== "";
++}
++
++/** The PLACE_ORDER parameters for an intent. `amount` is the notional in cents. */
++export function toPlaceOrder(intent: IntentOrder, quoteUsd = chancelaGate.quoteUsd) {
++  const size = Number(intent.size);
++  const price = Number(intent.price);
++  if (!Number.isFinite(size) || size <= 0 || !Number.isFinite(price) || price <= 0) {
++    throw new Error("Chancela: order has no usable size/price, cannot state its notional");
++  }
++  return {
++    amount: Math.ceil(size * price * quoteUsd * 100),
++    market: intent.market,
++    side: intent.side === "buy" ? "BUY" : "SELL",
++    orderType: intent.type === "limit" ? "LIMIT" : "MARKET",
++    venue: intent.venue,
++    clientOrderId: intent.clientOrderId,
++  };
++}
++
++let client: Promise<import("chancela-sdk").ChancelaClient> | undefined;
++function getClient() {
++  client ??= import("chancela-sdk").then(({ createClient, attestorFromRegistry }) =>
++    createClient({
++      baseUrl: chancelaGate.apiUrl,
++      attestor: attestorFromRegistry({
++        rpcUrl: chancelaGate.rpcUrl,
++        registry: chancelaGate.registry,
++        tokenId: () => chancelaGate.tokenId,
++      }),
++    }),
++  );
++  return client;
++}
++
++/** Runs `send` only with a verified ALLOW for this exact order; throws otherwise. */
++export async function withChancela<T>(intent: IntentOrder, send: () => Promise<T>): Promise<T> {
++  if (!chancelaEnabled() || intent.venue === "sim") return send();
++  const chancela = await getClient();
++  try {
++    return await chancela.guard(chancelaGate.agentId, "PLACE_ORDER", toPlaceOrder(intent), send);
++  } catch (err) {
++    const e = err as { name?: string; code?: string; message: string; decision?: { reasonCode?: string; auditId?: string } };
++    if (e.name !== "ChancelaError") throw err;
++    const audit = e.decision?.auditId ? ` ${chancelaGate.apiUrl}/proof/${e.decision.auditId}` : "";
++    throw new Error(`Chancela ${e.code}${e.decision?.reasonCode ? ` [${e.decision.reasonCode}]` : ""}: order not sent.${audit}`);
++  }
++}
+diff --git a/apps/agent/src/execution/router.ts b/apps/agent/src/execution/router.ts
+index 3d6eaff..84a2a90 100644
+--- a/apps/agent/src/execution/router.ts
++++ b/apps/agent/src/execution/router.ts
+@@ -1,4 +1,5 @@
+ import type { DecisionStatus, ExecutionKind, IntentOrder } from "@metrix/shared";
++import { withChancela } from "./chancela-gate";
+ import { closeAllPositions, executeSim } from "./sim-adapter";
+ 
+ export interface ExecutionResult {
+@@ -13,8 +14,14 @@ export interface ExecutionResult {
+  * sim  → 模拟成交（Demo / 联调），不生成假 0x hash
+  * kuru → KuruSdk 真实下单（testnet/live），txHash 为链上凭证
+  * perpl→ Perpl 交易 WS（适配器已写；默认 PERPL_ENABLED=false，尚未主网/测试网成交验证）
++ *
++ * 配置 CHANCELA_AGENT_ID 后，非 sim 订单先经 Chancela 链上策略闸门放行（见 chancela-gate.ts）；未配置则行为不变。
+  */
+-export async function execute(intent: IntentOrder): Promise<ExecutionResult> {
++export function execute(intent: IntentOrder): Promise<ExecutionResult> {
++  return withChancela(intent, () => dispatch(intent));
++}
++
++async function dispatch(intent: IntentOrder): Promise<ExecutionResult> {
+   if (intent.venue === "sim") {
+     const r = executeSim(intent);
+     return { status: "executed", fillPrice: r.fillPrice, executionKind: "simulation" };
+diff --git a/apps/agent/tests/unit.ts b/apps/agent/tests/unit.ts
+index dff13f0..ef04b5d 100644
+--- a/apps/agent/tests/unit.ts
++++ b/apps/agent/tests/unit.ts
+@@ -13,6 +13,7 @@ import { parseIntent } from "../src/llm/intent-parser";
+ import { extractJsonObject } from "../src/llm/modelscope";
+ import { commandFromModelJson } from "../src/llm/parse-command";
+ import { executeSim } from "../src/execution/sim-adapter";
++import { chancelaEnabled, toPlaceOrder } from "../src/execution/chancela-gate";
+ import { fillProof, isOnchainTxHash } from "@metrix/shared";
+ import { store } from "../src/store";
+ import { evaluateGrid, resetGrid } from "../src/strategy/grid";
+@@ -355,5 +356,22 @@ t("applyParsedCommand set_risk 与直调一致", () => {
+ });
+ 
+ // ---------------- 汇总 ----------------
++// ---- Chancela policy gate (optional) ----
++t("Chancela 闸门：未配置 CHANCELA_AGENT_ID 时关闭", () => {
++  assert.equal(chancelaEnabled(), false);
++});
++t("Chancela 闸门：订单名义金额按美分上取整", () => {
++  const o = toPlaceOrder(
++    { clientOrderId: "c1", venue: "kuru", market: "MON/USDC", side: "buy", type: "market", price: "0.031", size: "1000", strategy: "grid", reason: "t" },
++    1,
++  );
++  assert.deepEqual(o, { amount: 3100, market: "MON/USDC", side: "BUY", orderType: "MARKET", venue: "kuru", clientOrderId: "c1" });
++});
++t("Chancela 闸门：没有价格的订单不放行", () => {
++  assert.throws(() =>
++    toPlaceOrder({ clientOrderId: "c2", venue: "kuru", market: "MON/USDC", side: "sell", type: "market", size: "1", strategy: "grid", reason: "t" }, 1),
++  );
++});
++
+ console.log(`\n结果: ${passed} 通过, ${failed} 失败`);
+ if (failed > 0) process.exit(1);
