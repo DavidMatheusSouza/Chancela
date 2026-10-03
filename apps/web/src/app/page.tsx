@@ -221,9 +221,9 @@ export default async function Landing() {
                     href={p.href}
                     target="_blank"
                     rel="noreferrer"
-                    className={`mono inline-flex items-start gap-1 text-[12px] leading-relaxed hover:underline ${p.tone}`}
+                    className={`mono text-[12px] leading-relaxed hover:underline ${p.tone}`}
                   >
-                    {p.label} <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" />
+                    {p.label} <ExternalLink className="inline h-3 w-3 align-[-1px]" />
                   </a>
                 </li>
               ))}

@@ -28,6 +28,8 @@ pages.push(['t1', term('The chain’s own answer', `cast receipt ${short(TX)} --
   `from = the agent’s wallet · to = the venue · status 0: Monad reverted the order the policy refused. Recorded ${DAY}.`)]);
 pages.push(['t3', term('Same agent, same venue', 'cast receipt <both orders> --rpc-url https://testnet-rpc.monad.xyz', read('pair.txt'),
   'The order the policy allowed carried the attestor’s grant and was filled. The one it refused could not be.')]);
+pages.push(['t5', term('Monad mainnet, real MON, a DEX that has never heard of Chancela', 'cast receipt <the three transactions> --rpc-url https://rpc.monad.xyz', read('mainnet.txt'),
+  'Through the agent’s ChancelaAccount, 3 Oct 2026. The amounts are a cent; the chain and the DEX are real. Links in the README.')]);
 pages.push(['t4', term('Claude Code as the agent, unedited', 'bash examples/trading-agent/claude-code-session.sh', read('claude.txt'),
   'Claude complied with the forged exception. The exchange tool asked Chancela first. Full transcript: docs/transcripts in the repository.')]);
 pages.push(['t2', term('Verify it yourself', 'npx chancela-check   (the on-chain half)', read('check-gate.txt'), `A real run on ${DAY}. Every line says who answered: Monad, your machine, or the service.`)]);

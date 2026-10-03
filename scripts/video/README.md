@@ -11,7 +11,7 @@ python3 -m venv .tts && .tts/bin/pip install edge-tts  # once; needs ffmpeg with
 node scripts/record-demo-captioned.mjs https://chancela.xyz recording
 
 # slides and terminal stills -> PNG: the pitch deck's slide files (deck/project/…),
-# plus receipt.txt (`cast receipt <reverted tx>`) and check-gate.txt (the gate
+# plus receipt.txt (`cast receipt <reverted tx>`), pair.txt, claude.txt, mainnet.txt and check-gate.txt (the gate
 # half of a real `npx chancela-check` run) in the same folder
 node scripts/video/render-stills.mjs <folder>     # -> video-out/slides/s1..s10.png, stills/t1,t2.png
 

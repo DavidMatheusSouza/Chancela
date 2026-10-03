@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib import *
 REC = os.environ.get("RECORDING", "recording")   # output of record-demo-captioned.mjs
 OUT = os.environ.get("VIDEO_OUT", "video-out")
-STILLS = os.environ.get("STILLS", f"{OUT}/stills")  # t1.png: the reverted receipt, t2.png: chancela-check
+STILLS = os.environ.get("STILLS", f"{OUT}/stills")  # t1: the reverted receipt, t5: mainnet, t4: Claude Code, t2: chancela-check
 W = f"{OUT}/tech"; os.makedirs(W, exist_ok=True)
 marks = json.load(open(f"{REC}/marks.json"))
 src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
@@ -14,8 +14,8 @@ SEG = [
   "This is Chancela, live on Monad testnet. A policy decides what an AI agent may do, Monad records it, and the venue enforces it.",
   "Chancela, live on Monad testnet: limits an AI agent cannot talk its way past.\nA policy decides, Monad records, the venue enforces."),
  ("proofs", "demo",
-  "The front page leads with proof. The same agent at the same venue: an order its policy allowed, executed. One it refused, reverted. And Claude Code, trying it.",
-  "Proof first. Same agent, same venue: the allowed order executed, the refused one reverted.\nAnd Claude Code, acting as the agent, tried it."),
+  "The front page leads with proof. An order the policy allowed, executed. One it refused, reverted. Claude Code, trying it. And the same on mainnet, with real money.",
+  "Proof first: the allowed order executed, the refused one reverted, Claude Code tried it.\nAnd the same on Monad mainnet, with real MON."),
  ("demo", "identity",
   "One click opens the guided demo. No login, no wallet, and every step runs against the real system.",
   "One click, no login, no wallet.\nEvery step runs against the real system."),
@@ -52,9 +52,9 @@ SEG = [
  ("still", "t1",
   "That is not our word. Ask the chain: the transaction came from the agent's wallet, went to the venue, and failed.",
   "Not our word — the chain's: from the agent's wallet, to the venue, status 0.\nThe order the policy refused did not execute."),
- ("still", "t3",
-  "And the same agent's two hundred dollar order, the one its policy allowed, carried the attestor's grant. Same wallet, same venue: filled.",
-  "Same agent, same venue: the $200 order the policy allowed carried the attestor's grant.\nStatus 1: filled. The refused one, status 0."),
+ ("still", "t5",
+  "And on mainnet, on Uniswap, a protocol that has never heard of Chancela. The swap the policy allowed went through. The same grant at ten times the value, and a forged one, both reverted.",
+  "Monad mainnet, real MON, Uniswap V3 — a DEX that has never heard of Chancela.\nThe allowed swap executed. Ten times the value, and a forged grant: both reverted."),
  ("still", "t4",
   "Here Claude Code is the agent. A forwarded email claims risk approved an exception, and Claude places the twenty-five thousand dollar order. The exchange tool asks Chancela first. Not filled.",
   "Claude Code as the agent, unedited: told risk approved an exception, it placed the $25,000 order.\nThe exchange tool asked Chancela first. Rejected: LIMIT_EXCEEDED."),
