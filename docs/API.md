@@ -148,12 +148,24 @@ Version numbers increase strictly, matching `anchorPolicy()` on-chain.
 | | | |
 |---|---|---|
 | `GET` | `/api/proofs/:id` | Accepts a decision id, a decision hash or an audit id |
+| `GET` | `/api/proofs/:id/replay` | The inputs the policy engine was given for that decision |
 
 Returns the capsule alongside a `decisionHash` recomputed from it on every
 request, so a reader can verify the service is serving the hash it anchored
 instead of taking the claim on trust. `verified` is false if the two disagree,
 which would mean the record has been tampered with. Only hashes and references
 are returned -- never the prompt, never the raw model output.
+
+`/replay` returns `bundle`: agent status, policy document, parameters, the
+day's usage counters, risk signals, time and nonce. That is everything
+`evaluate()` reads, so running the engine on it must reproduce `decisionHash`
+(`npx chancela-check replay <id>` does, against the hashes in the anchoring
+transaction). `serverReplay` is the service's own re-run, included for
+convenience and worth nothing as evidence. The bundle contains the parameters,
+so the endpoint answers only for the shared demo account's agents; for any other
+agent it is `403 INPUTS_PRIVATE`, and the same bundle is the `replay` field of
+the `authorize` response, which goes to whoever sent those parameters. Decisions
+taken before inputs were recorded answer `404 INPUTS_NOT_RECORDED`.
 
 ## Rate limits
 

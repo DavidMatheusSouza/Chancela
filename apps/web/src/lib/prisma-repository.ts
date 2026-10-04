@@ -1,6 +1,6 @@
 import { PrismaClient, type Prisma } from '@prisma/client';
 import type { AuthorizationCapsule, Hex, PolicyDocument } from '@chancela/shared';
-import type { UsageWindow } from '@chancela/policy-engine';
+import type { ReplayBundle, UsageWindow } from '@chancela/policy-engine';
 import type {
   ActionRow,
   AgentRow,
@@ -282,6 +282,7 @@ export class PrismaRepository implements Repository {
     capsule: Prisma.JsonValue;
     signature: string;
     parameters: Prisma.JsonValue;
+    inputs: Prisma.JsonValue | null;
     trace: Prisma.JsonValue;
     riskFactors: Prisma.JsonValue;
     rawIntent: Prisma.JsonValue | null;
@@ -326,6 +327,7 @@ export class PrismaRepository implements Repository {
       expiresAt: iso(d.expiresAt),
       createdAt: iso(d.createdAt),
       parameters: (d.parameters ?? {}) as Record<string, unknown>,
+      inputs: (d.inputs ?? undefined) as unknown as ReplayBundle | undefined,
       anchorStatus: (d.audit?.anchorStatus ?? 'SKIPPED') as DecisionRow['anchorStatus'],
       onchainTxHash: d.audit?.onchainTxHash ?? undefined,
       blockNumber: d.audit?.blockNumber != null ? d.audit.blockNumber.toString() : undefined,
@@ -358,6 +360,7 @@ export class PrismaRepository implements Repository {
           capsule: json(row.capsule),
           signature: row.signature,
           parameters: json(row.parameters),
+          inputs: row.inputs === undefined ? undefined : json(row.inputs),
           trace: json(row.trace),
           riskFactors: json(row.riskFactors),
           rawIntent: row.rawIntent === undefined ? undefined : json(row.rawIntent),

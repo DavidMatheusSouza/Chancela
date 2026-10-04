@@ -161,6 +161,10 @@ model Decision {
   /// Kept on the decision itself: a DENY produces no Action row, and the
   /// executor re-hashes these to detect tampering between decision and use.
   parameters    Json            @default("{}")
+  /// Everything the policy engine was given for this decision, so anyone
+  /// holding it can run the engine again and reproduce `decisionHash`.
+  /// Null on decisions taken before replay existed.
+  inputs        Json?
   trace         Json
   riskFactors   Json
   rawIntent     Json?

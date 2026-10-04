@@ -6,7 +6,7 @@ import type {
   PolicyDocument,
   RiskLevel,
 } from '@chancela/shared';
-import type { UsageWindow } from '@chancela/policy-engine';
+import type { ReplayBundle, UsageWindow } from '@chancela/policy-engine';
 
 export interface AgentRow {
   id: string;
@@ -65,6 +65,8 @@ export interface DecisionRow {
   expiresAt: string;
   createdAt: string;
   parameters: Record<string, unknown>;
+  /** What the policy engine was given. Absent on decisions that predate replay. */
+  inputs?: ReplayBundle;
   anchorStatus: 'PENDING' | 'CONFIRMED' | 'FAILED' | 'SKIPPED';
   onchainTxHash?: string;
   blockNumber?: string;

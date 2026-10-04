@@ -51,7 +51,7 @@ first, so the order is not filled.
 
 | Time | How |
 |---|---|
-| 60 seconds | `npx chancela-check` — 12 checks against Monad, not against our word. It verifies a live decision against the attestor the owner registered on-chain, then attacks the gate with a grant forged on your machine: Monad reverts it three ways (`BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`). That part works with chancela.xyz down. |
+| 60 seconds | `npx chancela-check` — 14 checks against Monad, not against our word. It verifies a live decision against the attestor the owner registered on-chain, runs the policy engine again on your machine under the policy anchored on Monad, then attacks the gate with a grant forged on your machine: Monad reverts it three ways (`BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`). That part works with chancela.xyz down. |
 | 2 minutes | **[chancela.xyz/demo](https://chancela.xyz/demo)** → *Run full demo*. No wallet, no sign-up. A trading agent's $200 order is allowed, its $2,000 order is refused, a prompt injection changes nothing, a burst trips the breaker, a transfer waits for the owner's passkey — every step live, every proof on Monad. |
 | 10 minutes | [docs/JUDGES.md](docs/JUDGES.md) |
 
@@ -72,6 +72,10 @@ agent decides to send it anyway.
    amount after the check and the capsule no longer verifies.
 3. **Every decision is a transaction on Monad — refusals included.** The public
    [`/live`](https://chancela.xyz/live) ledger re-checks each one against the chain.
+   And any of them can be run again by someone else: the engine reads nothing
+   but its inputs, so `npx chancela-check replay <id>` runs it on your machine
+   and has to arrive at the decision hash Monad recorded, under the policy the
+   owner anchored. A verdict the policy does not give [does not replay](docs/DESIGN.md#what-this-deployment-can-do-to-you-and-what-it-cannot).
 4. **The venue enforces it.** A protocol adds one modifier (`ChancelaGuarded`);
    an order without a valid grant for *that exact call*, from *that agent's
    wallet*, reverts on-chain. Suspending the agent or publishing a new policy
@@ -97,7 +101,7 @@ designed to sit next to them. This is what each one gives you on its own:
 | Wallet spending limits, session keys | ✓ | — (budget) | — | config only | — |
 | Allowlist / budget contract in front of payments | ✓ | — (budget, counterparty) | reverts only | ✓ | — |
 | Identity and reputation registries (ERC-8004 alone) | — | — | feedback after the fact | ✓ | — |
-| **Chancela** | ✓ at venues with `ChancelaGuarded`; `guard()` elsewhere | ✓ intent hash / call hash | ✓ every decision anchored | ✓ `npx chancela-check` | ✓ P-256 precompile |
+| **Chancela** | ✓ at venues with `ChancelaGuarded`; `guard()` elsewhere | ✓ intent hash / call hash | ✓ every decision anchored | ✓ `npx chancela-check`, and any decision re-run with `replay` | ✓ P-256 precompile |
 
 And the owner can move the agent to another attestor in one transaction — no
 platform, us included, holds it hostage. [More in DESIGN.md](docs/DESIGN.md#not-capturable-by-a-single-platform).
@@ -187,7 +191,7 @@ gate on mainnet and the policy registry on testnet. The app at chancela.xyz and
 the per-decision audit anchors run on testnet; passkey approvals are not on
 mainnet yet.
 
-**433 tests** (327 TypeScript, 89 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
+**460 tests** (354 TypeScript, 89 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
 model, a mutation check that deletes each gate rule and confirms a test
 fails, and the contracts run against the **official ERC-8004 registry on a
 Monad mainnet fork** — [the full table](docs/DESIGN.md#verify). Slither in CI;

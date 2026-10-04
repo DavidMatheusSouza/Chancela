@@ -13,6 +13,8 @@
  * step needs the service's own word for something, it says so.
  */
 import { createClient, attestorFromRegistry, type Decision } from 'chancela-sdk';
+import { lookupTool } from '@chancela/shared';
+import { replay, type ReplayBundle } from '@chancela/policy-engine';
 import { createPublicClient, http, type Address, type Hex } from 'viem';
 import { checkGate, GATE_DEFAULTS } from './gate';
 
@@ -43,7 +45,21 @@ const REGISTRY_ABI = [
     inputs: [{ name: 'agentTokenId', type: 'uint256' }],
     outputs: [{ type: 'address' }],
   },
+  {
+    type: 'function',
+    name: 'activePolicy',
+    stateMutability: 'view',
+    inputs: [{ name: 'agentTokenId', type: 'uint256' }],
+    outputs: [
+      { name: 'policyHash', type: 'bytes32' },
+      { name: 'version', type: 'uint32' },
+      { name: 'anchoredAt', type: 'uint64' },
+    ],
+  },
 ] as const;
+
+/** A decision as the service returns it: the SDK's shape plus the engine's inputs. */
+type Replayable = Decision & { replay?: ReplayBundle };
 
 export interface Step {
   n: number;
@@ -175,15 +191,58 @@ export async function check(options: Options = {}): Promise<Step[]> {
       source: 'local',
     });
 
+    // The policy the owner anchored, asked of the registry. The two replays
+    // below are compared with this, not with the policy hash the service sent.
+    let anchoredPolicy: Hex | undefined;
+    try {
+      [anchoredPolicy] = await chainClient.readContract({
+        address: registry,
+        abi: REGISTRY_ABI,
+        functionName: 'activePolicy',
+        args: [tokenId],
+      });
+    } catch {
+      anchoredPolicy = undefined;
+    }
+
+    // The decision, run again on this machine. The engine reads nothing but
+    // its inputs, so the inputs the service says it used must reproduce the
+    // hash it signed -- under the policy Monad holds, on the parameters sent.
+    const allowedInputs = (allowed as Replayable).replay;
+    if (!allowedInputs || !anchoredPolicy) {
+      add({
+        title: 'Run the policy engine on that decision here',
+        ok: false,
+        detail: !allowedInputs
+          ? 'the deployment did not return the inputs to its decision'
+          : 'could not read the anchored policy from the registry',
+        source: !allowedInputs ? 'service' : 'chain',
+      });
+    } else {
+      const rerun = replay(allowedInputs, {
+        decisionHash: allowed.capsule.decisionHash,
+        intentHash: allowed.capsule.intentHash,
+        policyHash: anchoredPolicy,
+      });
+      add({
+        title: 'Run the policy engine on that decision here',
+        ok: rerun.ok,
+        detail: rerun.ok
+          ? `${rerun.result?.decision} again, same decision hash ${short(allowed.capsule.decisionHash)}, under the policy anchored on Monad`
+          : `the engine does not reproduce it: ${rerun.mismatch}`,
+        source: 'local',
+      });
+    }
+
     // 5. A refusal is an answer too, and it has to be signed and recorded like
     //    any other -- an audit trail that only proves the allows proves nothing.
     let refused: Decision | undefined;
     try {
-      refused = await client.authorize(agentId, DEFAULTS.refusedAction, { id: 'cus_1' });
+      refused = await client.authorize(agentId, DEFAULTS.refusedAction, { customerId: 'cus_1' });
       const refusedVerdict = await client.verify(refused, {
         agentId,
         action: DEFAULTS.refusedAction,
-        parameters: { id: 'cus_1' },
+        parameters: { customerId: 'cus_1' },
       });
       add({
         title: `Ask to ${DEFAULTS.refusedAction}, which the policy does not grant`,
@@ -193,6 +252,57 @@ export async function check(options: Options = {}): Promise<Step[]> {
       });
     } catch (err) {
       add({ title: `Ask to ${DEFAULTS.refusedAction}`, ok: false, detail: (err as Error).message, source: 'service' });
+    }
+
+    // Could the service have refused something the policy allows, or the other
+    // way round? Not without it showing: the refusal replays to the same hash
+    // under the anchored policy, and the only way to make the engine say
+    // otherwise is a different policy -- which no longer hashes to Monad's.
+    const refusedInputs = (refused as Replayable | undefined)?.replay;
+    if (refused && refusedInputs && anchoredPolicy) {
+      const expected = {
+        decisionHash: refused.capsule.decisionHash,
+        intentHash: refused.capsule.intentHash,
+        policyHash: anchoredPolicy,
+      };
+      const rerun = replay(refusedInputs, expected);
+      const permission = lookupTool(DEFAULTS.refusedAction)?.requiredPermission;
+      const doctored = replay(
+        {
+          ...refusedInputs,
+          policy: refusedInputs.policy && {
+            ...refusedInputs.policy,
+            permissions: [...refusedInputs.policy.permissions, ...(permission ? [permission] : [])],
+          },
+        },
+        expected,
+      );
+      // Past the permission step the engine may still stop for another reason;
+      // what matters is that the refusal as signed is no longer what it says.
+      const flipped = doctored.result !== undefined && doctored.result.reasonCode !== refused.reasonCode;
+      // A refusal for some other reason -- the circuit breaker has the agent
+      // suspended, say -- is not one a permission would change. It still has to
+      // replay; the doctored half has nothing to show.
+      const aboutPermission = refused.reasonCode === 'PERMISSION_DENIED';
+      add({
+        title: 'Run the refusal here, then with a policy doctored to allow it',
+        ok: rerun.ok && (!aboutPermission || (flipped && doctored.mismatch === 'POLICY_HASH')),
+        detail: !rerun.ok
+          ? `the engine does not reproduce the refusal: ${rerun.mismatch}`
+          : !aboutPermission
+            ? `${refused.decision} — ${refused.reasonCode} again, same hash; refused before the policy's permissions were consulted, so there is nothing to doctor`
+          : flipped && doctored.mismatch === 'POLICY_HASH'
+            ? `${refused.decision} again, same hash; with the permission added the engine says ${doctored.result?.decision} — ${doctored.result?.reasonCode}, and that policy is not the one on Monad`
+            : 'a doctored policy was not told apart from the anchored one',
+        source: 'local',
+      });
+    } else if (refused) {
+      add({
+        title: 'Run the refusal here, then with a policy doctored to allow it',
+        ok: false,
+        detail: refusedInputs ? 'could not read the anchored policy from the registry' : 'the deployment did not return the inputs to its decision',
+        source: refusedInputs ? 'chain' : 'service',
+      });
     }
 
     // 6. Does the chain hold the decision this machine was handed? Anchoring is

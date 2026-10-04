@@ -1,5 +1,7 @@
-// One self-contained file: the SDK is inlined so `npx chancela-check` installs
-// one small package and starts, rather than resolving a dependency tree first.
+// One self-contained file: the SDK and the policy engine are inlined so
+// `npx chancela-check` installs one small package and starts, rather than
+// resolving a dependency tree first. The engine is the same source the service
+// runs -- that is what makes a replay here mean anything.
 // viem stays a real dependency -- it is what talks to Monad.
 import { build } from 'esbuild';
 import { chmodSync, rmSync } from 'node:fs';
@@ -15,7 +17,8 @@ await build({
   external: ['viem', 'viem/*'],
   alias: {
     'chancela-sdk': '../sdk/src/index.ts',
-    '@chancela/shared': '../sdk/shared-lite.ts',
+    '@chancela/shared': '../shared/src/index.ts',
+    '@chancela/policy-engine': '../policy-engine/src/index.ts',
   },
 });
 chmodSync('dist/cli.js', 0o755);

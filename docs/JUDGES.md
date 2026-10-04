@@ -5,9 +5,9 @@ check without taking our word for it.
 
 | You have | Do this | You will have seen |
 |---|---|---|
-| 60 seconds | `npx chancela-check` | 12 checks: a live decision verified against Monad by your own machine, then three grants forged on your machine reverted by the gate on Monad |
+| 60 seconds | `npx chancela-check` | 14 checks: a live decision verified against Monad by your own machine and run again there by the policy engine, then three grants forged on your machine reverted by the gate on Monad |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
-| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 433 tests (327 TypeScript, 89 Foundry, 17 Python), and a real agent being stopped over MCP |
+| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 460 tests (354 TypeScript, 89 Foundry, 17 Python), and a real agent being stopped over MCP |
 
 No wallet, no account and no API key is needed for any of them.
 
@@ -26,6 +26,10 @@ refuse, and then checks both **without trusting the service that issued them**:
   the response;
 - the capsule is checked against the parameters in hand, then re-checked with
   one parameter swapped underneath it — it must be rejected;
+- the policy engine is run again on your machine, on the inputs the service
+  says it used, and has to give the same decision hash under the policy hash the
+  registry holds; the refusal is then run with a policy doctored to permit it —
+  the engine says otherwise, and that policy no longer hashes to Monad's;
 - both decisions, the refusal too, are looked up in the contract by hash;
 - a grant forged on your machine is sent from the trading agent's own wallet
   three ways, and Monad reverts each: `BAD_SIGNATURE`, `CALL_MISMATCH`,
@@ -37,6 +41,22 @@ Each line names who answered: `monad`, `here` (your machine) or `server`. Only
 the `server` lines rely on the service, and only for the fact that it replied.
 
 From a clone, the same tool: `pnpm install && node packages/check/dist/cli.js`.
+
+**Any decision on the public ledger, run again.** Pick a row on
+[chancela.xyz/live](https://chancela.xyz/live), open its proof page and copy the
+command, or:
+
+```bash
+npx chancela-check replay <audit id>
+```
+
+It fetches the inputs the decision was taken on, decodes the anchoring
+transaction from Monad, and runs the engine on your machine. The policy in the
+inputs must hash to the policy hash Monad recorded — the registry refuses to
+record a decision under any policy but the one the owner anchored — the
+parameters must hash to the recorded intent hash, and the engine's answer must
+be the recorded decision hash. It prints the engine's steps, so for a refusal
+you see the line it stopped at.
 
 ## 3 minutes — watch it work
 
@@ -100,6 +120,7 @@ is a transaction on Monad with a proof link printed next to it.
 | The model never authorizes | Its output schema is `.strict()` with no field for an outcome — `packages/ai`; injection tests in `pnpm test:security` |
 | Deny by default | Exactly one `return ALLOW` in the engine; a test fails if a second appears — `packages/policy-engine` |
 | A permission cannot be reused for other parameters | Intent hash in the capsule, recomputed at execution — `INTENT_MISMATCH` in `npx chancela-check` |
+| A decision is what the policy says, not what the operator says | The engine is a pure function and is bundled into `chancela-check`: `npx chancela-check replay <id>` re-runs a recorded decision on your machine against the hashes decoded from its anchoring transaction. Its tests are specific lies — a verdict the policy does not give, a policy swapped afterwards, swapped parameters, an anchor that is not the registry's — each of which must fail (`packages/check/test/replay.test.ts`) |
 | Refusals are recorded, not only approvals | `isDecisionRecorded(hash)` on the registry, for the refusal `chancela-check` produces |
 | The registry has no admin | The only modifier is `onlyAgentOwner`; identity registry is `immutable` — [`TrustAgentPolicyRegistry.sol`](../packages/contracts/src/TrustAgentPolicyRegistry.sol) |
 | The owner, not us, chooses the attestor | `setAttestor()` is `onlyAgentOwner` — one transaction moves an agent away from this deployment |

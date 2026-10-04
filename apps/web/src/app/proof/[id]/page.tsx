@@ -5,7 +5,7 @@ import { REASON_TEXT, type ReasonCode } from '@chancela/shared';
 import { PublicHeader } from '@/components/public-header';
 import { DecisionPill, Label, Mono, RiskPill } from '@/components/primitives';
 import { getRepository } from '@/lib/store';
-import { findDecision, recomputeDecisionHash } from '@/lib/proof';
+import { findDecision, inputsArePublic, recomputeDecisionHash, replayDecision } from '@/lib/proof';
 import { explorerAddressUrl, explorerTxUrl, readAnchor } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
@@ -28,6 +28,10 @@ type Check = { label: string; detail: string; state: 'pass' | 'fail' | 'pending'
  * on every load: the hash is recomputed from the capsule, and the anchoring
  * transaction is fetched from Monad and decoded, so "anchored" means the hash
  * Monad executed, not a status column in our database.
+ *
+ * Where the decision's inputs were recorded, the policy engine is run on them
+ * again and has to arrive at the same hash. For the public demo agents the
+ * inputs are shown and the same re-run is one command on the reader's machine.
  */
 export default async function ProofPage({ params }: { params: { id: string } }) {
   const repo = await getRepository();
@@ -86,6 +90,19 @@ export default async function ProofPage({ params }: { params: { id: string } }) 
       },
     );
   }
+
+  const replayed = replayDecision(decision);
+  const showInputs = Boolean(decision.inputs) && inputsArePublic(agent?.ownerAddress);
+  if (replayed) {
+    checks.push({
+      label: 'The policy engine gives this answer again',
+      detail: replayed.ok
+        ? 'Run just now on the inputs recorded with the decision: same policy hash, same intent hash, same decision hash.'
+        : `Run again on the recorded inputs, the engine does not reproduce this decision (${replayed.mismatch}).`,
+      state: replayed.ok ? 'pass' : 'fail',
+    });
+  }
+  const steps = (replayed?.result?.trace ?? []) as Array<{ step: number; name: string; passed: boolean; detail?: string }>;
 
   const failed = checks.some((c) => c.state === 'fail');
   const verified = checks.every((c) => c.state === 'pass');
@@ -163,6 +180,44 @@ export default async function ProofPage({ params }: { params: { id: string } }) 
           </dl>
         </section>
 
+        {replayed && showInputs && (
+          <section className="mt-8">
+            <h2 className="text-[15px] font-semibold tracking-tight">Run it again</h2>
+            <p className="mt-1 text-[13px] text-muted">
+              The policy engine reads nothing but its input: no clock, no database, no model. These are the inputs this
+              decision was taken on and the steps the engine took. Run on your machine, they must give the hash above.
+            </p>
+            <ol className="card mt-3 divide-y divide-line">
+              {steps.map((s) => (
+                <li key={`${s.step}-${s.name}`} className="flex items-start gap-3 px-5 py-2.5 text-[12.5px]">
+                  {s.passed ? (
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-allow" aria-label="passed" />
+                  ) : (
+                    <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-deny" aria-label="stopped here" />
+                  )}
+                  <span className="mono w-36 shrink-0 text-ink">
+                    {s.step}. {s.name}
+                  </span>
+                  <span className="min-w-0 text-muted [overflow-wrap:anywhere]">{s.detail ?? ''}</span>
+                </li>
+              ))}
+            </ol>
+            <pre className="mono card mt-3 whitespace-pre-wrap p-4 text-[11.5px] leading-relaxed text-ink [overflow-wrap:anywhere]">
+              {`# the engine, on your machine, against Monad
+npx chancela-check replay ${decision.auditId}
+
+# the inputs it runs on
+curl https://chancela.xyz/api/proofs/${decision.auditId}/replay`}
+            </pre>
+            <details className="card mt-3 p-4">
+              <summary className="cursor-pointer text-[12.5px] text-ink">The inputs</summary>
+              <pre className="mono mt-3 whitespace-pre-wrap text-[11px] leading-relaxed text-muted [overflow-wrap:anywhere]">
+                {JSON.stringify(decision.inputs, null, 2)}
+              </pre>
+            </details>
+          </section>
+        )}
+
         <section className="mt-8">
           <h2 className="text-[15px] font-semibold tracking-tight">Check it without us</h2>
           <p className="mt-1 text-[13px] text-muted">
@@ -183,7 +238,9 @@ cast tx ${decision.onchainTxHash} input --rpc-url https://testnet-rpc.monad.xyz 
         </section>
 
         <footer className="mt-16 border-t border-line pt-6 text-xs text-faint">
-          Only hashes and references are public. Parameters, prompts and model output never leave the service.
+          {showInputs
+            ? 'This is a public demo agent, so the inputs to its decisions are shown. For any other agent only hashes and references are public; prompts and model output never leave the service.'
+            : 'Only hashes and references are public. Parameters, prompts and model output never leave the service.'}
         </footer>
       </div>
     </div>

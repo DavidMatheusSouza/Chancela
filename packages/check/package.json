@@ -1,7 +1,7 @@
 {
   "name": "chancela-check",
-  "version": "0.2.0",
-  "description": "Check a Chancela deployment against Monad in one command: signature against the on-chain attestor, capsule against the parameters in hand, decision hash against the registry, and a forged grant against the on-chain gate.",
+  "version": "0.3.0",
+  "description": "Check a Chancela deployment against Monad in one command: signature against the on-chain attestor, capsule against the parameters in hand, the policy engine re-run on your machine against the policy anchored on-chain, decision hash against the registry, and a forged grant against the on-chain gate.",
   "type": "module",
   "license": "MIT",
   "author": "David Matheus Souza",
@@ -38,6 +38,8 @@
     "viem": "^2.21.32"
   },
   "devDependencies": {
+    "@chancela/policy-engine": "workspace:*",
+    "@chancela/shared": "workspace:*",
     "chancela-sdk": "workspace:*",
     "esbuild": "^0.21.5",
     "typescript": "^5.6.3",

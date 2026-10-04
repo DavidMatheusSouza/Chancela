@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { evaluate } from '@chancela/policy-engine';
+import { bundleOf, evaluate, type EvaluateInput, type ReplayBundle } from '@chancela/policy-engine';
 import {
   REASON_TEXT,
   lookupTool,
@@ -53,6 +53,12 @@ export interface AuthorizeOutput {
   attestationAddress: string;
   expiresAt: number;
   trace: unknown;
+  /**
+   * What the policy engine was given. The caller sent the parameters, so
+   * nothing here is news to them; with it they can run the engine themselves
+   * and check that it gives the decision hash signed above.
+   */
+  replay: ReplayBundle;
   anchorStatus: DecisionRow['anchorStatus'];
   /** Present on REQUIRE_APPROVAL: where the owner approves, and where to poll. */
   approval?: { id: string; status: 'PENDING'; expiresAt: string; url: string };
@@ -117,7 +123,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
   const usage = await repo.usageFor(input.agentId, dayKey);
   const nonce = `${input.agentId}-${randomUUID()}`;
 
-  const result = evaluate({
+  const evaluated: EvaluateInput = {
     agent,
     policy,
     policyId: policyRow?.id ?? 'none',
@@ -129,7 +135,11 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     now,
     nonce,
     approval: input.approval,
-  });
+  };
+  const result = evaluate(evaluated);
+  // Exactly what the engine was given, kept so the decision can be run again by
+  // someone else. Taken here, before anything below can change usage or status.
+  const inputs = bundleOf(evaluated);
 
   const signed = await signCapsule(result.capsule);
 
@@ -163,6 +173,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     expiresAt: new Date(result.capsule.expiresAt * 1000).toISOString(),
     createdAt: new Date().toISOString(),
     parameters: input.parameters,
+    inputs,
     anchorStatus: 'PENDING',
     auditId,
   };
@@ -219,6 +230,7 @@ export async function authorize(input: AuthorizeInput): Promise<AuthorizeOutput>
     attestationAddress: signed.attestationAddress,
     expiresAt: result.capsule.expiresAt,
     trace: result.trace,
+    replay: inputs,
     anchorStatus: overBudget ? 'SKIPPED' : 'PENDING',
     approval,
     breaker,

@@ -7,13 +7,18 @@
  * someone else's CI as a monitor of a deployment they depend on.
  */
 import { check, DEFAULTS, type Step } from './check';
+import { replayDecision } from './replay';
 import type { Address } from 'viem';
 
 const HELP = `chancela-check — check a Chancela deployment against the chain
 
   npx chancela-check [agentId] [options]
+  npx chancela-check replay <auditId | decisionHash> [options]
 
   agentId            Default: ${DEFAULTS.agentId}
+  replay             Run one recorded decision's policy engine on this machine
+                     and compare the result with what Monad recorded. Ids are
+                     on ${DEFAULTS.url}/live.
 
   --url <url>        Deployment to check     (default ${DEFAULTS.url})
   --rpc <url>        Monad RPC               (default ${DEFAULTS.rpc})
@@ -29,6 +34,7 @@ hash is looked up in the registry contract.`;
 
 function parse(argv: string[]) {
   const args = { sourcify: true, json: false } as {
+    replay?: string;
     agentId?: string;
     url?: string;
     rpc?: string;
@@ -55,6 +61,7 @@ function parse(argv: string[]) {
     else if (arg === '--no-sourcify') args.sourcify = false;
     else if (arg === '--json') args.json = true;
     else if (arg.startsWith('-')) throw new Error(`Unknown option ${arg}`);
+    else if (arg === 'replay' && i === 0) args.replay = next();
     else args.agentId = arg;
   }
   return args;
@@ -66,8 +73,47 @@ const WHO: Record<Step['source'], string> = {
   service: 'server',
 };
 
+function print(steps: Step[]): void {
+  for (const step of steps) {
+    console.log(`  ${step.ok ? '✓' : '✗'} ${WHO[step.source]}  ${step.title}`);
+    console.log(`            ${step.detail}`);
+  }
+}
+
+async function replayCommand(id: string, args: ReturnType<typeof parse>): Promise<void> {
+  const url = args.url ?? DEFAULTS.url;
+  if (!args.json) console.log(`\nChancela — running ${id} again on this machine\n`);
+
+  const report = await replayDecision({
+    id,
+    url,
+    rpc: args.rpc ?? DEFAULTS.rpc,
+    registry: args.registry ?? DEFAULTS.registry,
+  });
+  const ok = report.steps.length > 0 && report.steps.every((s) => s.ok);
+
+  if (args.json) {
+    console.log(JSON.stringify({ url, id, ...report, ok }, null, 2));
+  } else {
+    print(report.steps);
+    if (report.trace.length > 0) {
+      console.log('\n  The engine, step by step:');
+      for (const t of report.trace) {
+        console.log(`    ${t.passed ? '✓' : '✗'} ${String(t.step).padStart(2)}. ${t.name}${t.detail ? ` — ${t.detail}` : ''}`);
+      }
+    }
+    console.log(
+      ok
+        ? `\nThe policy engine, run here on the inputs of ${id}, gives the decision Monad recorded.\n`
+        : `\n${report.steps.filter((s) => !s.ok).length} check(s) failed.\n`,
+    );
+  }
+  process.exit(ok ? 0 : 1);
+}
+
 async function main(): Promise<void> {
   const args = parse(process.argv.slice(2));
+  if (args.replay) return replayCommand(args.replay, args);
   const url = args.url ?? DEFAULTS.url;
   const agentId = args.agentId ?? DEFAULTS.agentId;
 
@@ -80,10 +126,7 @@ async function main(): Promise<void> {
   if (args.json) {
     console.log(JSON.stringify({ url, agentId, steps, ok: steps.every((s) => s.ok) }, null, 2));
   } else {
-    for (const step of steps) {
-      console.log(`  ${step.ok ? '✓' : '✗'} ${WHO[step.source]}  ${step.title}`);
-      console.log(`            ${step.detail}`);
-    }
+    print(steps);
     const failed = steps.filter((s) => !s.ok);
     console.log(
       failed.length === 0

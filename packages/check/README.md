@@ -18,8 +18,12 @@ Chancela — checking https://chancela.xyz for TA-001
             signed by 0xeaeeD927…9F5F, bound to the parameters in hand
   ✓ here    Swap the parameters under that same capsule
             rejected: INTENT_MISMATCH
+  ✓ here    Run the policy engine on that decision here
+            ALLOW again, same decision hash 0x619ac2a7…, under the policy anchored on Monad
   ✓ here    Ask to DELETE_CUSTOMER, which the policy does not grant
             DENY — PERMISSION_DENIED; the SDK treats it as "no"
+  ✓ here    Run the refusal here, then with a policy doctored to allow it
+            DENY again, same hash; with the permission added the engine says REQUIRE_APPROVAL — APPROVAL_REQUIRED_RISK, and that policy is not the one on Monad
   ✓ monad   Look that decision up in the registry contract
             isDecisionRecorded(0x619ac2a7…) = true
   ✓ monad   Look the refusal up too
@@ -62,6 +66,53 @@ true` cannot survive. The capsule commits to an intent hash over the exact
 parameters, so a permission granted for `{name: "Judge"}` does not verify for
 `{name: "Judge", email: "attacker@example.com"}`. That gap — between what the
 model asked for and what the tool runs — is where agent frameworks leak.
+
+## Run a decision again
+
+A signature says who answered. It does not say the answer is what the policy
+gives. For that, the policy engine itself is bundled into this package — the
+same source the service runs, a pure function that reads its input and nothing
+else — and the service returns, with every decision, exactly the input it used.
+
+The two `Run the policy engine…` steps run it on your machine. The policy hash
+they compare with is `activePolicy(tokenId)` read from the registry, not the
+one in the response, so the service cannot hand over a policy of its own. The
+second step then adds the missing permission to the policy and runs it again:
+the engine no longer refuses, and that policy no longer hashes to Monad's. To
+sign a verdict its policy does not give, a deployment would have to change the
+policy, and the owner is the only one who can anchor one.
+
+Any decision on the public ledger can be run again the same way:
+
+```bash
+npx chancela-check replay TA-AUDIT-880C85CA     # ids are on chancela.xyz/live
+```
+
+```
+  ✓ server  Fetch the inputs of TA-AUDIT-880C85CA
+  ✓ monad   Read what Monad recorded for it
+  ✓ here    Is that the policy the owner anchored
+  ✓ here    Are those the parameters that were decided on
+  ✓ here    Run the policy engine here
+            DENY — LIMIT_EXCEEDED; decision hash 0x880c85ca…, the one Monad recorded
+
+  The engine, step by step:
+    ✓  1. agent-status — ACTIVE
+    …
+    ✗  7. limits — amount 2500000 > max 50000
+```
+
+Here the expectations are decoded from the anchoring transaction itself. The
+registry refuses to record a decision under any policy hash but the one the
+agent's owner anchored, so a bundle whose policy hashes to the recorded one is
+running the owner's policy. What this does not prove: the day's usage counters
+and the risk signals in the inputs are the service's statement of what they
+were — disclosed, so the operator of the agent can contradict them, but not
+committed on-chain.
+
+Inputs are public only for the demo agents, since they contain the parameters.
+For your own agent, the same bundle is the `replay` field of the `authorize`
+response.
 
 ## Then it attacks the gate
 

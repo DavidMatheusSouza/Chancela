@@ -1,4 +1,6 @@
 import { hashDecision } from '@chancela/shared';
+import { replay, type ReplayVerdict } from '@chancela/policy-engine';
+import { isSharedDemoOwner } from './demo-signin';
 import type { DecisionRow, Repository } from './repository';
 
 /**
@@ -36,4 +38,32 @@ export function recomputeDecisionHash(decision: DecisionRow): string {
     nonce: c.nonce,
     issuedAt: c.issuedAt,
   });
+}
+
+/**
+ * Run a stored decision again from the inputs recorded with it.
+ *
+ * Returns null for a decision taken before inputs were recorded: there is
+ * nothing honest to replay, and guessing the usage counters of that moment
+ * would produce a tick that means nothing.
+ */
+export function replayDecision(decision: DecisionRow): ReplayVerdict | null {
+  if (!decision.inputs) return null;
+  return replay(decision.inputs, {
+    decisionHash: decision.decisionHash,
+    policyHash: decision.policyHash,
+    intentHash: decision.intentHash,
+  });
+}
+
+/**
+ * Whether a decision's inputs may be shown to anyone who asks.
+ *
+ * Inputs include the parameters, and an integrator's parameters are theirs:
+ * they get the bundle in the authorize response and nobody else does. The
+ * shared demo account is the exception by construction -- its key is published
+ * and its agents exist to be inspected.
+ */
+export function inputsArePublic(ownerAddress: string | undefined | null): boolean {
+  return isSharedDemoOwner(ownerAddress);
 }

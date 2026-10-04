@@ -170,6 +170,12 @@ importers:
         specifier: ^2.21.32
         version: 2.56.8(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.5)
     devDependencies:
+      '@chancela/policy-engine':
+        specifier: workspace:*
+        version: link:../policy-engine
+      '@chancela/shared':
+        specifier: workspace:*
+        version: link:../shared
       chancela-sdk:
         specifier: workspace:*
         version: link:../sdk

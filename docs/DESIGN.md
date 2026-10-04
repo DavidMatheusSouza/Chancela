@@ -330,14 +330,24 @@ version of this argument, so here is the honest boundary.
   gate that opens when it breaks.
 - **Sign a capsule its own policy does not justify** — if it holds the attestor
   key the owner registered. That is what choosing an attestor means. It cannot
-  do it invisibly, though: the policy engine is pure and published, the policy
-  document is public and its hash is on-chain, so anyone can re-run the decision
-  and compare. Be precise about the limit of that: re-execution reproduces the
-  permission checks, the parameter binding and the policy version exactly, but
-  not the deployment's own counters — spend so far today, the breaker's recent
-  history — or external risk lookups. An outsider can prove a capsule was
-  granted for an action the policy does not list. They cannot prove, from
-  outside, that a daily limit was honestly counted.
+  do it invisibly, though. The policy engine is a pure function, and every
+  decision is stored with exactly what the engine was given: agent status,
+  policy document, parameters, the day's usage counters, risk signals, time and
+  nonce. Whoever asked for the decision gets that bundle in the response; for
+  the public demo agents anyone does. `npx chancela-check replay <id>` runs the
+  engine on it and compares the result with the hashes decoded from the
+  anchoring transaction on Monad. The registry only records a decision under
+  the policy hash the owner anchored, so the bundle cannot carry a different
+  policy; the intent hash pins the parameters; the decision hash pins the
+  outcome, the reason, the time and the nonce. A refusal of something the policy
+  allows, or a grant of something it does not, fails that replay.
+  Be precise about the limit of that. Two inputs are not committed on-chain:
+  the usage counters and the external risk signals. They are disclosed, so a
+  wrong one is visible to the party who knows the truth — the agent's operator
+  knows what it spent today — but an outsider cannot prove from Monad alone
+  that "7 orders so far today" was honestly counted. Recomputing the counters
+  from the agent's own anchored decisions is the next step, not something this
+  does today.
 - **Decline to anchor.** It can leave a decision off the chain. It cannot change
   or remove one that is already there.
 
@@ -451,6 +461,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Suite | Tests |
 |---|---|
 | Policy engine — evaluation, injection, property-based invariants | 69 |
+| Replay — a decision reproduced from its inputs, and doctored inputs caught (engine 11, service 6) | 17 |
 | Contracts — Foundry, with fuzzing (registry 26, approvals 15, gate 24) | 65 |
 | Contracts — stateful invariants against a reference model, 25,600 calls a run (registry 6, gate 4 + reachability) | 11 |
 | Gate end to end — contracts deployed to anvil, driven by the web app | 5 |
@@ -465,7 +476,7 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Approvals — the request lifecycle | 11 |
 | Passkey keys, onboarding and wallet binding | 9 |
 | MCP server | 7 |
-| Deployment checker — the verifier's own failure modes, and the gate attack | 9 |
+| Deployment checker — the verifier's own failure modes, the gate attack, and the lies `replay` must catch | 19 |
 | Circuit breaker, and the shared demo agents reopening | 12 |
 | HTTP rate limiting and caller identity | 7 |
 | Anchor budget | 6 |
@@ -477,8 +488,8 @@ pnpm test:security   # injection, replay, forgery, privilege escalation
 | Daily limits counted at authorization | 3 |
 
 
-The rows group suites by topic. A full run on 1 October 2026 counted **433**:
-327 TypeScript tests across eight packages, 89 Foundry tests (4 of them on a
+The rows group suites by topic. A full run on 4 October 2026 counted **460**:
+354 TypeScript tests across eight packages, 89 Foundry tests (4 of them on a
 Monad mainnet fork against the official ERC-8004 registry, run when
 `MONAD_MAINNET_RPC_URL` is set, as CI does) and 17 Python tests for the
 [trading-agent client](../examples/trading-agent).
