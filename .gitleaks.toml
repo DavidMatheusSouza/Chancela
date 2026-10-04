@@ -17,9 +17,22 @@ regex = '''(?i)(ATTESTATION_PRIVATE_KEY|DEPLOYER_PRIVATE_KEY)\s*[:=]\s*['"]?0x[0
 tags = ["key", "private-key"]
 
 [rules.allowlist]
+# Matched against the whole match, not the captured secret: the rule has no
+# capture group around the key itself.
+regexTarget = "match"
 regexes = [
   # Anvil account #1
   '''0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d''',
   # Anvil account #2
+  '''0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba''',
+]
+
+# The same two vectors, for the default rules (generic-api-key reads an
+# assignment to anything named *_KEY as a secret). Still only these two values.
+[allowlist]
+description = "Anvil deterministic accounts #1 and #2"
+regexTarget = "line"
+regexes = [
+  '''0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d''',
   '''0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba''',
 ]
