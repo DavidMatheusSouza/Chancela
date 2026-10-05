@@ -16,8 +16,8 @@ Monad Metropolis 2026 · Track 04: *Trust, Identity & AI Infrastructure* · live
 *Chancela* (shan-SEH-la) is Portuguese for the seal that makes a document valid.
 Here it is the signed permission without which nothing an agent asks for is carried out.
 
-**Videos:** [technical demo, 2:57](docs/assets/videos/chancela-technical-demo.mp4) ·
-[pitch, 1:54](docs/assets/videos/chancela-pitch.mp4) — narrated by a synthetic voice, captioned.
+**Videos:** [technical demo, 2:42](docs/assets/videos/chancela-technical-demo.mp4) ·
+[pitch, 1:53](docs/assets/videos/chancela-pitch.mp4) — narrated by a synthetic voice, captioned.
 
 **Proof in one click.** Every row is a transaction you can open. The agent is the same one
 throughout (TA-LIVE, a trading agent allowed orders up to $500); the refused rows are the agent

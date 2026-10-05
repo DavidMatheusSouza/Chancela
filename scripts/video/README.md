@@ -21,7 +21,10 @@ RECORDING=$PWD/recording VIDEO_OUT=$PWD/video-out .tts/bin/python scripts/video/
 
 `tech.py` stretches each step of the recording to the length of its narration,
 using the step times the recorder noted, so voice, captions and picture stay
-together whatever the run's pace was. `pitch.py` alternates slides with a clip of
+together whatever the run's pace was. Where the live system took longer than
+the sentence about it, the wait is played faster (at most 2.5x) rather than left
+as silence. The recorder zooms the page (`ZOOM`, 1.35 by default) so the text is
+readable in a small player, and the sound is normalised to -14 LUFS. `pitch.py` alternates slides with a clip of
 the product. The narration says plainly that it is a synthetic voice.
 
 The voice comes from Microsoft's public text-to-speech endpoint via `edge-tts`;

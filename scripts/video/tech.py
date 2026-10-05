@@ -4,6 +4,7 @@ from lib import *
 REC = os.environ.get("RECORDING", "recording")   # output of record-demo-captioned.mjs
 OUT = os.environ.get("VIDEO_OUT", "video-out")
 STILLS = os.environ.get("STILLS", f"{OUT}/stills")  # t1: the reverted receipt, t5: mainnet, t4: Claude Code, t2: chancela-check
+MAX_SPEED = 2.5
 W = f"{OUT}/tech"; os.makedirs(W, exist_ok=True)
 marks = json.load(open(f"{REC}/marks.json"))
 src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
@@ -72,7 +73,10 @@ for i, (a, b, text, cap) in enumerate(SEG):
     else:
         start, end = marks[a], marks[b]
         if i == 0: start = max(0.0, start - 0.3)
-        target = max(end - start, speech + 0.75)
+        # The narration sets the pace. Where the live system took longer than the
+        # sentence about it (a model call, a block), the wait is played faster, up
+        # to MAX_SPEED, instead of leaving silence over a spinner.
+        target = max(speech + 0.75, (end - start) / MAX_SPEED)
         video_segment(src, start, end, target, f"{W}/v{i}.mp4")
         print(f"{a:13s} raw {end-start:5.1f}s  speech {speech:5.1f}s  -> {target:5.1f}s  (x{(end-start)/target:.2f})")
     audio_segment(f"{W}/n{i}.mp3", target, f"{W}/a{i}.wav")

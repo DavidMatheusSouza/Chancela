@@ -18,6 +18,10 @@ const BASE = process.argv[2] ?? 'https://chancela.xyz';
 const OUT = process.argv[3] ?? 'recording';
 mkdirSync(OUT, { recursive: true });
 const SIZE = { width: 1920, height: 1080 };
+// The site is laid out for a desk monitor; in a video it is watched in a small
+// player. Zooming the page keeps the recording sharp (it is still 1920x1080)
+// and makes the text readable there.
+const ZOOM = Number(process.env.ZOOM ?? 1.35);
 const QUESTIONS = {
   identity: 'Who is this agent, and what may it do?',
   allow: 'It asks for something inside its policy.',
@@ -30,29 +34,39 @@ const QUESTIONS = {
 };
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: SIZE, deviceScaleFactor: 1, recordVideo: { dir: OUT, size: SIZE }, colorScheme: 'dark' });
+await context.addInitScript((z) => {
+  const apply = () => { if (document.documentElement) document.documentElement.style.zoom = String(z); };
+  apply(); document.addEventListener('DOMContentLoaded', apply); window.addEventListener('load', apply);
+}, ZOOM);
 const page = await context.newPage();
+// Hydration can reset <html>'s inline style, so the zoom is put back after every navigation.
+const zoom = () => page.evaluate((z) => { document.documentElement.style.zoom = String(z); }, ZOOM);
+// Keep the current demo step at the top of the frame, clear of the captions.
+const frameStep = () => page.getByRole('button', { name: /Agent identity/ }).first()
+  .evaluate((el) => { el.style.scrollMarginTop = '16px'; el.scrollIntoView({ block: 'start' }); }).catch(() => {});
 const t0 = Date.now(); const marks = {}; const mark = (k) => { if (!(k in marks)) { marks[k] = (Date.now() - t0) / 1000; console.log(k, marks[k].toFixed(1)); } };
 try {
-  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' }); mark('landing');
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' }); await zoom(); mark('landing');
   await page.waitForTimeout(4000);
   // The three proofs under the hero: executed, reverted, Claude Code's attempt.
-  await page.mouse.wheel(0, 520); mark('proofs');
+  await page.mouse.wheel(0, Math.round(560 * ZOOM)); mark('proofs');
   await page.waitForTimeout(7000);
-  await page.mouse.wheel(0, -520);
+  await page.mouse.wheel(0, -Math.round(560 * ZOOM));
   await page.waitForTimeout(1200);
   await page.getByRole('link', { name: /run the live demo/i }).first().click();
-  await page.waitForURL('**/demo', { timeout: 30000 }); await page.waitForLoadState('networkidle'); mark('demo');
+  await page.waitForURL('**/demo', { timeout: 30000 }); await page.waitForLoadState('networkidle'); await zoom(); mark('demo');
   await page.waitForTimeout(5000);
   await page.getByRole('button', { name: /run full demo/i }).click(); mark('run');
   const deadline = Date.now() + 190000;
   while (Date.now() < deadline) {
     for (const [k, q] of Object.entries(QUESTIONS)) if (!(k in marks) && await page.getByText(q, { exact: true }).count()) mark(k);
     if ('audit' in marks && (Date.now() - t0) / 1000 - marks.audit > 9) break;
+    await zoom(); await frameStep();
     await page.waitForTimeout(500);
   }
   // The on-chain half: the agent is told to buy $25,000, the policy refuses,
   // the agent sends the order to the venue anyway and Monad reverts it.
-  await page.goto(`${BASE}/live`, { waitUntil: 'networkidle' }); mark('live');
+  await page.goto(`${BASE}/live`, { waitUntil: 'networkidle' }); await zoom(); mark('live');
   await page.waitForTimeout(5000);
   await page.getByRole('button', { name: /\$25,000 of MON/ }).click(); mark('attack');
   await page.getByText('Monad reverted it', { exact: false }).waitFor({ timeout: 90000 }); mark('reverted');

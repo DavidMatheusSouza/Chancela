@@ -35,7 +35,7 @@ WrapStyle: 2
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,DejaVu Sans,36,&H00FFFFFF,&H00FFFFFF,&H00000000,&HC8100A09,0,0,0,0,100,100,0,0,3,14,0,2,260,120,50,1
+Style: Cap,Inter,34,&H00FFFFFF,&H00FFFFFF,&H00000000,&HC8100A09,0,0,0,0,100,100,0,0,3,14,0,2,260,120,50,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -74,4 +74,4 @@ def assemble(videos, audios, ass, out, workdir):
     run("ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", alist, "-c:a", "pcm_s16le", f"{workdir}/audio.wav")
     run("ffmpeg", "-v", "error", "-y", "-i", f"{workdir}/video.mp4", "-i", f"{workdir}/audio.wav",
         "-vf", f"ass={ass}", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", "-shortest", out)
+        "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", out)
