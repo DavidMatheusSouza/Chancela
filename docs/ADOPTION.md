@@ -12,12 +12,13 @@ page says so.
   Chancela in front of it, through the SDK or plain HTTP. We are waiting on their
   details (agent, actions, limits). They are not named here until they agree to
   be, and their code is not on GitHub, so there is nothing to link yet.
-- **Proposal written:** [Metrix AI](https://github.com/yigenfeng0707-netizen/metrix-ai),
-  an autonomous trading agent in Track 01, identified as a target; an
-  integration proposal was written for it (a PR from us, off by default). The
-  patch itself now exists and runs against the live deployment
-  ([`examples/integrations/metrix`](../examples/integrations/metrix)); it has
-  not been sent to or accepted by Metrix. No integration has come of it.
+- **Pull request open, not merged:** [Metrix AI](https://github.com/yigenfeng0707-netizen/metrix-ai),
+  an autonomous trading agent in Track 01. On 5 Oct we opened
+  [a pull request](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) that puts Chancela in front of every non-sim order,
+  off unless `CHANCELA_AGENT_ID` is set. The same patch runs against the live
+  deployment ([`examples/integrations/metrix`](../examples/integrations/metrix)).
+  Metrix has not reviewed, merged or agreed to it. It is an offer, not an
+  integration.
 - **Packages on npm:** [`chancela-sdk`](https://www.npmjs.com/package/chancela-sdk),
   [`chancela-mcp`](https://www.npmjs.com/package/chancela-mcp),
   [`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela),
@@ -149,6 +150,7 @@ Progress on that list is recorded here, with dates, as it happens:
 | 22 Sep 2026 | Metrix AI (Track 01) | Identified as a target; integration proposal written. No integration. |
 | 23 Sep 2026 | A trading-agent team (not yet named) | Agreed to integrate via SDK/HTTP. Waiting on their details. Not live. |
 | 3 Oct 2026 | Metrix AI (Track 01) | Patch written and run live against our deployment; not yet offered to them. No integration. |
+| 5 Oct 2026 | Metrix AI (Track 01) | [Pull request opened](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) from our fork. Not reviewed or merged. No integration. |
 | 3 Oct 2026 | — | Contracts and one agent on Monad mainnet; a real Uniswap V3 swap allowed, two attacks reverted. |
 
 ## How it sustains itself

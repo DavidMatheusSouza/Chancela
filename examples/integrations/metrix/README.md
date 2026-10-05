@@ -5,8 +5,8 @@ Track 01) is an autonomous trading agent on Kuru and Perpl with a chat interface
 Every order it sends goes through one function, `execute()` in
 `apps/agent/src/execution/router.ts`.
 
-**Status: a patch we wrote and are offering. Metrix has not merged it or agreed
-to it.** It is here so anyone can read it and run it.
+**Status: offered to Metrix as [pull request #2](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) on 5 Oct 2026. Metrix
+has not reviewed, merged or agreed to it.** It is here so anyone can read it and run it.
 
 ## Why this agent
 

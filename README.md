@@ -214,7 +214,9 @@ Reach him through [GitHub issues](https://github.com/DavidMatheusSouza/Chancela/
 
 Built by one person during the Metropolis build window. **No external team has
 integrated yet.** One trading-agent team has agreed to put Chancela in front of
-its orders; this section will link it when it is live, not before. Next:
+its orders; this section will link it when it is live, not before. A second
+agent, Metrix AI (Track 01), has [a pull request from us](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) that adds the
+gate to its order path: open, not merged. Next:
 design partners on Monad, moving the app and its audit anchors to mainnet (the
 contracts and one agent are already there), and a
 second attestor run by someone else. [ADOPTION.md](docs/ADOPTION.md) has the plan.
