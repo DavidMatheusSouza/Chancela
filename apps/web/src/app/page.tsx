@@ -143,7 +143,7 @@ export default async function Landing() {
           <Reveal>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3 py-1 text-[11px] uppercase tracking-wider text-muted">
               <span className="h-1.5 w-1.5 rounded-full bg-chain dot-live" />
-              {live ? `Live on ${chain.name}` : 'Built on Monad'} - ERC-8004 native
+              {live ? `Live on ${chain.name}` : 'Built on Monad'} + mainnet · ERC-8004
             </div>
           </Reveal>
 
@@ -346,6 +346,35 @@ export default async function Landing() {
             </Reveal>
           ))}
         </section>
+
+        <Reveal className="mt-20">
+          <section className="card grid gap-6 p-6 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+            <div>
+              <h2 className="text-[17px] font-semibold tracking-tight">Do not take our word for it</h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                One command, from an empty folder. It checks a live decision against the attestor the
+                owner registered on Monad, runs the policy engine again on your machine, then forges a
+                grant and sends the order anyway: Monad reverts it three ways. The on-chain part works
+                with this site switched off.
+              </p>
+              <a
+                href="https://www.npmjs.com/package/chancela-check"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1 text-[12px] text-faint hover:text-ink"
+              >
+                chancela-check on npm <ArrowRight className="h-3 w-3" />
+              </a>
+            </div>
+            <pre className="mono overflow-x-auto rounded-lg border border-line bg-bg/60 p-4 text-[11px] leading-relaxed text-ink sm:text-[12px]">
+              <span className="text-faint">$ </span>npx chancela-check{'\n'}
+              <span className="text-allow">✓</span> forged grant, $200 order sent anyway{'\n'}
+              <span className="text-faint">{'  '}Monad: Refused(BAD_SIGNATURE)</span>{'\n\n'}
+              <span className="text-faint">$ </span>npx chancela-check replay {'<id>'}{'\n'}
+              <span className="text-allow">✓</span> same inputs, same verdict as on Monad
+            </pre>
+          </section>
+        </Reveal>
 
         <Reveal className="mt-20">
           <section>

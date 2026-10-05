@@ -19,28 +19,30 @@ Here it is the signed permission without which nothing an agent asks for is carr
 **Videos:** [technical demo, 2:57](docs/assets/videos/chancela-technical-demo.mp4) ·
 [pitch, 1:54](docs/assets/videos/chancela-pitch.mp4) — narrated by a synthetic voice, captioned.
 
-**Proof in one click:** [this transaction](https://testnet.monadexplorer.com/tx/0xaa158c9c1f6328c1c237554304de5a081df57c83bafbe42b5b8f71ea194c9287)
-is a live trading agent sending a $25,000 order its policy had just refused,
-with a grant it signed itself. The venue's gate reverted it on Monad:
-`Refused(BAD_SIGNATURE)`. And [this one](https://testnet.monadexplorer.com/tx/0x7843642bedb1c2f670e876bc83c663a457acfc38194d88b99d822c96b09f5e51)
-is the same agent at the same venue with a $200 order the policy allowed: it
-carried the attestor's grant and executed. [Try it yourself →](https://chancela.xyz/live)
+**Proof in one click.** Every row is a transaction you can open. The agent is the same one
+throughout (TA-LIVE, a trading agent allowed orders up to $500); the refused rows are the agent
+sending the order anyway, with a grant it forged.
 
-**Any protocol, no integration:** the agent's funds sit in a
-[`ChancelaAccount`](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8), which makes a call only with a grant for
-exactly that call. Through it, on a DEX that has never heard of Chancela: a $1
-MON→USDC swap the policy allowed, [executed](https://testnet.monadexplorer.com/tx/0xe7a6370ad48a1139eef2e588794679c3e4376c95d380085424b42b271636a6c4); the same grant with ten
-times the value, [reverted](https://testnet.monadexplorer.com/tx/0x3f4fb1814f2d512931ab0876129ded8fe06bd944eeb5866c0442f78a6b1fad66) (`CALL_MISMATCH`); a $25,000 order the
-policy refused, sent with a forged grant, [reverted](https://testnet.monadexplorer.com/tx/0x67e3278e7d2f8bb6458eaad2347a4844a1b597d064c2d14b16300884a48459f6) (`BAD_SIGNATURE`).
-The agent's owner [took the USDC out](https://testnet.monadexplorer.com/tx/0x348446f22f28386c3a25ca5664fa1222b652bbbcc24a96ea54abdc226d595d29) without asking anyone; the agent
-cannot.
+| Where | What the agent sent | What Monad did |
+|---|---|---|
+| Testnet · demo venue | $200 order the policy allowed | [executed](https://testnet.monadexplorer.com/tx/0x7843642bedb1c2f670e876bc83c663a457acfc38194d88b99d822c96b09f5e51) |
+| Testnet · demo venue | $25,000 order the policy refused, forged grant | [reverted](https://testnet.monadexplorer.com/tx/0xaa158c9c1f6328c1c237554304de5a081df57c83bafbe42b5b8f71ea194c9287) · `BAD_SIGNATURE` |
+| Testnet · third-party DEX | $1 MON→USDC swap the policy allowed | [executed](https://testnet.monadexplorer.com/tx/0xe7a6370ad48a1139eef2e588794679c3e4376c95d380085424b42b271636a6c4) |
+| Testnet · third-party DEX | same grant, ten times the value | [reverted](https://testnet.monadexplorer.com/tx/0x3f4fb1814f2d512931ab0876129ded8fe06bd944eeb5866c0442f78a6b1fad66) · `CALL_MISMATCH` |
+| Testnet · third-party DEX | $25,000 order the policy refused, forged grant | [reverted](https://testnet.monadexplorer.com/tx/0x67e3278e7d2f8bb6458eaad2347a4844a1b597d064c2d14b16300884a48459f6) · `BAD_SIGNATURE` |
+| **Mainnet · Uniswap V3** | one-cent MON→USDC swap the policy allowed | [executed](https://monadvision.com/tx/0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915) |
+| **Mainnet · Uniswap V3** | same grant, ten times the value | [reverted](https://monadvision.com/tx/0x2f17258be57852cccae5a7da7afac6bb2a29dabf9868f3f3bd391815d422ee93) · `CALL_MISMATCH` |
+| **Mainnet · Uniswap V3** | $25,000 order the policy refused, forged grant | [reverted](https://monadvision.com/tx/0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415) · `BAD_SIGNATURE` |
 
-**On mainnet, with real MON:** the same agent is [ERC-8004 #10277](https://monadvision.com/tx/0x88924ec1002461b92ce13201e825634455afa8bb754c13e9ba5c9c4c99b4a4f3) in the
-official registry, and its [`ChancelaAccount`](https://monadvision.com/address/0xdf94b10824D2DF9b73b7A053377CD41dFb00F034) trades on
-Uniswap V3. A one-cent MON→USDC swap the policy allowed, [executed](https://monadvision.com/tx/0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915);
-the same grant at ten times the value, [reverted](https://monadvision.com/tx/0x2f17258be57852cccae5a7da7afac6bb2a29dabf9868f3f3bd391815d422ee93) (`CALL_MISMATCH`);
-a $25,000 order the policy refused, sent with a forged grant, [reverted](https://monadvision.com/tx/0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415)
-(`BAD_SIGNATURE`). Small on purpose: the amounts are a cent, the chain and the DEX are real.
+[Try to break it yourself →](https://chancela.xyz/live)
+
+**Any protocol, no integration.** On the DEX rows nothing was integrated: the agent's funds sit in a
+`ChancelaAccount` ([testnet](https://testnet.monadexplorer.com/address/0xc2474527cfe587bf8b8a57b839b4ef1455bcf0d8),
+[mainnet](https://monadvision.com/address/0xdf94b10824D2DF9b73b7A053377CD41dFb00F034)), which makes a call only
+with a grant for exactly that call. Neither DEX has heard of Chancela. The agent's owner
+[took the USDC out](https://testnet.monadexplorer.com/tx/0x348446f22f28386c3a25ca5664fa1222b652bbbcc24a96ea54abdc226d595d29) without asking anyone; the agent cannot.
+On mainnet the agent is [ERC-8004 #10277](https://monadvision.com/tx/0x88924ec1002461b92ce13201e825634455afa8bb754c13e9ba5c9c4c99b4a4f3) in the
+official registry. The mainnet amounts are a cent on purpose; the chain and the DEX are real.
 
 **Claude Code as the agent, unedited:** [a transcript](docs/transcripts/claude-code-trading-agent.md)
 where Claude, told to work an order queue, places a $25,000 buy because a
