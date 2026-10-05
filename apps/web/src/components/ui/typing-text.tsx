@@ -253,7 +253,8 @@ export default function TypingText({
         })}
       </div>
 
-      <style>{`
+      {/* As raw HTML: React escapes quotes in a text child on the server but not in the browser, which fails hydration. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .typing-text-root { isolation: isolate; }
 
         .typing-text-line {
@@ -375,7 +376,7 @@ export default function TypingText({
           .typing-text-char { opacity: 1; animation: none; }
           .typing-text-char::before { content: none; }
         }
-      `}</style>
+      ` }} />
     </section>
   );
 }
