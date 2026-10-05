@@ -53,7 +53,7 @@ first, so the order is not filled.
 
 | Time | How |
 |---|---|
-| 60 seconds | `npx chancela-check` — 14 checks against Monad, not against our word. It verifies a live decision against the attestor the owner registered on-chain, runs the policy engine again on your machine under the policy anchored on Monad, then attacks the gate with a grant forged on your machine: Monad reverts it three ways (`BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`). That part works with chancela.xyz down. |
+| 60 seconds | `npx chancela-check` — 15 checks against Monad, not against our word. It verifies a live decision against the attestor the owner registered on-chain, runs the policy engine again on your machine under the policy anchored on Monad, then attacks the gate with a grant forged on your machine: Monad reverts it three ways (`BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`). That part works with chancela.xyz down. |
 | 2 minutes | **[chancela.xyz/demo](https://chancela.xyz/demo)** → *Run full demo*. No wallet, no sign-up. A trading agent's $200 order is allowed, its $2,000 order is refused, a prompt injection changes nothing, a burst trips the breaker, a transfer waits for the owner's passkey — every step live, every proof on Monad. |
 | 10 minutes | [docs/JUDGES.md](docs/JUDGES.md) |
 

@@ -5,7 +5,7 @@ check without taking our word for it.
 
 | You have | Do this | You will have seen |
 |---|---|---|
-| 60 seconds | `npx chancela-check` | 14 checks: a live decision verified against Monad by your own machine and run again there by the policy engine, then three grants forged on your machine reverted by the gate on Monad |
+| 60 seconds | `npx chancela-check` | 15 checks: a live decision verified against Monad by your own machine and run again there by the policy engine, then three grants forged on your machine reverted by the gate on Monad |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
 | 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 460 tests (354 TypeScript, 89 Foundry, 17 Python), and a real agent being stopped over MCP |
 

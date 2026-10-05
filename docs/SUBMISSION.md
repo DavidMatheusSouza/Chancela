@@ -9,7 +9,7 @@ Track 04 page of the hackathon platform, read on 20 September 2026.
 | | |
 |---|---|
 | Start here | [JUDGES.md](JUDGES.md) — the 60-second, 3-minute and 10-minute paths |
-| 60 seconds | `npx chancela-check` (v0.3.0 on npm). 14 checks from your own machine against Monad: a live decision verified and then run again by the policy engine on your machine, under the policy anchored on-chain, ending with three grants forged locally and reverted by the gate on Monad: `BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`. Those three never ask the service anything, so they run even with the site down. |
+| 60 seconds | `npx chancela-check` (v0.3.0 on npm). 15 checks from your own machine against Monad: a live decision verified and then run again by the policy engine on your machine, under the policy anchored on-chain, ending with three grants forged locally and reverted by the gate on Monad: `BAD_SIGNATURE`, `CALL_MISMATCH`, `NOT_THE_AGENT`. Those three never ask the service anything, so they run even with the site down. |
 | Live product | <https://chancela.xyz> — Monad testnet (chain 10143) |
 | Fastest path | <https://chancela.xyz/demo> → **Run full demo**. No login: the link starts a demo session by itself. Eight steps, about a minute and a half, all live. |
 | Test login | Opening <https://chancela.xyz/demo> signs you in as the demo owner automatically; from there the whole product is open. Or press **Continue as demo owner** on <https://chancela.xyz/login>. No wallet, no password, no install. |

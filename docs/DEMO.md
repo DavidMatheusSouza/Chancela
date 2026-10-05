@@ -136,7 +136,7 @@ link to its transaction.
 - **`npx chancela-check replay <audit id>`** — any decision on `/live`, run
   again by the policy engine on your machine and compared with the hashes in
   its anchoring transaction on Monad. The proof page of each row has the command.
-- **`npx chancela-check`** — 14 checks from your own machine, ending with three
+- **`npx chancela-check`** — 15 checks from your own machine, ending with three
   forged grants reverted by Monad: `BAD_SIGNATURE`, `CALL_MISMATCH`,
   `NOT_THE_AGENT`. Those three do not ask the service anything, so they run even
   when chancela.xyz is down.
