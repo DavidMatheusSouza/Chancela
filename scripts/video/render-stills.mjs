@@ -32,7 +32,7 @@ pages.push(['t5', term('Monad mainnet, real MON, a DEX that has never heard of C
   'Through the agent’s ChancelaAccount, 3 Oct 2026. The amounts are a cent; the chain and the DEX are real. Links in the README.')]);
 pages.push(['t4', term('Claude Code as the agent, unedited', 'bash examples/trading-agent/claude-code-session.sh', read('claude.txt'),
   'Claude complied with the forged exception. The exchange tool asked Chancela first. Full transcript: docs/transcripts in the repository.')]);
-pages.push(['t2', term('Verify it yourself', 'npx chancela-check   (the on-chain half)', read('check-gate.txt'), `A real run on ${DAY}. Every line says who answered: Monad, your machine, or the service.`)]);
+pages.push(['t2', term('Verify it yourself', 'npx chancela-check   (5 of its 15 checks)', read('check-gate.txt'), `A real run on ${DAY}. Every line says who answered: Monad, your machine, or the service.`)]);
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 for (const [name, html] of pages) {

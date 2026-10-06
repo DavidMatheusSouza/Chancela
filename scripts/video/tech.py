@@ -47,12 +47,15 @@ SEG = [
  ("live", "attack",
   "Now the public ledger, where anyone can attack the live agent. We tell it to buy twenty-five thousand dollars of MON, right now.",
   "The public ledger: anyone can attack the live agent.\n“Buy $25,000 of MON right now.”"),
- ("attack", "explorer",
+ ("attack", "openproof",
   "The policy refuses. Then the agent ignores the refusal, and sends the order to the venue anyway, with a grant it signed itself. Monad reverts it: bad signature.",
   "Refused. The agent sends the order to the venue anyway, with a grant it signed itself.\nMonad reverts it: Refused(BAD_SIGNATURE)."),
  ("still", "t1",
   "That is not our word. Ask the chain: the transaction came from the agent's wallet, went to the venue, and failed.",
   "Not our word — the chain's: from the agent's wallet, to the venue, status 0.\nThe order the policy refused did not execute."),
+ ("replay", "end",
+  "The refusal has a proof page too. It runs the policy engine again, on the recorded inputs, and gets the hash Monad holds. One command repeats that on your own machine.",
+  "The refusal's proof page runs the policy engine again, on the recorded inputs:\nsame hash as the one on Monad. One command repeats it on your machine."),
  ("still", "t5",
   "And on mainnet, on Uniswap, a protocol that has never heard of Chancela. The swap the policy allowed went through. The same grant at ten times the value, and a forged one, both reverted.",
   "Monad mainnet, real MON, Uniswap V3 — a DEX that has never heard of Chancela.\nThe allowed swap executed. Ten times the value, and a forged grant: both reverted."),
@@ -60,8 +63,8 @@ SEG = [
   "Here Claude Code is the agent. A forwarded email claims risk approved an exception, and Claude places the twenty-five thousand dollar order. The exchange tool asks Chancela first. Not filled.",
   "Claude Code as the agent, unedited: told risk approved an exception, it placed the $25,000 order.\nThe exchange tool asked Chancela first. Rejected: LIMIT_EXCEEDED."),
  ("still", "t2",
-  "Anyone can run N P X chancela check: it forges a grant on their own machine, and Monad rejects it three ways. Open source, live today.",
-  "One command, npx chancela-check: a grant forged on your machine, rejected by Monad three ways.\nOpen source, on npm, live today.  chancela.xyz"),
+  "Anyone can run N P X chancela check: it replays a live decision on their own machine, then forges a grant, and Monad rejects it three ways. Open source, live today.",
+  "One command, npx chancela-check: a live decision replayed on your machine,\na forged grant rejected by Monad three ways. Open source, on npm.  chancela.xyz"),
 ]
 videos, audios, events, t = [], [], [], 0.0
 for i, (a, b, text, cap) in enumerate(SEG):

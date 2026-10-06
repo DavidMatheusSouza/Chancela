@@ -31,7 +31,7 @@ passkey on the sign-in page: it comes with an agent of your own.
 | Design & Craft — developer experience | 20% | A [trading-agent kit](../examples/trading-agent) in TypeScript and one-file Python, runnable against a public agent with no account; an [unedited transcript of Claude Code](transcripts/claude-code-trading-agent.md) acting as the agent over MCP. One endpoint, one `curl`, no account ([README](../README.md#integrate)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. [`chancela-mcp`](../packages/mcp): the same gate as an MCP tool for Claude, Cursor or any MCP client, one block of config. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
 | Originality & Track Insight — privacy-preserving, not capturable | 15% | [DESIGN.md: Not capturable by a single platform](DESIGN.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
 | Founder & Market Readiness — who adopts it, why not roll their own | 25% | [README: Who builds it](../README.md#who-builds-it). [README: what each existing approach gives you](../README.md#who-it-is-for), side by side. [ADOPTION.md](ADOPTION.md): who adopts first, integration effort per path, how it sustains itself. [README: Who it is for](../README.md#who-it-is-for), and the pitch video. |
-| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly: one trading-agent team has agreed to integrate, none is live yet; the design-partner offer; roadmap. **Open — see below.** |
+| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly: one trading-agent team has agreed to integrate and a pull request is open on another team's agent; none is live yet; the design-partner offer; roadmap. **Open — see below.** |
 
 ## Deliverables
 
@@ -39,14 +39,14 @@ passkey on the sign-in page: it comes with an agent of your own.
 - [x] **Public GitHub repository** — public, so `metropolis@hackathon.monad.xyz` can read it.
 Video files: [`docs/assets/videos/chancela-technical-demo.mp4`](assets/videos/chancela-technical-demo.mp4) and [`docs/assets/videos/chancela-pitch.mp4`](assets/videos/chancela-pitch.mp4).
 
-- [ ] **Technical demo video, ≤ 3:00** — made (4 Oct): 2:42, with the mainnet swap and reverts, narrated and captioned, recorded against the live site: the landing's three proofs, the guided demo, a $25,000 order reverted by the gate on Monad with its receipt read by `cast`, the same agent's $200 order executed at the same venue, Claude Code's unedited attempt, and `npx chancela-check`. Pipeline in `scripts/video`. Still to do: upload (YouTube unlisted, Loom or Vimeo) and paste the link.
+- [ ] **Technical demo video, ≤ 3:00** — made (6 Oct): 2:56, narrated and captioned, recorded against the live site: the landing's proofs, the guided demo, a $25,000 order reverted by the gate on Monad with its receipt read by `cast`, that refusal's proof page running the policy engine again on the recorded inputs, the mainnet swap and reverts, Claude Code's unedited attempt, and `npx chancela-check`. Pipeline in `scripts/video`. Still to do: upload (YouTube unlisted, Loom or Vimeo) and paste the link.
 - [ ] **Pitch video, ≤ 2:00** — made (4 Oct): 1:53, slides plus product footage, narrated and captioned; it says it is read by a synthetic voice. Still to do: upload and paste the link.
 - [x] **Live product link** with access instructions — the table above; paste it into the form.
 - [ ] Product advertisement, ≤ 0:30 — optional, not judged. The first 30 seconds of the technical video, cut at the refusal, would do.
 
 Before submitting:
 
-- [ ] Attestation key holds at least 10 MON (`/api/network/status` → `attestorFunds.anchorsLeft`). Two weeks of judging must not end in `FAILED` anchors.
+- [x] Attestation key holds at least 10 MON (`/api/network/status` → `attestorFunds.anchorsLeft`): 32 MON on 6 Oct, about 3,300 anchors. Two weeks of judging must not end in `FAILED` anchors.
 - [ ] `.env` backed up somewhere that is not this server.
 - [ ] Qwen, Kimi, Hunyuan and Nansen keys set, or those bounties left unclaimed — `/integrations` reports the truth either way. Groq is the provider configured today.
 - [x] Real passkey-derived keys bound on `/keys` at `chancela.xyz` for the three original demo agents (TA-001, TA-002, TA-003) and written to the registry (20 Sep 2026). The live deployment also runs the trading agent `TA-LIVE`. Five more agents it listed (TA-004 to TA-008) were test fixtures written by the suite on 22 Sep, when it once ran against the production database; `scripts/remove-test-fixture-agents.ts` removes them.
@@ -54,7 +54,7 @@ Before submitting:
 ## The open criterion: traction
 
 Twenty percent of the score is "any evidence of developer interest (even one
-other team integrating it during the hackathon)". Where it stands on 30 September
+other team integrating it during the hackathon)". Where it stands on 6 October
 2026, in [ADOPTION.md](ADOPTION.md):
 
 - **A trading-agent team has agreed to integrate** through the SDK or HTTP. They
@@ -80,7 +80,7 @@ a real repository beats any sentence about it.
 
 ## Script — technical demo (first cut)
 
-The current 2:42 cut is generated by `scripts/video/tech.py`; this is the first script, kept for reference.
+The current 2:56 cut is generated by `scripts/video/tech.py`; this is the first script, kept for reference.
 
 Screen recording of the live site. No slides, no code. Record with
 `node scripts/record-demo.mjs https://chancela.xyz recording` for the guided run,
@@ -144,7 +144,7 @@ translated from Portuguese; the video says plainly that a synthetic voice reads 
 > An agent asks before it acts. A deterministic policy engine — never the model —
 > answers with a signed capsule bound to the exact parameters, and every decision,
 > refusals included, is anchored on Monad, where anyone can verify it without an
-> account. Owners hold one passkey that derives one key per agent (WebAuthn PRF →
+> account and run it again on their own machine (`npx chancela-check`). Owners hold one passkey that derives one key per agent (WebAuthn PRF →
 > BIP-32, no seed phrase). Developers integrate with one HTTP call, a TypeScript
 > SDK that verifies permissions against the on-chain attestor, or a MetaMask
 > Agent Wallet plugin. No admin key, MIT-licensed, self-hostable: the owner, not

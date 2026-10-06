@@ -12,7 +12,7 @@ src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
 SEG = [
  ("still", "s1", "Hi. I'm David, from Brazil, with a background in infrastructure, support and automation. I built Chancela alone during this hackathon, and a synthetic voice is reading my words. Chancela gives AI agents limits they cannot talk their way past."),
  ("still", "s2", "Agents are getting wallets. Sooner or later one will be told to do something it should not: by a user, a web page, or an email. Today its only limit is a system prompt, and nothing stops the transaction."),
- ("clip", ("attack", "explorer"), "Here is Chancela stopping one, live on Monad. A trading agent is told to buy twenty-five thousand dollars. Its policy refuses. It sends the order anyway, and the venue's gate reverts it on-chain."),
+ ("clip", ("attack", "openproof"), "Here is Chancela stopping one, live on Monad. A trading agent is told to buy twenty-five thousand dollars. Its policy refuses. It sends the order anyway, and the venue's gate reverts it on-chain."),
  ("still", "s3", "Same agent, same venue: a two hundred dollar order its policy allowed was filled. Both transactions are public."),
  ("still", "s4", "The model only proposes. A deterministic policy decides, and signs. Monad records every decision, refusals included. And the venue enforces it."),
  ("still", "s5", "Who pays? Teams running trading agents, venues, and platforms that host agents. Self-hosting is free; we charge for running the attestor."),

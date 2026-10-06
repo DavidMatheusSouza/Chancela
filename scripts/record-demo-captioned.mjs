@@ -1,8 +1,8 @@
 /**
  * Record the technical demo video: landing page, the no-login demo button, the
- * full guided run, then the attack on /live that Monad reverts and the reverted
- * transaction in the explorer -- against the live site, so it shows whatever
- * actually happened.
+ * full guided run, then the attack on /live that Monad reverts and that
+ * refusal's proof page, where the policy engine runs it again -- against the
+ * live site, so it shows whatever actually happened.
  *
  * It notes the moment each step appears (marks.json), and
  * scripts/caption-demo.py turns those into captions that are timed to this
@@ -72,10 +72,23 @@ try {
   await page.getByText('Monad reverted it', { exact: false }).waitFor({ timeout: 90000 }); mark('reverted');
   await page.getByRole('status').scrollIntoViewIfNeeded();
   await page.waitForTimeout(7000);
-  const tx = await page.getByRole('link', { name: /see the reverted transaction/i }).getAttribute('href');
-  marks.tx = tx;
-  await page.goto(tx, { waitUntil: 'load', timeout: 60000 }); mark('explorer');
-  await page.waitForTimeout(10000);
+  marks.tx = await page.getByRole('link', { name: /see the reverted transaction/i }).getAttribute('href');
+  // The refusal's own proof page: the checks against Monad, then the policy
+  // engine run again on the recorded inputs. Wait until the decision is anchored
+  // so the page shows the finished proof, not one still in flight.
+  const proof = page.getByRole('link', { name: /open the proof/i });
+  marks.auditId = (await proof.getAttribute('href')).split('/').pop();
+  for (let i = 0; i < 40; i++) {
+    const body = await (await page.request.get(`${BASE}/api/proofs/${marks.auditId}`)).json().catch(() => ({}));
+    if (body?.anchor?.status === 'CONFIRMED') break;
+    await page.waitForTimeout(500);
+  }
+  mark('openproof');
+  await proof.click();
+  await page.waitForURL('**/proof/**', { timeout: 30000 }); await page.waitForLoadState('networkidle'); await zoom(); mark('replay');
+  await page.waitForTimeout(4500);
+  await page.getByRole('heading', { name: 'Run it again' }).evaluate((el) => { el.style.scrollMarginTop = '24px'; el.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
+  await page.waitForTimeout(9000);
   mark('end');
 } finally {
   writeFileSync(`${OUT}/marks.json`, JSON.stringify(marks, null, 1));
