@@ -12,13 +12,11 @@ page says so.
   Chancela in front of it, through the SDK or plain HTTP. We are waiting on their
   details (agent, actions, limits). They are not named here until they agree to
   be, and their code is not on GitHub, so there is nothing to link yet.
-- **Pull request open, not merged:** [Metrix AI](https://github.com/yigenfeng0707-netizen/metrix-ai),
-  an autonomous trading agent in Track 01. On 5 Oct we opened
-  [a pull request](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) that puts Chancela in front of every non-sim order,
-  off unless `CHANCELA_AGENT_ID` is set. The same patch runs against the live
-  deployment ([`examples/integrations/metrix`](../examples/integrations/metrix)).
-  Metrix has not reviewed, merged or agreed to it. It is an offer, not an
-  integration.
+- **Offer withdrawn:** on 5 Oct we opened a pull request on Metrix AI, a trading
+  agent in Track 01, that put Chancela in front of its orders. It was never
+  reviewed, and we withdrew it on 7 Oct to put the time into the team above. The
+  patch stays in [`examples/integrations/metrix`](../examples/integrations/metrix)
+  as a worked example of gating an order router.
 - **Packages on npm:** [`chancela-sdk`](https://www.npmjs.com/package/chancela-sdk),
   [`chancela-mcp`](https://www.npmjs.com/package/chancela-mcp),
   [`mm-plugin-chancela`](https://www.npmjs.com/package/mm-plugin-chancela),
@@ -151,6 +149,7 @@ Progress on that list is recorded here, with dates, as it happens:
 | 23 Sep 2026 | A trading-agent team (not yet named) | Agreed to integrate via SDK/HTTP. Waiting on their details. Not live. |
 | 3 Oct 2026 | Metrix AI (Track 01) | Patch written and run live against our deployment; not yet offered to them. No integration. |
 | 5 Oct 2026 | Metrix AI (Track 01) | [Pull request opened](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) from our fork. Not reviewed or merged. No integration. |
+| 7 Oct 2026 | Metrix AI (Track 01) | Pull request withdrawn by us, unreviewed. No integration. |
 | 3 Oct 2026 | — | Contracts and one agent on Monad mainnet; a real Uniswap V3 swap allowed, two attacks reverted. |
 
 ## How it sustains itself

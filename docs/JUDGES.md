@@ -136,8 +136,7 @@ is a transaction on Monad with a proof link printed next to it.
 Said here so you do not have to find it:
 
 - **No outside team has integrated it yet.** A trading-agent team has agreed to
-  integrate through the SDK or HTTP and we are waiting on their details; Metrix AI
-  (Track 01) has [a pull request from us](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2), open and unmerged. Nothing is live —
+  integrate through the SDK or HTTP and we are waiting on their details. Nothing is live —
   [ADOPTION.md](ADOPTION.md).
 - **Mainnet is contracts and one agent, not the app.** The registry, the gate and
   TA-LIVE's account are on mainnet and have made a real Uniswap swap and reverted two

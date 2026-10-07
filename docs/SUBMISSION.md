@@ -63,9 +63,6 @@ other team integrating it during the hackathon)". Where it stands on 6 October
 - **A trading-agent team has agreed to integrate** through the SDK or HTTP. They
   are not named here yet and their code is not on GitHub; we are waiting on their
   details. Nothing is live.
-- **Metrix AI** ([repository](https://github.com/yigenfeng0707-netizen/metrix-ai),
-  Track 01): we opened [a pull request](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) on 5 Oct that puts Chancela in
-  front of its orders, off by default. It has not been reviewed or merged.
 
 **No external integration is live yet.** Nothing in this repository can
 manufacture one. What would count, cheapest first:
