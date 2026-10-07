@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
 import { REASON_TEXT, type ReasonCode } from '@chancela/shared';
 import { PublicHeader } from '@/components/public-header';
+import { PublicFooter } from '@/components/public-footer';
 import { DecisionPill, Mono, RiskPill } from '@/components/primitives';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { AttackPanel } from '@/components/attack-panel';
@@ -161,6 +162,7 @@ export default async function LivePage() {
           Only the action name, outcome, risk, reason and hashes are shown. Parameters, prompts and
           owners stay private.
         </footer>
+        <PublicFooter />
       </div>
       <AutoRefresh seconds={15} />
     </div>

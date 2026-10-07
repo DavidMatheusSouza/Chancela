@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { PublicHeader } from '@/components/public-header';
+import { PublicFooter } from '@/components/public-footer';
 
 // Rendered per request, like the landing page: a prerendered page is sent with
 // a year of s-maxage, and the edge would keep serving it after the text changed.
@@ -239,6 +240,8 @@ export default function PitchPage() {
           </a>
           <span className="mono text-[12px] text-faint">or, from your own machine: npx chancela-check</span>
         </section>
+
+        <PublicFooter />
       </div>
     </div>
   );

@@ -18,7 +18,35 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
 // `/robots.txt` and `/sitemap.xml` are fetched by crawlers, which never carry
 // a session. Gating them behind the login redirect would tell every crawler
 // that the site is a login page.
-const PUBLIC_PATHS = ['/', '/live', '/pitch', '/login', '/opengraph-image', '/robots.txt', '/sitemap.xml'];
+// `/privacy`, `/terms` and `/security.txt` say who runs the site and what it
+// keeps. They are for the visitor who has not decided to trust it yet.
+const PUBLIC_PATHS = [
+  '/',
+  '/live',
+  '/pitch',
+  '/login',
+  '/privacy',
+  '/terms',
+  '/security.txt',
+  '/opengraph-image',
+  '/robots.txt',
+  '/sitemap.xml',
+];
+// The pages that exist behind the session. Only these send a signed-out visitor
+// to the sign-in page; see the end of `middleware`.
+const SESSION_PAGE_PREFIXES = [
+  '/dashboard',
+  '/agents',
+  '/policies',
+  '/audit',
+  '/activity',
+  '/approvals',
+  '/keys',
+  '/settings',
+  '/trust',
+  '/integrations',
+  '/demo',
+];
 // `/api/network/status` joins the health checks: it reports only the chain id,
 // the public RPC and the registry addresses, all of which are already published
 // in the docs and readable on-chain by anyone.
@@ -96,7 +124,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/api/auth/demo?next=%2Fdemo', base));
   }
 
-  return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, base));
+  if (SESSION_PAGE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, base));
+  }
+
+  // Anything else is an address this site does not have. It used to be sent to
+  // the sign-in page like the rest, so a mistyped link, or a scanner probing
+  // for `/wp-admin`, was answered with a wallet prompt: the behaviour of a
+  // phishing page. It is still denied by default -- a page added under the
+  // session and left off the list above is not shown, it is a 404 -- but the
+  // answer is now the honest one.
+  return NextResponse.rewrite(new URL('/404', request.url), { status: 404 });
 }
 
 export const config = {

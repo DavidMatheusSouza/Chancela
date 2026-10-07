@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { CheckCircle2, CircleDashed, ExternalLink, XCircle } from 'lucide-react';
 import { REASON_TEXT, type ReasonCode } from '@chancela/shared';
 import { PublicHeader } from '@/components/public-header';
+import { PublicFooter } from '@/components/public-footer';
 import { DecisionPill, Label, Mono, RiskPill } from '@/components/primitives';
 import { getRepository } from '@/lib/store';
 import { findDecision, inputsArePublic, recomputeDecisionHash, replayDecision } from '@/lib/proof';
@@ -244,6 +245,7 @@ cast tx ${decision.onchainTxHash} input --rpc-url https://testnet-rpc.monad.xyz 
             ? 'This is a public demo agent, so the inputs to its decisions are shown. For any other agent only hashes and references are public; prompts and model output never leave the service.'
             : 'Only hashes and references are public. Parameters, prompts and model output never leave the service.'}
         </footer>
+        <PublicFooter />
       </div>
     </div>
   );

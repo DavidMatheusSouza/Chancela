@@ -121,9 +121,23 @@ describe('the public ledger needs no session', () => {
   });
 
   it('opens nothing beside them', async () => {
-    expect(await status('/proof/x/edit')).toBe(307);
-    expect(await status('/proofs')).toBe(307);
-    expect(await status('/live/admin')).toBe(307);
+    expect(await status('/proof/x/edit')).toBe(404);
+    expect(await status('/proofs')).toBe(404);
+    expect(await status('/live/admin')).toBe(404);
     expect(await status('/dashboard')).toBe(307);
+  });
+
+  it('says who runs the site without a session', async () => {
+    expect(await status('/privacy')).toBe(200);
+    expect(await status('/terms')).toBe(200);
+    expect(await status('/security.txt')).toBe(200);
+  });
+
+  it('answers an address it does not have with a 404, not with the sign-in page', async () => {
+    expect(await status('/wp-admin')).toBe(404);
+    expect(await status('/about')).toBe(404);
+    expect(await status('/dashboards')).toBe(404);
+    expect(await status('/settings/anything')).toBe(307);
+    expect(await status('/api/nothing')).toBe(401);
   });
 });

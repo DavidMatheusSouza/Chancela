@@ -444,6 +444,12 @@ export default async function Landing() {
             <a href="https://github.com/DavidMatheusSouza/Chancela/blob/main/docs/THREAT_MODEL.md" target="_blank" rel="noreferrer" className="hover:text-ink">
               Threat model
             </a>
+            <Link href="/privacy" className="hover:text-ink">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-ink">
+              Terms
+            </Link>
             <span>MIT</span>
           </span>
         </footer>

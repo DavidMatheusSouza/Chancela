@@ -7,5 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/live`, lastModified: new Date(), changeFrequency: 'hourly', priority: 0.8 },
     { url: `${base}/pitch`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${base}/privacy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${base}/terms`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   ];
 }
