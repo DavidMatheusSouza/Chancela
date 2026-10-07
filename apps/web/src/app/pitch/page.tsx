@@ -2,6 +2,10 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { PublicHeader } from '@/components/public-header';
 
+// Rendered per request, like the landing page: a prerendered page is sent with
+// a year of s-maxage, and the edge would keep serving it after the text changed.
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'The pitch - Chancela',
   description:
