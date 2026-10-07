@@ -47,7 +47,7 @@ Video files: [`docs/assets/videos/chancela-technical-demo.mp4`](assets/videos/ch
 Before submitting:
 
 - [x] Attestation key holds at least 10 MON (`/api/network/status` → `attestorFunds.anchorsLeft`): 32 MON on 6 Oct, about 3,300 anchors. Two weeks of judging must not end in `FAILED` anchors.
-- [x] The judges' paths run again after the 7 Oct dependency upgrade (Next 15.5, React 19): `npx chancela-check@0.3.0` from an empty directory, 15 of 15; the guided demo at `/demo`, eight of eight steps with every decision anchored; wallet sign-in; the Privy dialog opens. Signing in through Privy to the end and creating an account with a passkey were not repeated that day.
+- [x] The judges' paths run again after the 7 Oct dependency upgrade (Next 15.5, React 19): `npx chancela-check@0.3.0` from an empty directory, 15 of 15; the guided demo at `/demo`, eight of eight steps with every decision anchored; wallet sign-in; the Privy dialog opens. The passkey path ran end to end against a disposable local instance of the same build, with a virtual CTAP2 authenticator (`scripts/e2e-passkey.mjs`): account created, keys unlocked, an agent key signed and was bound with its proof of possession, and the same passkey gave the same address after a reload. Signing in through Privy to the end was not repeated that day.
 - [ ] `.env` backed up somewhere that is not this server.
 - [ ] Qwen, Kimi and Hunyuan keys set, or those bounties left unclaimed — `/integrations` reports the truth either way. Groq is the provider configured today.
 - [ ] Nansen: the key is set, but on 7 Oct the account answered `insufficient_credits`, so lookups fall back to the local denylist. Add credits, or leave that bounty unclaimed.
