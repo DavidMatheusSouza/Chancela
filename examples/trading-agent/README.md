@@ -142,6 +142,20 @@ Prefer not to depend on our server at all? Everything is MIT:
 `setAttestor()` on the registry. Your identity, policy history and audit trail
 stay yours.
 
+## 6. Show your users the limits are real
+
+Once your agent is registered, it has a seal you can put on your own site: an
+image, redrawn on every request, with its status, ERC-8004 identity, the policy
+version in force and how many requests were refused. It goes red within a
+minute if the agent is suspended.
+
+```html
+<a href="https://chancela.xyz/agents/TA-XXX"><img src="https://chancela.xyz/seal/TA-XXX.svg" width="360" height="116" alt="Chancela seal"></a>
+```
+
+Keep the link: the image is a pointer, and the passport it opens is where the
+registry on Monad is read again. `?style=badge` is the one-line form.
+
 ## With an LLM agent over MCP
 
 Put `guard()` inside the tool, not in the prompt.

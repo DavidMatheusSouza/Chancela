@@ -148,6 +148,18 @@ front of MetaMask Agent Wallet: `mm chancela authorize … && mm transfer …`.
 order call in TypeScript or Python (one file, verifies the signature against the
 on-chain attestor itself) and runs live against a public agent with no account.
 
+**Show it to your own users.** Every agent has a seal: its status, ERC-8004
+identity, the policy in force and its refusals, as an image redrawn on each
+request. Put it on your page, linked to the passport that re-reads the registry:
+
+```html
+<a href="https://chancela.xyz/agents/TA-LIVE"><img src="https://chancela.xyz/seal/TA-LIVE.svg" width="360" height="116" alt="Chancela seal"></a>
+```
+
+`?style=badge` gives the one-line form for a README. An image proves nothing by
+itself; the link behind it is the proof. The snippet for any agent is at the
+bottom of its passport.
+
 ## Sponsor integrations
 
 Each one does real work in the product and reports its true state on

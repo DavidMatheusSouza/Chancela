@@ -43,6 +43,7 @@ export default async function AgentPassport(props: { params: Promise<{ id: strin
 
   const granted = new Set(policy?.document.permissions ?? []);
   const chain = activeChain();
+  const sealBase = (process.env.PUBLIC_BASE_URL ?? 'https://chancela.xyz').replace(/\/$/, '');
 
   // What the registry says, next to what we say. Null is "could not ask".
   const registered =
@@ -255,6 +256,28 @@ export default async function AgentPassport(props: { params: Promise<{ id: strin
             time: formatTime(d.createdAt),
           }))}
         />
+      </Card>
+
+      <Card className="space-y-4">
+        <div>
+          <h2 className="text-sm font-medium">Show this on your own page</h2>
+          <p className="mt-1 text-[12px] leading-relaxed text-faint">
+            The seal is this passport as an image, redrawn on every request: status, identity, the policy in
+            force and the refusals. An image alone proves nothing, so the snippet links it back here, where
+            the registry on {chain.name} is read again.
+          </p>
+        </div>
+        <img src={`/seal/${agent.id}.svg`} width={360} height={116} alt={`Chancela seal for ${agent.name}`} />
+        <div className="space-y-2">
+          <Label>HTML</Label>
+          <pre className="mono overflow-x-auto rounded-md border border-line bg-bg px-3 py-2 text-[11.5px] leading-relaxed text-muted">
+            {`<a href="${sealBase}/agents/${agent.id}"><img src="${sealBase}/seal/${agent.id}.svg" width="360" height="116" alt="Chancela seal for ${agent.id}"></a>`}
+          </pre>
+          <Label>Markdown, one line</Label>
+          <pre className="mono overflow-x-auto rounded-md border border-line bg-bg px-3 py-2 text-[11.5px] leading-relaxed text-muted">
+            {`[![Chancela](${sealBase}/seal/${agent.id}.svg?style=badge)](${sealBase}/agents/${agent.id})`}
+          </pre>
+        </div>
       </Card>
     </div>
   );

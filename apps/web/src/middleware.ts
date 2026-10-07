@@ -82,6 +82,8 @@ function isPublic(pathname: string): boolean {
   // second path is the same file where a proxy refuses dot-directories.
   if (pathname.startsWith('/.well-known/agent-card/')) return true;
   if (pathname.startsWith('/agent-card/')) return true;
+  // The seal an operator embeds on their own page: the passport as an image.
+  if (pathname.startsWith('/seal/')) return true;
   return false;
 }
 
