@@ -23,6 +23,24 @@ export CHANCELA_API_URL=https://your-chancela-deployment
 The consent screen will show **no capabilities and no data access**. That is
 deliberate: a policy gate that cannot touch the wallet is one fewer thing to trust.
 
+**If the plugin is gone right after it installs.** On `mm` 7.0.0 installed from
+npm, `mm plugins install <name>` prints `installed v0.1.0` and then
+`Uninstalling … done`, with no error, and `mm plugins` lists nothing. The CLI's
+own post-install check looks for the new plugin on a configuration object that
+was replaced while the install ran, does not find it, and removes it; with
+`DEBUG=oclif:*` it reports `PLUGIN_MANIFEST_FILE_MISSING`, although the package
+ships `oclif.manifest.json`. That check reads nothing from the plugin's own
+package, so it should not be specific to this one; this is the only plugin it
+was tried with. Reproduced on 7 Oct 2026 with Node 22.23 on Linux. Installing the same published tarball from
+a file takes the other branch of that check and works:
+
+```bash
+npm pack mm-plugin-chancela
+mm config set experimentalAllowUnverifiedInstalls true
+mm plugins install "file:$(pwd)/mm-plugin-chancela-0.1.0.tgz" --accept-permissions
+mm chancela passport --agent TA-001 --api-url https://chancela.xyz
+```
+
 ## Use it as a gate
 
 `authorize` exits non-zero on anything but `ALLOW`, so it composes with `&&`:
@@ -61,4 +79,7 @@ not retry once the circuit breaker has suspended the agent.
 asserts every command extends MetaMask's `PluginCommand`, and mirrors each
 install-time rule in the plugin reference by the error it would raise. Beyond
 that, the tarball was installed into a real `mm` 7.0.0 with
-`mm plugins install file:…` and the commands run against a live deployment.
+`mm plugins install file:…` and the commands run against a live deployment —
+again on 7 Oct 2026, from the tarball published on npm: `passport`, `audit`, an
+`authorize` that was anchored on Monad, and a refusal to proceed when the
+deployment cannot be reached.

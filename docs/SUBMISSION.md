@@ -47,8 +47,11 @@ Video files: [`docs/assets/videos/chancela-technical-demo.mp4`](assets/videos/ch
 Before submitting:
 
 - [x] Attestation key holds at least 10 MON (`/api/network/status` → `attestorFunds.anchorsLeft`): 32 MON on 6 Oct, about 3,300 anchors. Two weeks of judging must not end in `FAILED` anchors.
+- [x] The judges' paths run again after the 7 Oct dependency upgrade (Next 15.5, React 19): `npx chancela-check@0.3.0` from an empty directory, 15 of 15; the guided demo at `/demo`, eight of eight steps with every decision anchored; wallet sign-in; the Privy dialog opens. Signing in through Privy to the end and creating an account with a passkey were not repeated that day.
 - [ ] `.env` backed up somewhere that is not this server.
-- [ ] Qwen, Kimi, Hunyuan and Nansen keys set, or those bounties left unclaimed — `/integrations` reports the truth either way. Groq is the provider configured today.
+- [ ] Qwen, Kimi and Hunyuan keys set, or those bounties left unclaimed — `/integrations` reports the truth either way. Groq is the provider configured today.
+- [ ] Nansen: the key is set, but on 7 Oct the account answered `insufficient_credits`, so lookups fall back to the local denylist. Add credits, or leave that bounty unclaimed.
+- [ ] MetaMask: on `mm` 7.0.0 from npm, `mm plugins install mm-plugin-chancela` is rolled back by the CLI's own check. The [plugin README](../packages/mm-plugin/README.md#install) has the install that works; say so wherever the bounty entry gives install steps.
 - [x] Real passkey-derived keys bound on `/keys` at `chancela.xyz` for the three original demo agents (TA-001, TA-002, TA-003) and written to the registry (20 Sep 2026). The live deployment also runs the trading agent `TA-LIVE`. Five more agents it listed (TA-004 to TA-008) were test fixtures written by the suite on 22 Sep, when it once ran against the production database; `scripts/remove-test-fixture-agents.ts` removes them.
 
 ## The open criterion: traction
