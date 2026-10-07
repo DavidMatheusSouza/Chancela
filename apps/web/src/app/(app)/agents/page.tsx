@@ -6,7 +6,8 @@ import { NewAgent } from './new-agent';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AgentsPage({ searchParams }: { searchParams: { new?: string } }) {
+export default async function AgentsPage(props: { searchParams: Promise<{ new?: string }> }) {
+  const searchParams = await props.searchParams;
   const repo = await getRepository();
   const agents = await repo.listAgents();
   const rows = await Promise.all(

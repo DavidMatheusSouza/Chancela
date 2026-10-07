@@ -12,7 +12,8 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
+export default async function LoginPage(props: { searchParams: Promise<{ next?: string }> }) {
+  const searchParams = await props.searchParams;
   // The same key and the same switch the demo sign-in itself uses, so the
   // button shows exactly when pressing it can work.
   const demoOwner = DEMO_OWNER_ADDRESS;

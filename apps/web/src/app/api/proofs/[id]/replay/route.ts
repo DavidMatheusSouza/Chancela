@@ -17,7 +17,8 @@ export const dynamic = 'force-dynamic';
  * Public only for the shared demo account's agents. For anyone else the bundle
  * contains their parameters, and it went to them in the authorize response.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!rateLimitCaller(request, 'proof-replay', 60, 600)) {
     return fail(429, 'RATE_LIMITED', 'Too many replay requests');
   }

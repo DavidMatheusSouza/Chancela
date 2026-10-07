@@ -17,7 +17,7 @@ const schema = z
 
 /** The signed-in owner's approver passkey: whether one is enrolled, and its public key. */
 export async function GET() {
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint');
   const key = await (await getRepository()).getApproverKey(session.address);
   return ok({
@@ -28,7 +28,7 @@ export async function GET() {
 /** Enrol the passkey this owner approves step-up decisions with. */
 export async function POST(request: Request) {
   if (!rateLimitCaller(request, 'approver:enrol', 20, 200)) return fail(429, 'RATE_LIMITED', 'Too many attempts');
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint');
 
   const parsed = schema.safeParse(await request.json().catch(() => null));

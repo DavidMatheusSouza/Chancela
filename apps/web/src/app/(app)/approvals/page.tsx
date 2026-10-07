@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic';
  * can check -- and Monad does.
  */
 export default async function ApprovalsPage() {
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   const repo = await getRepository();
   const rows = session ? await repo.listApprovals(session.address, 40) : [];
   const settled = await Promise.all(rows.map((r) => settleExpiry(repo, r)));

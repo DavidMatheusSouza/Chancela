@@ -16,7 +16,8 @@ export const dynamic = 'force-dynamic';
  * the claim on trust. Only hashes and references leave here -- never the
  * prompt, and never the raw model output.
  */
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
 
   const decision = await findDecision(repo, params.id);

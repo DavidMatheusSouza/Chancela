@@ -35,7 +35,7 @@ export async function GET(request: Request) {
   const base = baseUrl(request);
   const loginUrl = new URL(`/login?next=${encodeURIComponent(next)}`, base);
 
-  const existing = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const existing = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (existing) return NextResponse.redirect(new URL(next, base));
 
   if (!rateLimitCaller(request, 'auth:demo', 60, 600)) return NextResponse.redirect(loginUrl);

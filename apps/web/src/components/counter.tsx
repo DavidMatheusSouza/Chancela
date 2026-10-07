@@ -20,7 +20,7 @@ export function Counter({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number | undefined>(undefined);
   const [display, setDisplay] = useState(value === 0 ? 0 : null as number | null);
 
   useEffect(() => {

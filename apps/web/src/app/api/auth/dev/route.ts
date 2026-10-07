@@ -12,6 +12,6 @@ export async function POST(request: Request) {
   const result = await demoSignIn();
   if (!result.ok) return fail(result.status, result.code, result.message);
 
-  cookies().set(SESSION_COOKIE, result.token, sessionCookieOptions(request));
+  (await cookies()).set(SESSION_COOKIE, result.token, sessionCookieOptions(request));
   return ok({ address: result.address });
 }

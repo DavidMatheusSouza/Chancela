@@ -52,7 +52,7 @@ async function tradingAgent(name: string, ownerAddress: string) {
 
 const order = (amount: number) => ({ amount, market: 'MON/USDC', side: 'BUY' });
 const get = (id: string) =>
-  GET(new Request(`http://localhost/api/proofs/${id}/replay`), { params: { id } }).then(async (r) => ({
+  GET(new Request(`http://localhost/api/proofs/${id}/replay`), { params: Promise.resolve({ id }) }).then(async (r) => ({
     status: r.status,
     body: await r.json(),
   }));

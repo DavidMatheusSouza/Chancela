@@ -24,7 +24,8 @@ const chatSchema = z
  * uses -- there is no console-specific shortcut, which is why swapping the model
  * cannot change an outcome.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!rateLimitCaller(request, `chat:${params.id}`, 30, 150)) {
     return fail(429, 'RATE_LIMITED', 'Too many messages for this agent');
   }

@@ -47,7 +47,7 @@ export default async function DemoPage() {
   // The breaker step suspends the agent, and only its owner can bring it back.
   // Someone who signed up with their own passkey a minute ago is not that
   // owner, and letting them trip it would leave the demo broken for everyone.
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   const canAdminister = ownsAgent(session, record);
 
   const chain = activeChain();

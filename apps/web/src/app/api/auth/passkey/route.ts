@@ -62,6 +62,6 @@ export async function POST(request: Request) {
   }
 
   const token = await createSession(address, 'passkey');
-  cookies().set(SESSION_COOKIE, token, sessionCookieOptions(request));
+  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions(request));
   return ok({ address, onboarded });
 }

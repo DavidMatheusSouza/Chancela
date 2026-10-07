@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   }
 
   // The middleware guarantees a session exists; this reads whose it is.
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint');
 
   const repo = await getRepository();

@@ -4,7 +4,8 @@ import { fail, ok } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const agent = await repo.getAgent(params.id);
   if (!agent) return fail(404, 'NOT_FOUND', `Unknown agent ${params.id}`);

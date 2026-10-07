@@ -32,7 +32,7 @@ type Guard =
 
 /** Resolve the agent and require that the caller owns it. */
 export async function requireOwner(agentId: string): Promise<Guard> {
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) {
     return { ok: false, response: fail(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint') };
   }

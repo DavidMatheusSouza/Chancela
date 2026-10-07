@@ -13,11 +13,12 @@ export const dynamic = 'force-dynamic';
 const DECISIONS = ['ALL', 'ALLOW', 'DENY', 'REQUIRE_APPROVAL'];
 const RISKS = ['ALL', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
-export default async function AuditPage({
-  searchParams,
-}: {
-  searchParams: { decision?: string; risk?: string; agent?: string };
-}) {
+export default async function AuditPage(
+  props: {
+    searchParams: Promise<{ decision?: string; risk?: string; agent?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const repo = await getRepository();
   const agents = await repo.listAgents();
   const events = await repo.listDecisions({

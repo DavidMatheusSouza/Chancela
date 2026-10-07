@@ -6,7 +6,8 @@ import { SHARED_DEMO_REFUSAL, isSharedDemoOwner } from '@/lib/demo-signin';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const policies = await repo.listPolicies(params.id);
   return ok({ policies });
@@ -19,7 +20,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
  * happened" answerable months later. The version number must increase, matching
  * the on-chain rule in TrustAgentPolicyRegistry.anchorPolicy().
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   // The most powerful write in the system: a policy decides what an agent may
   // do, so only that agent's owner may publish one.
   const guard = await requireOwner(params.id);

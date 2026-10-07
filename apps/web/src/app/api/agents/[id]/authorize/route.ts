@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
  * agent runtime, anywhere, can call this before it acts. It returns a signed
  * capsule, not a boolean, so the answer cannot be forged downstream.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!rateLimitCaller(request, `authorize:${params.id}`, 120, 600)) {
     return fail(429, 'RATE_LIMITED', 'Too many authorization requests for this agent');
   }

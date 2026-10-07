@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const chain = activeChain();
   const repo = await getRepository();
   const agents = (await repo.listAgents()).map((a) => ({ id: a.id, name: a.name }));
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
 
   const nav = { chainName: chain.name, chainId: chain.id, owner: session?.address };
 

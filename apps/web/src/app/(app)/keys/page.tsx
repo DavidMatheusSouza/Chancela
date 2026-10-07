@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * index only means something under the passkey of the person it belongs to.
  */
 export default async function KeysPage() {
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   const repo = await getRepository();
   const all = await repo.listAgents();
   const mine = session

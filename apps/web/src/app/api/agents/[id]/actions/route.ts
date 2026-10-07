@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
  *
  * Takes a capsule, never an intent. Refuses anything it cannot verify.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!rateLimitCaller(request, `execute:${params.id}`, 60, 300)) {
     return fail(429, 'RATE_LIMITED', 'Too many execution requests for this agent');
   }

@@ -30,7 +30,7 @@ const bind = async (agentId: string) =>
         signature: await visitorKey.signMessage({ message: bindMessage(agentId, visitorKey.address) }),
       }),
     }),
-    { params: { id: agentId } },
+    { params: Promise.resolve({ id: agentId }) },
   );
 
 describe('the shared demo owner and wallets', () => {

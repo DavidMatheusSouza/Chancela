@@ -81,6 +81,6 @@ export async function POST(request: Request) {
 
   const address = getAddress(owned);
   const token = await createSession(address, 'privy');
-  cookies().set(SESSION_COOKIE, token, sessionCookieOptions(request));
+  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions(request));
   return ok({ address, method: 'privy' });
 }

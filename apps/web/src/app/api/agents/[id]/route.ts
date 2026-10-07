@@ -10,7 +10,8 @@ import { onchainAgentWallet } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const agent = await repo.getAgent(params.id);
   if (!agent) return fail(404, 'NOT_FOUND', `Unknown agent ${params.id}`);
@@ -63,7 +64,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   });
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   // Suspending, reactivating and revoking belong to the owner alone.
   const guard = await requireOwner(params.id);
   if (!guard.ok) return guard.response;

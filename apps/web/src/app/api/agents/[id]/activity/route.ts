@@ -19,7 +19,8 @@ const ENVIO_QUERY = `
  * indexer is not configured, and reports which source it used so the UI never
  * implies on-chain provenance it does not have.
  */
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const agent = await repo.getAgent(params.id);
   const endpoint = process.env.ENVIO_GRAPHQL_URL;

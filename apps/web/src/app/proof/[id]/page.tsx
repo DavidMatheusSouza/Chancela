@@ -10,7 +10,8 @@ import { explorerAddressUrl, explorerTxUrl, readAnchor } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return {
     title: `Proof ${params.id} - Chancela`,
     description: 'One AI agent decision, recomputed and checked against Monad.',
@@ -33,7 +34,8 @@ type Check = { label: string; detail: string; state: 'pass' | 'fail' | 'pending'
  * again and has to arrive at the same hash. For the public demo agents the
  * inputs are shown and the same re-run is one command on the reader's machine.
  */
-export default async function ProofPage({ params }: { params: { id: string } }) {
+export default async function ProofPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const decision = await findDecision(repo, decodeURIComponent(params.id));
   if (!decision) notFound();

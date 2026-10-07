@@ -98,7 +98,7 @@ describe('the guided demo, now told with the trading agent', () => {
         headers: { 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.50' },
         body: JSON.stringify({ message, provider: 'rules' }),
       }),
-      { params: { id: TRADING_AGENT_ID } },
+      { params: Promise.resolve({ id: TRADING_AGENT_ID }) },
     );
     const body = await res.json();
     return body.decision ?? body;

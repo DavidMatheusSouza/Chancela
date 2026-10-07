@@ -18,7 +18,8 @@ export const dynamic = 'force-dynamic';
  * The one screen that has to land in five seconds: who this agent is, who owns
  * it, what it may do, and -- given equal weight -- what it may not.
  */
-export default async function AgentPassport({ params }: { params: { id: string } }) {
+export default async function AgentPassport(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const agent = await repo.getAgent(params.id);
   if (!agent) notFound();

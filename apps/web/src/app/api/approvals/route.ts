@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 /** Approval requests for the agents the signed-in owner holds, newest first. */
 export async function GET() {
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint');
   const repo = await getRepository();
   const rows = await repo.listApprovals(session.address, 50);

@@ -26,7 +26,8 @@ const assertionSchema = z
  * status and -- once approved -- the ALLOW capsule that request was waiting
  * for. It shows hashes, never the parameters.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const repo = await getRepository();
   const found = await repo.getApproval(params.id);
   if (!found) return fail(404, 'NOT_FOUND', 'Unknown approval request');
@@ -34,10 +35,11 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 }
 
 /** POST /api/approvals/:id -- the owner's passkey assertion over the decision hash. */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!rateLimitCaller(request, `approve:${params.id}`, 10, 30)) return fail(429, 'RATE_LIMITED', 'Too many attempts');
   // The path is public for GET, so the session is checked here, not in middleware.
-  const session = await readSession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return fail(401, 'UNAUTHENTICATED', 'Sign in as the agent owner to approve');
 
   const parsed = assertionSchema.safeParse(await request.json().catch(() => null));
