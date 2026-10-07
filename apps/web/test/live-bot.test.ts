@@ -29,7 +29,7 @@ const attack = (id: unknown, ip = '203.0.113.7') =>
 describe('the live trading agent', () => {
   it('answers "not registered" rather than inventing an agent', async () => {
     expect((await tick()).ran).toBe(false);
-    expect((await attack('drain')).status).toBe(503);
+    expect((await attack('transfer')).status).toBe(503);
   });
 
   it('is created once, with its policy active', async () => {
@@ -74,7 +74,7 @@ describe('POST /api/live/attack', () => {
   it('refuses the attack and reports the breaker', async () => {
     const repo = await getRepository();
     await repo.updateAgent(TRADING_AGENT_ID, { status: 'ACTIVE' });
-    const res = await attack('drain', '203.0.113.30');
+    const res = await attack('transfer', '203.0.113.30');
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.decision).toBe('DENY');

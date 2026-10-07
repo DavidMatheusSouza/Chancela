@@ -98,7 +98,7 @@ export default async function LivePage() {
         {trader && (
           <AttackPanel
             agentName={trader.name}
-            attacks={ATTACKS.map(({ id, prompt, action }) => ({ id, prompt, action }))}
+            attacks={ATTACKS.map(({ id, label, action }) => ({ id, label, action }))}
           />
         )}
 

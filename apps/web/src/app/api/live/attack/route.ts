@@ -42,6 +42,7 @@ export async function POST(request: Request) {
 
   return ok({
     attack: attack.id,
+    prompt: attack.prompt,
     action: attack.action,
     decision: decision.decision,
     reasonCode: decision.reasonCode,

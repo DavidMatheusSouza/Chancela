@@ -8,12 +8,14 @@ import { cn } from '@/lib/ui';
 
 interface AttackOption {
   id: string;
-  prompt: string;
+  label: string;
   action: string;
 }
 
 interface Result {
   attack: string;
+  /** The injected instruction itself, sent back with the answer. */
+  prompt: string;
   action: string;
   decision: string;
   reasonText: string;
@@ -65,14 +67,15 @@ export function AttackPanel({ attacks, agentName }: { attacks: AttackOption[]; a
         <h2 className="text-[15px] font-semibold tracking-tight">Try to break it</h2>
       </div>
       <p className="mt-1 text-[13px] text-muted">
-        {agentName} is a trading agent allowed to place orders up to $500 and nothing else. Send it
-        one of these injected instructions and watch its policy answer — the decision lands in the
+        {agentName} is a trading agent allowed to place orders up to $500 and nothing else. Each of
+        these is a test input: an instruction somebody slipped into what the agent reads. Run one
+        and watch its policy answer — the decision lands in the
         ledger below, anchored on Monad. The venue it trades on only accepts orders that carry a
         chancela, so an order the policy refused fails on-chain too, even if the agent sends it anyway.
       </p>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {attacks.map((a) => (
+        {attacks.map((a, i) => (
           <button
             key={a.id}
             type="button"
@@ -80,7 +83,8 @@ export function AttackPanel({ attacks, agentName }: { attacks: AttackOption[]; a
             disabled={busy !== null}
             className="lift flex h-full flex-col items-start rounded-lg border border-line bg-surface p-3.5 text-left transition-colors hover:border-deny/50 disabled:opacity-60"
           >
-            <span className="text-[13px] leading-snug text-ink">“{a.prompt}”</span>
+            <span className="mono text-[11px] uppercase tracking-wide text-faint">Test input {i + 1}</span>
+            <span className="mt-1 text-[13px] leading-snug text-ink">{a.label}</span>
             <span className="mono mt-auto pt-3 text-[11px] text-faint">
               {busy === a.id ? (
                 <span className="inline-flex items-center gap-1">
@@ -111,6 +115,9 @@ export function AttackPanel({ attacks, agentName }: { attacks: AttackOption[]; a
                 {result.decision === 'DENY' ? 'Refused' : result.decision === 'ALLOW' ? 'Allowed' : 'Held for the owner'}
                 <span className="mono ml-2 text-[12px] font-normal text-muted">{result.action}</span>
               </div>
+              <p className="text-[13px] text-muted">
+                The agent was told: <span className="text-ink">“{result.prompt}”</span>
+              </p>
               <p className="text-[13px] text-muted">{result.reasonText}</p>
               {result.breaker.tripped ? (
                 <p className="text-[13px] text-deny">
