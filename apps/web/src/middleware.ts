@@ -18,7 +18,7 @@ import { SESSION_COOKIE, readSession } from '@/lib/session';
 // `/robots.txt` and `/sitemap.xml` are fetched by crawlers, which never carry
 // a session. Gating them behind the login redirect would tell every crawler
 // that the site is a login page.
-const PUBLIC_PATHS = ['/', '/live', '/login', '/opengraph-image', '/robots.txt', '/sitemap.xml'];
+const PUBLIC_PATHS = ['/', '/live', '/pitch', '/login', '/opengraph-image', '/robots.txt', '/sitemap.xml'];
 // `/api/network/status` joins the health checks: it reports only the chain id,
 // the public RPC and the registry addresses, all of which are already published
 // in the docs and readable on-chain by anyone.
@@ -41,13 +41,19 @@ function isPublic(pathname: string): boolean {
   if (pathname === '/api/live/attack') return true;
   // The same proofs, rendered and re-checked against Monad for a person.
   if (/^\/proof\/[^/]+$/.test(pathname)) return true;
+  // An agent's passport, read-only: the page over `/api/agents/:id` and its audit
+  // trail, which are public already. The console and the policy editor under
+  // it stay behind the session, and every write checks ownership itself.
+  if (/^\/agents\/[^/]+$/.test(pathname)) return true;
   // Where an agent's runtime waits for its owner's answer. The id is an
   // unguessable capability; approving through the same path checks the session
   // and the ownership itself.
   if (/^\/api\/approvals\/apr_[0-9a-f-]{36}$/.test(pathname)) return true;
   if (pathname === '/api/approvals/showcase') return true;
-  // Agent cards are public by design: ERC-8004 discovery depends on them.
+  // Agent cards are public by design: ERC-8004 discovery depends on them. The
+  // second path is the same file where a proxy refuses dot-directories.
   if (pathname.startsWith('/.well-known/agent-card/')) return true;
+  if (pathname.startsWith('/agent-card/')) return true;
   return false;
 }
 

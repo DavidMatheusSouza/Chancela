@@ -125,6 +125,12 @@ export default async function Landing() {
               Live demo
             </a>
             <Link
+              href="/pitch"
+              className="hidden rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink sm:inline-block"
+            >
+              Pitch
+            </Link>
+            <Link
               href="/login"
               className="hidden rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink sm:inline-block"
             >

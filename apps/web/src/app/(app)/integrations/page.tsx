@@ -2,7 +2,7 @@ import { availableProviders } from '@chancela/ai';
 import { meraStatus } from '@/lib/mera-status';
 import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
-import { nansenStatus } from '@/lib/nansen';
+import { nansenStatus, probeNansen } from '@/lib/nansen';
 import { Badge, Card, Mono } from '@/components/primitives';
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +24,7 @@ interface Row {
  * the product is selling.
  */
 export default async function IntegrationsPage() {
+  await probeNansen();
   const mera = await meraStatus(await getRepository());
   const chain = activeChain();
   const config = chainConfig();

@@ -53,7 +53,7 @@ export function computeTrustScore(input: {
       // Repeatedly reaching for what it cannot have is the signal that matters:
       // a well-configured agent should rarely trip a CRITICAL denial.
       factors.push({
-        label: `Attempted blocked critical actions (${criticalDenied})`,
+        label: `Critical actions it asked for and was refused (${criticalDenied})`,
         points: -Math.min(25, criticalDenied * 10),
       });
     } else if (denied > 0) {

@@ -48,6 +48,20 @@ export function nansenStatus(): { status: 'CONNECTED' | 'FALLBACK'; detail: stri
     : { status: 'FALLBACK', detail: `Last lookup failed at ${when} (${lastCall.error}): local denylist in use` };
 }
 
+/**
+ * Ask Nansen once, if nothing has been asked since the process started.
+ *
+ * A key being present says nothing about whether the account behind it still
+ * answers: an account out of credits is refused on every call while the key
+ * looks configured. `/integrations` awaits this before reporting, so the page
+ * shows what a lookup actually returned rather than what the environment holds.
+ */
+export async function probeNansen(): Promise<void> {
+  if (!isNansenConfigured() || lastCall) return;
+  // The zero address: a well-formed lookup that names nobody.
+  await lookupCounterparty('0x0000000000000000000000000000000000000000');
+}
+
 export async function lookupCounterparty(address: string | undefined): Promise<RiskSignal[]> {
   if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) return [];
 

@@ -106,6 +106,20 @@ describe('the public ledger needs no session', () => {
     expect(await status('/proof/TA-AUDIT-9E82C2C1')).toBe(200);
   });
 
+  it('opens an agent passport, its registration file and the pitch', async () => {
+    expect(await status('/agents/TA-001')).toBe(200);
+    expect(await status('/.well-known/agent-card/TA-001.json')).toBe(200);
+    expect(await status('/agent-card/TA-001.json')).toBe(200);
+    expect(await status('/pitch')).toBe(200);
+  });
+
+  it('keeps the agent list, the console and the policy editor behind the session', async () => {
+    expect(await status('/agents')).toBe(307);
+    expect(await status('/agents/TA-001/console')).toBe(307);
+    expect(await status('/agents/TA-001/policy')).toBe(307);
+    expect(await status('/api/agents/TA-001/policies')).toBe(401);
+  });
+
   it('opens nothing beside them', async () => {
     expect(await status('/proof/x/edit')).toBe(307);
     expect(await status('/proofs')).toBe(307);

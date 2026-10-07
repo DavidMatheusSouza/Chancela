@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/sidebar';
 import { Topbar } from '@/components/topbar';
 import { CommandPalette } from '@/components/command-palette';
+import { PublicHeader } from '@/components/public-header';
 import { cookies } from 'next/headers';
 import { activeChain } from '@/lib/chain';
 import { getRepository } from '@/lib/store';
@@ -17,11 +18,26 @@ export const metadata = { robots: { index: false, follow: false } };
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const chain = activeChain();
-  const repo = await getRepository();
-  const agents = (await repo.listAgents()).map((a) => ({ id: a.id, name: a.name }));
   const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
 
-  const nav = { chainName: chain.name, chainId: chain.id, owner: session?.address };
+  // The middleware lets a visitor without a session reach only the pages meant
+  // to be read by anyone. They get the public frame: a sidebar of links that
+  // all end at the sign-in page would be a dashboard they cannot use.
+  if (!session) {
+    return (
+      <div className="relative">
+        <div className="grid-bg pointer-events-none absolute inset-x-0 top-0 h-[360px]" />
+        <div className="relative mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          <PublicHeader />
+          <main className="mt-6">{children}</main>
+        </div>
+      </div>
+    );
+  }
+
+  const repo = await getRepository();
+  const agents = (await repo.listAgents()).map((a) => ({ id: a.id, name: a.name }));
+  const nav = { chainName: chain.name, chainId: chain.id, owner: session.address };
 
   return (
     <div className="flex min-h-screen">

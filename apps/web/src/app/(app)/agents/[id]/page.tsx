@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { ExternalLink, KeyRound, Wallet } from 'lucide-react';
 import { PERMISSIONS, PERMISSION_LABELS, REASON_TEXT } from '@chancela/shared';
@@ -8,6 +9,7 @@ import { activeChain, explorerAddressUrl, explorerTxUrl, onchainAgentWallet } fr
 import { Badge, Card, Field, Label, Mono, StatusDot } from '@/components/primitives';
 import { DecisionHistory } from '@/components/decision-history';
 import { SuspendedBanner } from '@/components/suspended-banner';
+import { SESSION_COOKIE, readSession } from '@/lib/session';
 import { cn, formatTime, shortHash } from '@/lib/ui';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +19,10 @@ export const dynamic = 'force-dynamic';
  *
  * The one screen that has to land in five seconds: who this agent is, who owns
  * it, what it may do, and -- given equal weight -- what it may not.
+ *
+ * It is public, read-only: everything on it is already answered without a
+ * session by `/api/agents/:id` and the audit trail. A visitor sees no controls;
+ * the ones an owner sees lead to routes that check the session and ownership.
  */
 export default async function AgentPassport(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -32,6 +38,9 @@ export default async function AgentPassport(props: { params: Promise<{ id: strin
     decisions,
   });
 
+  const signedIn = Boolean(await readSession((await cookies()).get(SESSION_COOKIE)?.value));
+  const refused = decisions.filter((d) => d.outcome === 'DENY').length;
+
   const granted = new Set(policy?.document.permissions ?? []);
   const chain = activeChain();
 
@@ -42,22 +51,46 @@ export default async function AgentPassport(props: { params: Promise<{ id: strin
     registered === null ? null : registered.toLowerCase() === agent.walletAddress?.toLowerCase();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
-      <div className="flex items-center justify-between">
-        <Link href="/agents" className="text-xs text-muted hover:text-ink">
-          &larr; Agents
-        </Link>
-        <div className="flex gap-2">
-          <Link href={`/agents/${agent.id}/console`} className="rounded-lg bg-ink px-3 py-1.5 text-[13px] font-medium text-bg hover:opacity-90">
-            Open console
+    <div className={cn('mx-auto max-w-5xl space-y-6', signedIn ? 'px-6 py-8' : 'py-2')}>
+      {signedIn ? (
+        <div className="flex items-center justify-between">
+          <Link href="/agents" className="text-xs text-muted hover:text-ink">
+            &larr; Agents
           </Link>
-          <Link href={`/agents/${agent.id}/policy`} className="rounded-lg border border-line px-3 py-1.5 text-[13px] hover:bg-surface">
-            Edit policy
+          <div className="flex gap-2">
+            <Link href={`/agents/${agent.id}/console`} className="rounded-lg bg-ink px-3 py-1.5 text-[13px] font-medium text-bg hover:opacity-90">
+              Open console
+            </Link>
+            <Link href={`/agents/${agent.id}/policy`} className="rounded-lg border border-line px-3 py-1.5 text-[13px] hover:bg-surface">
+              Edit policy
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+          <span>
+            Public passport, read-only. The same record as{' '}
+            <a href={`/api/agents/${agent.id}`} className="text-chain hover:underline">
+              /api/agents/{agent.id}
+            </a>
+            ; no account is needed to read it.
+          </span>
+          <Link href={`/login?next=${encodeURIComponent(`/agents/${agent.id}`)}`} className="hover:text-ink">
+            Owner? Sign in &rarr;
           </Link>
         </div>
-      </div>
+      )}
 
-      {agent.status === 'SUSPENDED' ? <SuspendedBanner agentId={agent.id} name={agent.name} /> : null}
+      {agent.status === 'SUSPENDED' ? (
+        signedIn ? (
+          <SuspendedBanner agentId={agent.id} name={agent.name} />
+        ) : (
+          <div className="verdict-deny rounded-lg p-4 text-[13px] text-deny/90">
+            <span className="font-semibold text-deny">{agent.name} is suspended.</span> Repeated critical refusals
+            tripped the circuit breaker. Every request is refused at the first gate until its owner reactivates it.
+          </div>
+        )
+      ) : null}
 
       {/* The single spotlight element on the whole product. */}
       <Card className="relative overflow-hidden border-chain/20 glow-chain">
@@ -199,9 +232,15 @@ export default async function AgentPassport(props: { params: Promise<{ id: strin
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium">Decision history</h2>
           <Mono className="text-faint">
-            {decisions.filter((d) => d.outcome === 'DENY').length} of {decisions.length} refused
+            {refused} of {decisions.length} refused
           </Mono>
         </div>
+        {refused > 0 ? (
+          <p className="text-[12px] leading-relaxed text-faint">
+            A refusal is the gate holding, not an incident: the agent asked for something its policy does not
+            grant, was told no, and nothing was executed. Each one is signed and anchored like an approval.
+          </p>
+        ) : null}
         <DecisionHistory
           entries={decisions.slice(0, 12).map((d) => ({
             id: d.id,

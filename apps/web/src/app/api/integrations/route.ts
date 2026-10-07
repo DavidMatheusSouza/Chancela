@@ -2,7 +2,7 @@ import { availableProviders } from '@chancela/ai';
 import { meraStatus } from '@/lib/mera-status';
 import { getRepository } from '@/lib/store';
 import { activeChain, chainConfig, identityRegistryAddress } from '@/lib/chain';
-import { nansenStatus } from '@/lib/nansen';
+import { nansenStatus, probeNansen } from '@/lib/nansen';
 import { ok } from '@/lib/http';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic';
  * so, and says what is missing.
  */
 export async function GET() {
+  await probeNansen();
   const mera = await meraStatus(await getRepository());
   const chain = activeChain();
   const config = chainConfig();
