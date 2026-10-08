@@ -20,6 +20,12 @@ const TEMPLATES: { id: string; label: string; hint: string; permissions: Permiss
     permissions: ['READ_TREASURY', 'PLACE_ORDER'],
   },
   {
+    id: 'funded',
+    label: 'Funded-trader agent',
+    hint: 'Buys evaluations and places orders. Cannot move funds out.',
+    permissions: ['READ_TREASURY', 'PLACE_ORDER', 'BUY_ASSESSMENT'],
+  },
+  {
     id: 'support',
     label: 'Support agent',
     hint: 'Reads and updates customers, replies to them.',
@@ -118,7 +124,7 @@ export function NewAgent({ initiallyOpen = false }: { initiallyOpen?: boolean })
 
       <div className="space-y-2">
         <Label>Start from</Label>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2">
           {TEMPLATES.map((t) => (
             <button
               key={t.id}

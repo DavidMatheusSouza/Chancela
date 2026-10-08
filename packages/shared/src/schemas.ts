@@ -130,6 +130,23 @@ export const TOOL_PARAMETER_SCHEMAS: Record<string, z.ZodTypeAny> = {
     .refine((o) => o.orderType !== 'LIMIT' || o.price !== undefined, {
       message: 'a LIMIT order needs a price',
     }),
+  BUY_ASSESSMENT: z
+    .object({
+      /** Price of the evaluation in minor units (cents). This is what the limits count. */
+      amount: z.number().int().positive(),
+      // No defaults, for the reason given on PLACE_ORDER.
+      currency: z.string().length(3).optional(),
+      /** The evaluation being bought, as the seller names it. */
+      plan: z.string().min(1).max(80).optional(),
+      /** Size of the account the evaluation unlocks, in minor units. Not counted by the limits. */
+      accountSize: z.number().int().positive().optional(),
+      provider: z.string().min(1).max(80).optional(),
+      /** The address paid, when the purchase settles on-chain. Checked against blockedCounterparties. */
+      recipientAddress: addressSchema.optional(),
+      clientOrderId: z.string().min(1).max(64).optional(),
+      memo: z.string().max(500).optional(),
+    })
+    .strict(),
   CHANGE_POLICY: z.object({ policyId: z.string().min(1) }).strict(),
   CHANGE_OWNER: z.object({ newOwner: addressSchema }).strict(),
   DELETE_AGENT: z.object({ agentId: z.string().min(1) }).strict(),

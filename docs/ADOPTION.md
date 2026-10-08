@@ -6,15 +6,43 @@ page says so.
 
 ## Status, plainly
 
-- **Integrations by other teams: none live yet.** When one exists it is linked
-  here, repository and all. Until then this section stays at the top.
-- **Agreed, not yet built:** a team running a trading agent has agreed to put
-  Chancela in front of it, through the SDK or plain HTTP. We are waiting on their
-  details (agent, actions, limits). They are not named here until they agree to
-  be, and their code is not on GitHub, so there is nothing to link yet.
+- **One integration by another team is live: MonFunded**, a prop-trading
+  product whose agents trade and buy evaluations for its users. Their code is
+  not public, so what can be checked is what their agents left here, and all of
+  it is readable without an account:
+  - [`TA-005` MONFUNDED-BOT](https://chancela.xyz/agents/TA-005) asks before
+    every order. ERC-8004 identity #5 on Monad testnet; policy v4 allows
+    `PLACE_ORDER` up to $20 an order and $2,000 a day. Between 7 and 8 Oct it
+    asked 24 times: 17 allowed, 4 sent to the owner for approval, 3 refused for
+    exceeding the limit. The 14 decisions made since the identity was registered
+    are each anchored on Monad
+    ([the first](https://testnet.monadexplorer.com/tx/0x9778b9954f5abd5dbede0374488304fe73a1740ab41ca5bc6ed56a2a7a52b514),
+    [its proof page](https://chancela.xyz/proof/TA-AUDIT-EA8DE023),
+    [the whole trail](https://chancela.xyz/api/agents/TA-005/audit)).
+  - [`TA-006` MONFUNDED-AGENT](https://chancela.xyz/agents/TA-006) handles
+    money: ERC-8004 identity #6, `TRANSFER_FUNDS`. 13 requests on 7 Oct, all
+    before its identity was registered, so none of them is anchored, and it has
+    not called since.
+  - What this is not, yet: it runs on testnet, the calls so far come in bursts
+    that look like their integration tests rather than users, we hold both
+    ERC-8004 tokens for them because their owner account signs with a passkey
+    and cannot send a transaction, and they have not written the note we ask
+    design partners for. When they do, it goes here as written.
+- **What their integration changed in Chancela**, all of it from their audit
+  trail:
+  - Their agent asked for `BUY_ASSESSMENT` twice and was refused with
+    `UNKNOWN_ACTION`: the catalogue had no way to say "buy an evaluation". It
+    does now, counted against the same per-transaction and daily limits as an
+    order ([parameters](../examples/trading-agent/README.md#buying-an-evaluation)).
+  - It was refused five times in a row with `INVALID_PARAMETERS` and a reason
+    that read "Required". The reason now names the field.
+  - Registering their identities showed that publishing a policy in the app
+    does not anchor it, and that the registry then rejects every anchor made
+    under the new version. The policy page now says which version Monad holds
+    and what brings the two back in step.
 - **Offer withdrawn:** on 5 Oct we opened a pull request on Metrix AI, a trading
   agent in Track 01, that put Chancela in front of its orders. It was never
-  reviewed, and we withdrew it on 7 Oct to put the time into the team above. The
+  reviewed, and we withdrew it on 7 Oct to put the time into MonFunded. The
   patch stays in [`examples/integrations/metrix`](../examples/integrations/metrix)
   as a worked example of gating an order router.
 - **Packages on npm:** [`chancela-sdk`](https://www.npmjs.com/package/chancela-sdk),
@@ -146,11 +174,13 @@ Progress on that list is recorded here, with dates, as it happens:
 | Date | Who | State |
 |---|---|---|
 | 22 Sep 2026 | Metrix AI (Track 01) | Identified as a target; integration proposal written. No integration. |
-| 23 Sep 2026 | A trading-agent team (not yet named) | Agreed to integrate via SDK/HTTP. Waiting on their details. Not live. |
+| 23 Sep 2026 | MonFunded | Agreed to integrate via SDK/HTTP. Waiting on their details. Not live. |
 | 3 Oct 2026 | Metrix AI (Track 01) | Patch written and run live against our deployment; not yet offered to them. No integration. |
 | 5 Oct 2026 | Metrix AI (Track 01) | [Pull request opened](https://github.com/yigenfeng0707-netizen/metrix-ai/pull/2) from our fork. Not reviewed or merged. No integration. |
 | 7 Oct 2026 | Metrix AI (Track 01) | Pull request withdrawn by us, unreviewed. No integration. |
 | 3 Oct 2026 | — | Contracts and one agent on Monad mainnet; a real Uniswap V3 swap allowed, two attacks reverted. |
+| 7 Oct 2026 | MonFunded | Two agents calling `/authorize` over HTTP (36 requests in half an hour). Both registered as ERC-8004 #5 and #6 that evening; first anchored decision at 20:03 UTC. |
+| 8 Oct 2026 | MonFunded | 14 anchored order decisions so far. `BUY_ASSESSMENT` added to the catalogue because their agent asked for it. |
 
 ## How it sustains itself
 
@@ -172,7 +202,7 @@ audit trail with them, because none of it was ever ours.
 ## Roadmap
 
 1. ~~Publish the packages~~ — done, 20 September 2026.
-2. **Three design partners** — one agreed, none live; see *Status* above.
+2. **Three design partners** — one live on testnet (MonFunded); see *Status* above.
 3. **Policy templates** for treasury, support and sales, so a sane default is
    one click instead of a JSON document.
 4. **Mainnet.** Contracts and one agent are there since 3 October 2026, bound to

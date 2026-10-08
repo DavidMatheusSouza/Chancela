@@ -7,7 +7,7 @@ check without taking our word for it.
 |---|---|---|
 | 60 seconds | `npx chancela-check` | 15 checks: a live decision verified against Monad by your own machine and run again there by the policy engine, then three grants forged on your machine reverted by the gate on Monad |
 | 3 minutes | [chancela.xyz/demo](https://chancela.xyz/demo) → **Run full demo** | The whole product: allow, proof, refusal, injection, breaker, passkey approval |
-| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 460 tests (354 TypeScript, 89 Foundry, 17 Python), and a real agent being stopped over MCP |
+| 10 minutes | Clone, `pnpm verify:all`, `pnpm example:agent` | 482 tests (376 TypeScript, 89 Foundry, 17 Python), and a real agent being stopped over MCP |
 
 No wallet, no account and no API key is needed for any of them.
 
@@ -135,9 +135,11 @@ is a transaction on Monad with a proof link printed next to it.
 
 Said here so you do not have to find it:
 
-- **No outside team has integrated it yet.** A trading-agent team has agreed to
-  integrate through the SDK or HTTP and we are waiting on their details. Nothing is live —
-  [ADOPTION.md](ADOPTION.md).
+- **One outside team has integrated it, on testnet, and only just.** MonFunded's order bot
+  ([`TA-005`](https://chancela.xyz/agents/TA-005)) has asked 24 times since 7 October and 14
+  of those decisions are anchored. The calls so far look like their integration tests, not
+  their users, and their code is not public —
+  [ADOPTION.md](ADOPTION.md#status-plainly).
 - **Mainnet is contracts and one agent, not the app.** The registry, the gate and
   TA-LIVE's account are on mainnet and have made a real Uniswap swap and reverted two
   attacks ([README](../README.md#deployed)); chancela.xyz, the audit anchors and passkey

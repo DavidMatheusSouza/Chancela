@@ -156,7 +156,7 @@ function run(input: EvaluateInput): EvaluateResult {
         step: 5,
         name: 'parameter-schema',
         passed: false,
-        detail: parsed.error.issues[0]?.message ?? 'schema mismatch',
+        detail: describeIssue(parsed.error.issues[0]),
       });
       return fail(input, 'INVALID_PARAMETERS', trace, policy);
     }
@@ -283,6 +283,17 @@ function extractCounterparty(parameters: Record<string, unknown>): string | unde
   const market = parameters.marketAddress;
   if (typeof market === 'string' && market.length > 0) return market;
   return undefined;
+}
+
+/**
+ * Name the field along with the complaint. "Required" alone sends an integrator
+ * back to guess which of five parameters was meant.
+ */
+function describeIssue(issue: { path: ReadonlyArray<string | number>; message: string } | undefined): string {
+  if (!issue) return 'schema mismatch';
+  const keys = (issue as { keys?: unknown }).keys;
+  if (Array.isArray(keys) && keys.length > 0) return `unknown parameter: ${keys.join(', ')}`;
+  return issue.path.length > 0 ? `${issue.path.join('.')}: ${issue.message}` : issue.message;
 }
 
 function utcHour(epochSeconds: number): number {

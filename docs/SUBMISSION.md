@@ -27,11 +27,11 @@ passkey on the sign-in page: it comes with an agent of your own.
 
 | Criterion | Weight | Where it is answered |
 |---|---|---|
-| Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All six contracts (policy registry, ERC-8004 identity, approvals, gate, demo venue, ChancelaAccount) are verified on Sourcify as an exact match, so the source here is provably the source on chain. Four of them are also on **Monad mainnet** (Sourcify exact match), bound to the official ERC-8004 registry, where the agent's account made a real Uniswap V3 swap the policy allowed ([executed](https://monadvision.com/tx/0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915)) and had a forged $25,000 order [reverted](https://monadvision.com/tx/0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415). 460 tests — 354 TypeScript, 89 Foundry including fuzzing, stateful invariants and a mainnet fork against the official ERC-8004 registry, 17 Python; Slither in CI with every finding triaged in [AUDIT.md](AUDIT.md); [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
+| Technical Execution — correct and secure; WebAuthn/P256, key derivation, no leaked secrets | 20% | One passkey → owner key + one key per agent via WebAuthn PRF and BIP-32 ([`passkey-keys.ts`](../apps/web/src/lib/passkey-keys.ts)); keys live in memory only and are zeroed on lock. Binding a key needs a proof of possession. Verified end to end with a virtual CTAP2 authenticator and on real hardware. Step-up decisions are approved with a passkey whose P-256 signature is verified **on Monad by the native precompile** ([`ChancelaApprovals`](SMART_CONTRACT.md), 15 tests, [first real approval](https://testnet.monadexplorer.com/tx/0xe35a3c2431995a4c085f6797b1c4f413aa5fddf0116b8f3fa166ca425abd59aa)). All six contracts (policy registry, ERC-8004 identity, approvals, gate, demo venue, ChancelaAccount) are verified on Sourcify as an exact match, so the source here is provably the source on chain. Four of them are also on **Monad mainnet** (Sourcify exact match), bound to the official ERC-8004 registry, where the agent's account made a real Uniswap V3 swap the policy allowed ([executed](https://monadvision.com/tx/0xc7e00f4b32ee0cbabf4c3205d2d5071c552b64cb08472f0b07bcab5fdce1b915)) and had a forged $25,000 order [reverted](https://monadvision.com/tx/0x40be3b9dbba5b88e55683c19a80a2f3a2fa371b9d17cd95623a2b51d59c18415). 482 tests — 376 TypeScript, 89 Foundry including fuzzing, stateful invariants and a mainnet fork against the official ERC-8004 registry, 17 Python; Slither in CI with every finding triaged in [AUDIT.md](AUDIT.md); [THREAT_MODEL.md](THREAT_MODEL.md) covers eighteen attacks. The only keys in the repository are published Anvil test vectors, allow-listed by name in `.gitleaks.toml`. |
 | Design & Craft — developer experience | 20% | A [trading-agent kit](../examples/trading-agent) in TypeScript and one-file Python, runnable against a public agent with no account; an [unedited transcript of Claude Code](transcripts/claude-code-trading-agent.md) acting as the agent over MCP. One endpoint, one `curl`, no account ([README](../README.md#integrate)). [`chancela-sdk`](../packages/sdk): `guard()` runs your code only when the permission verifies locally. [`chancela-mcp`](../packages/mcp): the same gate as an MCP tool for Claude, Cursor or any MCP client, one block of config. `mm chancela authorize` for MetaMask Agent Wallet. [API.md](API.md). Errors say what happened and what to do next. |
 | Originality & Track Insight — privacy-preserving, not capturable | 15% | [DESIGN.md: Not capturable by a single platform](DESIGN.md#not-capturable-by-a-single-platform). The owner sets the attestor on-chain per agent; clients verify against the registry, not the server; only hashes go on-chain. |
 | Founder & Market Readiness — who adopts it, why not roll their own | 25% | [README: Who builds it](../README.md#who-builds-it). [README: what each existing approach gives you](../README.md#who-it-is-for), side by side. [ADOPTION.md](ADOPTION.md): who adopts first, integration effort per path, how it sustains itself. [README: Who it is for](../README.md#who-it-is-for), and the pitch video. |
-| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly: one trading-agent team has agreed to integrate and a pull request is open on another team's agent; none is live yet; the design-partner offer; roadmap. **Open — see below.** |
+| Traction & Path Forward | 20% | [ADOPTION.md](ADOPTION.md) — status stated plainly: one outside team, MonFunded (prop trading), has its order bot [`TA-005`](https://chancela.xyz/agents/TA-005) asking Chancela before every order — ERC-8004 #5, 24 requests and 14 decisions anchored on Monad testnet between 7 and 8 Oct ([first anchor](https://testnet.monadexplorer.com/tx/0x9778b9954f5abd5dbede0374488304fe73a1740ab41ca5bc6ed56a2a7a52b514)); the `BUY_ASSESSMENT` action exists because their agent asked for it. Testnet, their code is not public, and the volume so far is their testing; the page says so. Then the design-partner offer and roadmap. |
 
 ## Deliverables
 
@@ -57,26 +57,29 @@ Before submitting:
 ## The open criterion: traction
 
 Twenty percent of the score is "any evidence of developer interest (even one
-other team integrating it during the hackathon)". Where it stands on 6 October
+other team integrating it during the hackathon)". Where it stands on 8 October
 2026, in [ADOPTION.md](ADOPTION.md):
 
-- **A trading-agent team has agreed to integrate** through the SDK or HTTP. They
-  are not named here yet and their code is not on GitHub; we are waiting on their
-  details. Nothing is live.
+- **MonFunded, a prop-trading product, is calling `/authorize` from its agents.**
+  Its order bot [`TA-005`](https://chancela.xyz/agents/TA-005) (ERC-8004 #5) has
+  asked 24 times since 7 October: 17 allowed, 4 sent to the owner, 3 refused
+  over the limit; the 14 since registration are anchored on Monad testnet. Its
+  second agent, [`TA-006`](https://chancela.xyz/agents/TA-006) (ERC-8004 #6),
+  made 13 requests before it was registered and none since.
+- **Their use changed the product.** `BUY_ASSESSMENT` was added because their
+  agent asked for it; refusals for bad parameters now name the field; the policy
+  page says when the registry is a version behind.
 
-**No external integration is live yet.** Nothing in this repository can
-manufacture one. What would count, cheapest first:
+What it is not yet, so nobody has to find out: testnet only, their code is not
+public, the calls so far look like integration tests rather than users, and
+there is no written note from them. What would make it stronger, cheapest first:
 
-1. **One other Metropolis team calling `/authorize` from their agent.** It is one
-   `curl` or five lines with the SDK. Ask in the hackathon Discord for teams
-   building trading, treasury or payment agents: "I built a policy gate with an
-   on-chain audit trail for agents; want it in front of yours? I will do the
-   integration with you." Offer to open the PR yourself.
-2. A GitHub issue, star or fork from someone who tried it.
-3. A written "we would use this if…" from anyone who builds agents.
-
-When it exists, add it to the README under *Where this goes next* with a link —
-a real repository beats any sentence about it.
+1. **A link from their side**: the [seal](../examples/trading-agent/README.md#6-show-your-users-the-limits-are-real)
+   of `TA-005` on a page of theirs, or a sentence from them on ours.
+2. Their second agent calling again now that it has an identity, so its
+   decisions are anchored too.
+3. A second team. The offer in [ADOPTION.md](ADOPTION.md#getting-the-first-three)
+   stands.
 
 ## Script — technical demo (first cut)
 

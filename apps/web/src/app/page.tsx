@@ -15,7 +15,7 @@ import { InjectionTerminal } from '@/components/injection-terminal';
 import { Reveal } from '@/components/reveal';
 import { Counter } from '@/components/counter';
 import { getRepository } from '@/lib/store';
-import { activeChain, chainConfig } from '@/lib/chain';
+import { activeChain, chainConfig, explorerTxUrl } from '@/lib/chain';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,6 +77,10 @@ const PROOFS = [
   },
 ];
 
+// The first agent that is not ours. Matched by id and name, so a fresh database
+// where TA-005 is somebody else's agent shows nothing rather than a wrong claim.
+const PARTNER = { agentId: 'TA-005', agentName: 'MONFUNDED-BOT', team: 'MonFunded' };
+
 /**
  * Landing page.
  *
@@ -94,6 +98,12 @@ export default async function Landing() {
     repo.listAgents(),
     repo.listDecisions({ limit: 500 }),
   ]);
+
+  const partnerAgent = agents.find((a) => a.id === PARTNER.agentId && a.name === PARTNER.agentName);
+  const partnerDecisions = partnerAgent ? await repo.listDecisions({ agentId: partnerAgent.id, limit: 500 }) : [];
+  const partnerAnchored = partnerDecisions.filter((d) => d.anchorStatus === 'CONFIRMED' && d.onchainTxHash);
+  const partnerHeld = partnerDecisions.filter((d) => d.outcome !== 'ALLOW').length;
+  const partnerFirst = [...partnerAnchored].sort((a, b) => a.createdAt.localeCompare(b.createdAt))[0];
 
   const denied = decisions.filter((d) => d.outcome === 'DENY').length;
   const anchored = decisions.filter((d) => d.anchorStatus === 'CONFIRMED').length;
@@ -235,6 +245,32 @@ export default async function Landing() {
               ))}
             </ul>
           </div>
+          {partnerAgent && partnerFirst ? (
+            <div className="card mt-4 p-5">
+              <div className="text-[11px] uppercase tracking-wider text-allow">In front of another team&rsquo;s agent</div>
+              <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-muted">
+                {PARTNER.team}, a prop-trading product, asks Chancela before its bot places an order. The bot is
+                ERC-8004 #{partnerAgent.erc8004TokenId}; it has asked{' '}
+                <span className="text-ink">{partnerDecisions.length} times</span>,{' '}
+                <span className="text-ink">{partnerHeld}</span> of them were refused or sent to its owner, and{' '}
+                <span className="text-ink">{partnerAnchored.length}</span> decisions are anchored on {chain.name}.
+                It is early and on testnet, and these numbers are counted as this page loads.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                <Link href={`/agents/${partnerAgent.id}`} className="mono text-[12px] text-allow hover:underline">
+                  its passport and audit trail <ArrowRight className="inline h-3 w-3 align-[-1px]" />
+                </Link>
+                <a
+                  href={explorerTxUrl(partnerFirst.onchainTxHash!)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mono text-[12px] text-allow hover:underline"
+                >
+                  its first anchored decision <ExternalLink className="inline h-3 w-3 align-[-1px]" />
+                </a>
+              </div>
+            </div>
+          ) : null}
         </Reveal>
 
         <Reveal delay={200} className="mt-12">

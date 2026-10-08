@@ -130,6 +130,7 @@ async function runTool(toolId: string, parameters: Record<string, unknown>): Pro
       return { balanceMinorUnits: 1_250_00, currency: 'USD' };
     case 'TRANSFER_FUNDS':
     case 'PLACE_ORDER':
+    case 'BUY_ASSESSMENT':
       throw new Error(
         'No transfer backend is wired in this build. Value movement is intentionally unimplemented.',
       );

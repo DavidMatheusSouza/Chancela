@@ -205,7 +205,7 @@ gate on mainnet and the policy registry on testnet. The app at chancela.xyz and
 the per-decision audit anchors run on testnet; passkey approvals are not on
 mainnet yet.
 
-**460 tests** (354 TypeScript, 89 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
+**482 tests** (376 TypeScript, 89 Foundry, 17 Python), including Foundry fuzzing, stateful invariants against a reference
 model, a mutation check that deletes each gate rule and confirms a test
 fails, and the contracts run against the **official ERC-8004 registry on a
 Monad mainnet fork** — [the full table](docs/DESIGN.md#verify). Slither in CI;
@@ -224,10 +224,15 @@ Reach him through [GitHub issues](https://github.com/DavidMatheusSouza/Chancela/
 
 ## Status, honestly
 
-Built by one person during the Metropolis build window. **No external team has
-integrated yet.** One trading-agent team has agreed to put Chancela in front of
-its orders; this section will link it when it is live, not before. Next:
-design partners on Monad, moving the app and its audit anchors to mainnet (the
+Built by one person during the Metropolis build window. **One outside team has
+integrated: MonFunded**, a prop-trading product. Its order bot,
+[`TA-005`](https://chancela.xyz/agents/TA-005), asks before every order and has
+14 decisions anchored on Monad testnet since 7 October
+([the first](https://testnet.monadexplorer.com/tx/0x9778b9954f5abd5dbede0374488304fe73a1740ab41ca5bc6ed56a2a7a52b514));
+the catalogue gained an action, `BUY_ASSESSMENT`, because their agent asked for
+one it did not have. It is testnet and early, and
+[ADOPTION.md](docs/ADOPTION.md#status-plainly) says exactly how early. Next:
+more design partners on Monad, moving the app and its audit anchors to mainnet (the
 contracts and one agent are already there), and a
 second attestor run by someone else. [ADOPTION.md](docs/ADOPTION.md) has the plan.
 

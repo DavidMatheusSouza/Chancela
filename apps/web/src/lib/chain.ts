@@ -174,6 +174,40 @@ export async function onchainAgentWallet(agentTokenId: string): Promise<string |
   }
 }
 
+/**
+ * The policy the registry holds as active for an agent, or null when it cannot
+ * be read. A version of zero means none was ever anchored.
+ *
+ * Publishing a version in the app does not write it here: `anchorPolicy` is the
+ * token holder's transaction, and the service holds only the attestor key. So
+ * after a publish the two can disagree, and while they do the registry rejects
+ * every decision anchor for carrying a policy hash it does not know. The policy
+ * page reads this to say so, instead of leaving the owner to find a column of
+ * failed anchors.
+ */
+export async function onchainActivePolicy(
+  agentTokenId: string,
+): Promise<{ policyHash: Hex; version: number } | null> {
+  const registry = process.env.POLICY_REGISTRY_ADDRESS;
+  if (!registry || !/^0x[0-9a-fA-F]{40}$/.test(registry)) return null;
+  try {
+    const chain = activeChain();
+    const client = createPublicClient({
+      chain,
+      transport: rpc(process.env.MONAD_RPC_URL ?? chain.rpcUrls.default.http[0], { timeout: 2_500 }),
+    });
+    const [policyHash, version] = await client.readContract({
+      address: registry as Hex,
+      abi: POLICY_REGISTRY_ABI,
+      functionName: 'activePolicy',
+      args: [BigInt(agentTokenId)],
+    });
+    return { policyHash, version: Number(version) };
+  } catch {
+    return null;
+  }
+}
+
 /** What Monad itself says one anchoring transaction recorded. */
 export interface OnchainAnchor {
   /** The transaction succeeded, targets the registry and calls `recordDecision`. */

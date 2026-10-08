@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { onchainActivePolicy } from '@/lib/chain';
 import { getRepository } from '@/lib/store';
 import { Badge, Card, Field, Mono } from '@/components/primitives';
 import { shortHash } from '@/lib/ui';
@@ -15,6 +16,10 @@ export default async function PolicyPage(props: { params: Promise<{ id: string }
 
   const active = await repo.getActivePolicy(params.id);
   const history = await repo.listPolicies(params.id);
+
+  // Only a registered agent has anything on-chain to fall out of step with.
+  const anchored = agent.erc8004TokenId && active ? await onchainActivePolicy(agent.erc8004TokenId) : null;
+  const inStep = anchored ? anchored.policyHash.toLowerCase() === active!.policyHash.toLowerCase() : null;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-6 py-8">
@@ -38,6 +43,38 @@ export default async function PolicyPage(props: { params: Promise<{ id: string }
           <Field label="Active hash" value={shortHash(active?.policyHash, 12, 8)} mono />
           <Field label="Step-up threshold" value={active?.document.stepUpThreshold ?? '--'} mono />
         </div>
+
+        {agent.erc8004TokenId && active ? (
+          <div
+            className={
+              inStep === false
+                ? 'rounded-lg border border-warn/40 bg-warn/[0.06] p-3 text-[12.5px] leading-relaxed text-muted'
+                : 'rounded-lg border border-line p-3 text-[12.5px] leading-relaxed text-muted'
+            }
+          >
+            {inStep === false ? (
+              <>
+                <span className="font-medium text-ink">The registry is a version behind.</span> Monad holds{' '}
+                <Mono className="text-ink">v{anchored!.version}</Mono> for ERC-8004 #{agent.erc8004TokenId}; this
+                agent decides under <Mono className="text-ink">v{active.version}</Mono>. Decisions are still made
+                and signed, but the registry refuses their anchors until the token holder anchors v{active.version}:{' '}
+                <Mono>pnpm tsx scripts/register-partner-agent.ts {agent.id} --token {agent.erc8004TokenId} --execute</Mono>
+              </>
+            ) : inStep === true ? (
+              <>
+                Monad holds this version: <Mono className="text-ink">v{anchored!.version}</Mono> is anchored for
+                ERC-8004 #{agent.erc8004TokenId}. Publishing a new one here does not anchor it. The token holder
+                sends that transaction, and until they do the registry refuses the anchors of decisions taken
+                under the new version.
+              </>
+            ) : (
+              <>
+                This agent is ERC-8004 #{agent.erc8004TokenId}. The registry could not be read just now, so this
+                page cannot say whether the active version is the anchored one.
+              </>
+            )}
+          </div>
+        ) : null}
 
         {active ? (
           <div className="border-t border-line pt-5">

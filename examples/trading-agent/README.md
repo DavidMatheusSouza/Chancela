@@ -105,6 +105,34 @@ extra fields, no defaults filled in later, or the hash will not match.
 | `marketAddress` | address | optional; checked against the policy's blocked counterparties |
 | `clientOrderId` | string | optional; your own id, useful for matching the audit log to fills |
 
+### Buying an evaluation
+
+An agent that buys a trading evaluation (a funded-account challenge) for its
+user asks with `BUY_ASSESSMENT`. The price counts against the same
+per-transaction ceiling and daily cap as an order; the size of the account it
+unlocks does not.
+
+```bash
+curl -s https://chancela.xyz/api/agents/<your-agent>/authorize \
+  -H 'content-type: application/json' \
+  -d '{"action":"BUY_ASSESSMENT","parameters":{"amount":9900,"plan":"25K-1STEP","accountSize":2500000}}'
+```
+
+| Field | Type | |
+|---|---|---|
+| `amount` | integer | Price **in cents**. The only required field, and what the limits count. |
+| `plan` | string | optional; the evaluation, as the seller names it |
+| `accountSize` | integer | optional; the account it unlocks, in cents |
+| `provider` | string | optional |
+| `currency` | 3 letters | optional |
+| `recipientAddress` | address | optional; who is paid on-chain, checked against the policy's blocked counterparties |
+| `clientOrderId`, `memo` | string | optional |
+
+The policy has to grant `BUY_ASSESSMENT`; an agent that may place orders may not
+buy anything until its owner says so. When a request is refused with
+`INVALID_PARAMETERS`, the last step of `trace` in the answer names the field:
+`"amount: Required"`, `"unknown parameter: leverage"`.
+
 ## 4. What the owner controls
 
 The policy lives with the owner, not in the agent's prompt, so the model cannot

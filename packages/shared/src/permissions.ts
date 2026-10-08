@@ -16,6 +16,7 @@ export const PERMISSIONS = [
   'READ_TREASURY',
   'TRANSFER_FUNDS',
   'PLACE_ORDER',
+  'BUY_ASSESSMENT',
   'CHANGE_POLICY',
   'CHANGE_OWNER',
   'DELETE_AGENT',
@@ -32,6 +33,7 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   READ_TREASURY: 'Read treasury balance',
   TRANSFER_FUNDS: 'Transfer funds',
   PLACE_ORDER: 'Place trade order',
+  BUY_ASSESSMENT: 'Buy assessment',
   CHANGE_POLICY: 'Change policy',
   CHANGE_OWNER: 'Change owner',
   DELETE_AGENT: 'Delete agent',
@@ -129,6 +131,20 @@ export const TOOL_REGISTRY: readonly ToolDescriptor[] = [
     // and at CRITICAL no step-up threshold could let a single one through without
     // a human. An order above 80% of the per-order ceiling escalates to CRITICAL,
     // so an owner who sets the threshold at CRITICAL approves exactly those.
+    risk: 'HIGH',
+    movesValue: true,
+    enabled: true,
+  },
+  {
+    toolId: 'BUY_ASSESSMENT',
+    label: 'Buy assessment',
+    description:
+      'Pay for a trading evaluation (a funded-account challenge) on behalf of the owner. Parameters: amount (price in cents), plan (the evaluation being bought, e.g. "50K-2STEP"), accountSize (the account it unlocks, in cents), provider, recipientAddress (0x address paid, if on-chain).',
+    requiredPermission: 'BUY_ASSESSMENT',
+    // The first action a design partner asked for that the catalogue lacked: a
+    // prop-trading agent buys evaluations for its user. It spends the owner's
+    // money, so the per-transaction and daily limits count it like an order,
+    // and a purchase above 80% of the ceiling escalates to CRITICAL.
     risk: 'HIGH',
     movesValue: true,
     enabled: true,
