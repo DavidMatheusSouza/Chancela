@@ -18,11 +18,11 @@ SEG = [
  ("still", "s5", "Who pays? Teams running trading agents, venues, and platforms that host agents. Self-hosting is free; we charge for running the attestor."),
  ("still", "s6", "It only works on Monad: one transaction per decision, under a hundredth of a MON, in sub-second blocks."),
  ("still", "s7", "Wallet spending limits are a good second line, but only the provider can check them. Chancela's record can be checked by anyone."),
- ("still", "s8", "It is live: six verified contracts, four of them on Monad mainnet, four hundred and sixty tests, and four packages on npm."),
- ("still", "s9", "No outside team is live yet; one trading team agreed to integrate. On mainnet, the agent made a real Uniswap swap its policy allowed, and its forged order was reverted."),
+ ("still", "s8", "It is live: six verified contracts, four of them on Monad mainnet, four hundred and eighty-two tests, and four packages on npm."),
+ ("still", "s9", "One outside team is live: MonFunded, a prop-trading product. Its order bot asks Chancela before every order, with fifteen decisions anchored on Monad testnet so far. On mainnet, our agent made a real Uniswap swap, and its forged order was reverted."),
  ("still", "s10", "Don't trust us. Run N P X chancela check, or open chancela dot x y z. Thank you."),
 ]
-SHOW = {"H T T P": "HTTP", "S D K": "SDK", "N P X chancela check": "npx chancela-check", "chancela dot x y z": "chancela.xyz", "twenty-five thousand dollars": "$25,000", "four hundred and sixty": "460", "two hundred dollar": "$200", "E R C eighty-oh-four": "ERC-8004"}
+SHOW = {"H T T P": "HTTP", "S D K": "SDK", "N P X chancela check": "npx chancela-check", "chancela dot x y z": "chancela.xyz", "twenty-five thousand dollars": "$25,000", "four hundred and eighty-two": "482", "two hundred dollar": "$200", "E R C eighty-oh-four": "ERC-8004"}
 
 def chunks(text):
     for k, v in SHOW.items(): text = text.replace(k, v)
