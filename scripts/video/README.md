@@ -27,5 +27,11 @@ as silence. The recorder zooms the page (`ZOOM`, 1.35 by default) so the text is
 readable in a small player, and the sound is normalised to -14 LUFS. `pitch.py` alternates slides with a clip of
 the product. The narration says plainly that it is a synthetic voice.
 
-The voice comes from Microsoft's public text-to-speech endpoint via `edge-tts`;
-the narration text is sent there and nothing else is.
+The voice of both videos is the "Julian" preset on Higgsfield (ElevenLabs
+engine), generated one clip per segment of `SEG`; the narration text is sent
+there and nothing else is. `say()` keeps any clip that already exists, so the
+clips go in `video-out/pitch/` and `video-out/tech/` as `n0.mp3`, `n1.mp3`, …
+before the scripts run. With none there, `say()` falls back to Microsoft's
+public text-to-speech endpoint via `edge-tts`, the voice of the earlier cuts.
+The pitch of 8 Oct was built with `PAD=0.65` (the pause after each segment,
+0.8 by default) to stay under 2:00.

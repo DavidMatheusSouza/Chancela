@@ -5,6 +5,7 @@ from lib import *
 lib.RATE = sys.argv[1] if len(sys.argv) > 1 else "+3%"
 REC = os.environ.get("RECORDING", "recording")   # output of record-demo-captioned.mjs
 OUT = os.environ.get("VIDEO_OUT", "video-out")
+PAD = float(os.environ.get("PAD", "0.8"))             # silence after each segment
 W = f"{OUT}/pitch"; os.makedirs(W, exist_ok=True)
 marks = json.load(open(f"{REC}/marks.json"))
 src = sorted(glob.glob(f"{REC}/*.webm"))[-1]
@@ -51,7 +52,7 @@ def two_lines(c):
 videos, audios, events, t = [], [], [], 0.0
 for i, (kind, what, text) in enumerate(SEG):
     speech = say(text, f"{W}/n{i}.mp3")
-    target = speech + 0.8
+    target = speech + PAD
     if kind == "still":
         still_segment(f"{OUT}/slides/{what}.png", target, f"{W}/v{i}.mp4")
     else:
