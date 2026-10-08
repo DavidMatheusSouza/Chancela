@@ -204,9 +204,9 @@ export default function PitchPage() {
               one-command check on npm.
             </li>
             <li>
-              <span className="text-ink">Integrations by other teams: none live yet.</span> One trading-agent
-              team has agreed to integrate; a pull request is open on another team&apos;s agent, not reviewed
-              or merged.{' '}
+              <span className="text-ink">Integrations by other teams: one live.</span> MonFunded, a
+              prop-trading product, has its order bot asking Chancela before every order, each decision
+              anchored on Monad testnet since 7 October 2026; the volume so far is their integration testing.{' '}
               <a href={`${REPO}/blob/main/docs/ADOPTION.md`} target="_blank" rel="noreferrer" className="text-chain hover:underline">
                 The adoption notes keep the dated record.
               </a>
